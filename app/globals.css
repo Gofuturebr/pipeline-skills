@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+/* Tokens de docs/frontend.md, seção 2. Os nomes viram classes do Tailwind:
+   bg-bancada, text-tinta, border-linha, bg-pasta e assim por diante. */
+@theme {
+  --color-bancada: #eef1f0;
+  --color-papel: #ffffff;
+  --color-tinta: #14262b;
+  --color-tinta-suave: #4a5c61;
+  --color-linha: #c9d2d0;
+  --color-petroleo: #0e5a6b;
+  --color-petroleo-claro: #dcebee;
+  --color-pasta: #f5b82e;
+  --color-pasta-sombra: #c98f12;
+
+  --color-estado-andamento: #0e5a6b;
+  --color-estado-pronta: #2b8a3e;
+  --color-estado-atrasada: #d9480f;
+  --color-estado-ajuda: #c2255c;
+  --color-estado-pausada: #4a5c61;
+  --color-estado-sem-conexao: #868e96;
+
+  --font-titulo: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-texto: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius-folha: 4px;
+  --radius-botao: 10px;
+
+  --shadow-folha: 0 1px 0 #c9d2d0;
+}
+
+html,
+body {
+  background: var(--color-bancada);
+  color: var(--color-tinta);
+  font-family: var(--font-texto);
+}
+
+/* Foco sempre visível: contorno de 3 px em petróleo, com 2 px de afastamento. */
+:focus-visible {
+  outline: 3px solid var(--color-petroleo);
+  outline-offset: 2px;
+}
+
+.numeros-tabulares {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Movimento: só no arquivo entrando na pasta e no anúncio de fase liberada. */
+@keyframes guardar-na-pasta {
+  0% {
+    transform: translateY(-24px) scale(0.96);
+    opacity: 0;
+  }
+  70% {
+    transform: translateY(2px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes anuncio-fase {
+  0% {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  15%,
+  85% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.movimento-guardar {
+  animation: guardar-na-pasta 450ms ease-out both;
+}
+
+.movimento-anuncio {
+  animation: anuncio-fase 1200ms ease-in-out both;
+}
+
+.transicao-resposta {
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Pediu ajuda pulsa uma vez ao chegar. */
+@keyframes pulso-ajuda {
+  0% {
+    box-shadow: 0 0 0 0 rgb(194 37 92 / 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgb(194 37 92 / 0);
+  }
+}
+
+.movimento-pulso {
+  animation: pulso-ajuda 900ms ease-out 1;
+}
