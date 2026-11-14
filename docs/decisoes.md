@@ -72,3 +72,32 @@ O histórico de arquivos (RN06) é gravado por gatilho no banco: toda inserção
 - **Ícones** desenhados em SVG no próprio projeto (`components/base/Icone.tsx`), sem biblioteca.
 - **Gaveta de detalhe:** no Marco 1 só tem a aba "Agora". Pasta, Conversa, Linha do tempo e Teste chegam nos Marcos 5 e 6.
 - **Tela da mesa abaixo de 1024 px:** mostra o aviso para usar o notebook. O link para a tela do participante entra no Marco 2, quando ela existir.
+
+## 15/11/2026: Marco 2
+
+### Celular do participante
+
+- **Identificação por cookie.** Ao entrar com o primeiro nome, o celular recebe um cookie só da mesa (`mesa_p_CODIGO`, 12 horas, sem acesso pelo JavaScript). O primeiro nome também fica guardado no navegador, para preencher o campo se a pessoa entrar de novo. "Não é você? Trocar o nome" apaga o cookie.
+- **Sinal de vida.** Cada busca do celular (a cada 15 segundos e a cada mudança) atualiza o último sinal da pessoa. O cartão do admin conta quem deu sinal nos últimos 45 segundos.
+- **Campo de envio por fase.** A fase tem um texto de rótulo (`fase.rotulo_contribuicao`). Fase com rótulo recebe envios pelo celular; sem rótulo, não. No roteiro padrão, só as Fases 1 e 2, como na seção 6 do frontend. O servidor recusa envio em outra fase.
+- **Fila de contribuições.** Fica na Folha de trabalho, abaixo da atividade, em toda fase que recebe envios, e em destaque no passo "Cada pessoa envia pelo celular...". Pendentes de uma fase continuam na fila na fase seguinte, para nada se perder. Aceitar pode ser desfeito ("Desfazer" volta o item para a fila). Uma pessoa pode ter até 20 envios esperando a mesa.
+
+### Papéis, leitura e tarefa
+
+- **Papéis.** Cada cartão de papel tem um seletor com os nomes de quem entrou pelo celular e a opção "Digitar outro nome", para quem está sem celular. Uma pessoa pode ficar com dois papéis. O celular mostra o papel quando a pessoa foi escolhida da lista ou quando o nome digitado é igual ao dela.
+- **"Lemos".** Os passos da ficha e do kit têm o botão "Lemos". A marca fica numa tabela própria (`leitura`) e pode ser desfeita.
+- **Tarefa em uma linha.** O sistema confere o tamanho (até 90 caracteres) e se há pelo menos três palavras. Se tem verbo e resultado, quem confirma é a mesa.
+- **Ficha e kit só a partir da Fase 1.** O caso de exemplo e o caso novo não vão para a tela nesta fase: são usados nas Fases 3 e 5.
+- **Atividade pronta por variante.** O tipo "frase" ficou pronto para a tarefa (Fase 1), mas a frase do nome da skill (Fase 7) e a leitura da entrega chegam no Marco 5. Por isso, "em construção" agora é decidido pelo tipo e pela variante do passo (`atividadePronta` em `lib/jornada/criterios.ts`).
+- **Ações de atividade só na fase liberada.** Definir papel, marcar "Lemos" e confirmar a tarefa são recusados se a fase atual da mesa não tem aquele tipo de atividade, e quando a mesa está pausada.
+
+### QR codes
+
+- **Cartões para imprimir antecipados para o Marco 2.** A especificação põe o cartão da mesa no cadastro do admin (Marco 6), mas o check-in pelo celular precisa dele agora. A página `/admin/cartoes`, só do gestor, mostra um cartão por mesa com nome, processo, código e QR, dois por folha A4.
+- **QR também na tela da mesa**, no passo de check-in e no passo de envios pelo celular, para quem não tem o cartão impresso.
+- **Endereço do QR.** Vale a variável nova `URL_PUBLICA`, quando definida (por exemplo, o endereço na Vercel). Sem ela, se o navegador abriu por `localhost`, o QR usa o endereço do computador na rede Wi-Fi, porque o celular não alcança `localhost`. Nos outros casos, o mesmo endereço que o navegador usou.
+- **QR gerado no servidor** em SVG, pelo pacote `qrcode` (já estava nas dependências), em `/api/qr/CODIGO`.
+
+### Robustez
+
+- **Mensagem quando o banco falha.** As rotas da mesa, do celular e do painel devolvem "O sistema não conseguiu falar com o banco de dados. Avisem o gestor." quando o banco recusa a conexão, a senha está errada, o banco não existe ou faltam as tabelas. O detalhe técnico vai para o terminal do servidor.

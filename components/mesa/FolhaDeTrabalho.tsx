@@ -3,7 +3,7 @@
 import { Botao } from "@/components/base/Botao";
 import { SeloPapel } from "@/components/base/Selo";
 import { Faixa } from "@/components/base/Faixa";
-import { AtividadeDoPasso } from "@/components/atividades";
+import { AtividadeDoPasso, FilaDeContribuicoes } from "@/components/atividades";
 import type { EstadoMesaApi, FaseApi } from "@/lib/tipos-api";
 
 // Folha de trabalho: cabeçalho com fase, passo e papel; a instrução do passo em
@@ -15,6 +15,8 @@ export function FolhaDeTrabalho({
   faseVista,
   enviando,
   erroAcao,
+  enderecoParticipante,
+  aoAgir,
   aoVoltarAoAtual,
   aoConcluirPasso,
   aoConcluirFase,
@@ -24,6 +26,8 @@ export function FolhaDeTrabalho({
   faseVista: number;
   enviando: boolean;
   erroAcao: string | null;
+  enderecoParticipante: string;
+  aoAgir: (url: string, corpo?: unknown) => Promise<boolean>;
   aoVoltarAoAtual: () => void;
   aoConcluirPasso: (passoId: string) => void;
   aoConcluirFase: (passoIdPendente: string | null) => void;
@@ -33,7 +37,16 @@ export function FolhaDeTrabalho({
   if (!fase) return null;
 
   if (fase.situacao === "concluida") {
-    return <FaseEmLeitura fase={fase} estado={estado} codigo={codigo} aoVoltarAoAtual={aoVoltarAoAtual} />;
+    return (
+      <FaseEmLeitura
+        fase={fase}
+        estado={estado}
+        codigo={codigo}
+        enderecoParticipante={enderecoParticipante}
+        aoAgir={aoAgir}
+        aoVoltarAoAtual={aoVoltarAoAtual}
+      />
+    );
   }
 
   if (mesa.estado === "pronta") {
@@ -110,7 +123,8 @@ export function FolhaDeTrabalho({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex-1 overflow-y-auto px-10 pb-8 pt-6">
+      {/* A chave pelo passo faz a folha voltar ao topo quando o passo muda. */}
+      <div key={passo.id} className="flex-1 overflow-y-auto px-10 pb-8 pt-6">
         <div className="mb-6 flex items-center justify-between gap-4">
           <p className="text-base text-tinta-suave">
             Fase {fase.ordem}, passo {passo.ordem} de {passos.length}
@@ -120,8 +134,21 @@ export function FolhaDeTrabalho({
         <h2 className="max-w-[28ch] font-titulo text-[40px] font-bold leading-[1.15]" aria-live="polite">
           {passo.instrucao}
         </h2>
-        <div className="mt-8 max-w-[70ch]">
-          <AtividadeDoPasso passo={passo} estado={estado} codigo={codigo} somenteLeitura={false} />
+        <div className="mt-8 flex max-w-[1100px] flex-col gap-10">
+          <AtividadeDoPasso
+            passo={passo}
+            estado={estado}
+            codigo={codigo}
+            somenteLeitura={false}
+            enderecoParticipante={enderecoParticipante}
+            aoAgir={aoAgir}
+          />
+          {/* Nas fases que recebem envios do celular, a fila fica sempre à mão. */}
+          {fase.recebeContribuicoes && passo.config.conteudo !== "contribuicoes" ? (
+            <div className="border-t-2 border-linha pt-6">
+              <FilaDeContribuicoes estado={estado} codigo={codigo} aoAgir={aoAgir} somenteLeitura={false} />
+            </div>
+          ) : null}
         </div>
       </div>
       <div className="flex min-h-24 flex-wrap items-center justify-end gap-4 border-t-2 border-linha bg-papel px-10 py-4">
@@ -140,11 +167,15 @@ function FaseEmLeitura({
   fase,
   estado,
   codigo,
+  enderecoParticipante,
+  aoAgir,
   aoVoltarAoAtual,
 }: {
   fase: FaseApi;
   estado: EstadoMesaApi;
   codigo: string;
+  enderecoParticipante: string;
+  aoAgir: (url: string, corpo?: unknown) => Promise<boolean>;
   aoVoltarAoAtual: () => void;
 }) {
   return (
@@ -169,7 +200,14 @@ function FaseEmLeitura({
                 <SeloPapel texto={p.papelNome} />
               </div>
               <p className="max-w-[70ch] text-xl leading-normal">{p.instrucao}</p>
-              <AtividadeDoPasso passo={p} estado={estado} codigo={codigo} somenteLeitura />
+              <AtividadeDoPasso
+                passo={p}
+                estado={estado}
+                codigo={codigo}
+                somenteLeitura
+                enderecoParticipante={enderecoParticipante}
+                aoAgir={aoAgir}
+              />
             </li>
           ))}
         </ol>

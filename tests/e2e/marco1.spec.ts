@@ -66,9 +66,20 @@ test("a mesa conclui passos, declara a fase e o gestor libera", async ({ browser
   await entrarNoAdmin(admin);
   await mesa.goto("/mesa/B8NC3F");
 
-  for (let i = 0; i < 2; i++) {
-    await mesa.getByRole("button", { name: "Passo concluído" }).click();
+  // Passo 1: check-in. Passo 2: dar nome aos 6 papéis. Passo 3: confirmar.
+  await mesa.getByRole("button", { name: "Passo concluído" }).click();
+  const nomes = ["Ana", "Bruno", "Carla", "Davi", "Elisa", "Fábio"];
+  const papeis = ["Dono do processo", "Piloto", "Guardião da pasta", "Cético", "Testador", "Porta-voz"];
+  for (const [i, papel] of papeis.entries()) {
+    const cartao = mesa.getByRole("listitem").filter({ has: mesa.getByRole("heading", { name: papel, exact: true }) });
+    await cartao.getByLabel("Quem fica com este papel").selectOption({ label: "Digitar outro nome" });
+    await cartao.getByLabel("Nome", { exact: true }).fill(nomes[i]);
+    await cartao.getByRole("button", { name: "Guardar" }).click();
+    await expect(cartao.getByLabel("Quem fica com este papel")).toHaveValue("__outro__");
+    await expect(cartao.getByRole("button", { name: "Guardar" })).toHaveCount(0);
   }
+  await mesa.getByRole("button", { name: "Passo concluído" }).click();
+  await expect(mesa.getByText("Fábio")).toBeVisible();
   await mesa.getByRole("button", { name: "Concluímos a fase" }).click();
   await expect(mesa.getByRole("heading", { name: "Fase concluída. Aguardando liberação." })).toBeVisible();
   // A mesa continua na Fase 0 até o gestor liberar.

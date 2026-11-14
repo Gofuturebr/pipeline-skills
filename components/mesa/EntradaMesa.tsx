@@ -27,7 +27,8 @@ export function EntradaMesa() {
         return;
       }
       if (!r.ok) {
-        setErro("Algo deu errado. Tentem de novo.");
+        const corpo = await r.json().catch(() => null);
+        setErro(corpo?.erro ?? "Algo deu errado. Tentem de novo.");
         return;
       }
       router.push(`/mesa/${limpo}`);

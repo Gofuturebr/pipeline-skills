@@ -62,6 +62,7 @@ export interface LinhaFase {
   criterio: string;
   criterio_texto: string;
   aprofundamento: string;
+  rotulo_contribuicao: string;
 }
 
 export interface Roteiro {
@@ -116,7 +117,7 @@ export async function eventoAtual(sql: Sql): Promise<LinhaEvento | null> {
 export async function roteiroDoEvento(sql: Sql, eventoId: string): Promise<Roteiro> {
   const fases = await sql<LinhaFase[]>`
     select id, ordem, chave, nome, nome_curto, duracao_min, entrega, criterio, criterio_texto,
-           aprofundamento
+           aprofundamento, rotulo_contribuicao
     from fase where evento_id = ${eventoId} order by ordem`;
   const passos = await sql<LinhaPasso[]>`
     select p.id, f.ordem as fase_ordem, p.ordem, p.chave, p.instrucao, p.papel, p.tipo_atividade,

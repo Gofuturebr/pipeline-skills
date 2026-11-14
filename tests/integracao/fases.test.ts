@@ -17,6 +17,7 @@ import {
   type Autor,
 } from "@/lib/servidor/acoes";
 import { mesaPorId, roteiroDoEvento } from "@/lib/servidor/consultas";
+import { cumprirCriterios } from "../ajuda/criterios";
 import { montarEstadoMesa } from "@/lib/servidor/estado-mesa";
 import { montarPainel } from "@/lib/servidor/painel";
 import { emissorLocal } from "@/lib/servidor/sinais";
@@ -42,6 +43,7 @@ describe.skipIf(!URL_TESTE)("fases da mesa no banco", () => {
   });
 
   async function concluirTodosOsPassos(mesaId: string) {
+    await cumprirCriterios(sql, mesaId);
     const mesa = await mesaPorId(sql, mesaId);
     const roteiro = await roteiroDoEvento(sql, mesa!.evento_id);
     for (const p of roteiro.passosPorFase.get(mesa!.fase_atual) ?? []) {

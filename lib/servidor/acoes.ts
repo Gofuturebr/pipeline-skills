@@ -9,6 +9,7 @@ import {
   type LinhaMesa,
 } from "./consultas";
 import { avaliacaoDaFase } from "./estado-mesa";
+import { contextoDaMesa } from "./contexto";
 import { avaliarPasso } from "@/lib/jornada";
 import { passoDeEntrada, transicao, ULTIMA_FASE, type AcaoMesa } from "@/lib/maquina";
 import { canalAdmin, canalEvento, canalMesa, type TipoSinal } from "@/lib/sinais";
@@ -22,14 +23,14 @@ export interface Autor {
 
 export type Resultado<T = undefined> = { ok: true; dados?: T } | { ok: false; motivo: string; status: number };
 
-const recusa = (motivo: string, status = 409): Resultado<never> => ({ ok: false, motivo, status });
+export const recusa = (motivo: string, status = 409): Resultado<never> => ({ ok: false, motivo, status });
 
 /** Avisa a mesa e o painel de que algo mudou. Sempre depois do commit. */
-async function avisarMudanca(mesa: { id: string; evento_id: string }, tipo: TipoSinal = "mesa") {
+export async function avisarMudanca(mesa: { id: string; evento_id: string }, tipo: TipoSinal = "mesa") {
   await emitir([canalMesa(mesa.id), canalAdmin(mesa.evento_id)], { tipo, mesaId: mesa.id });
 }
 
-async function registrar(
+export async function registrar(
   sql: Sql,
   eventoId: string,
   mesaId: string | null,
@@ -43,7 +44,7 @@ async function registrar(
             ${sql.json(detalhes as never)})`;
 }
 
-async function travarMesa(sql: Sql, mesaId: string): Promise<LinhaMesa | null> {
+export async function travarMesa(sql: Sql, mesaId: string): Promise<LinhaMesa | null> {
   await sql`select id from mesa where id = ${mesaId} for update`;
   return mesaPorId(sql, mesaId);
 }
@@ -168,8 +169,7 @@ export async function concluirFase(sql: Sql, mesaId: string): Promise<Resultado>
     async (mesa, tx) => {
       const evento = await eventoPorId(tx, mesa.evento_id);
       const roteiro = await roteiroDoEvento(tx, mesa.evento_id);
-      const concluidos = await passosConcluidos(tx, mesa.id);
-      const avaliacao = avaliacaoDaFase(roteiro, mesa.fase_atual, { concluidos });
+      const avaliacao = avaliacaoDaFase(roteiro, mesa.fase_atual, await contextoDaMesa(tx, mesa));
       if (!avaliacao.ok) return recusa(avaliacao.falta ?? "Os critérios da fase ainda não foram atendidos.");
       return { tipo: "concluir_fase", criteriosOk: true, modo: evento?.modo_liberacao ?? "manual" };
     },
@@ -193,10 +193,11 @@ export async function concluirPasso(sql: Sql, mesaId: string, passoId: string): 
     if (mesa.estado === "pausada") return recusa("A mesa está pausada.");
     const { passos, passo } = await passoDaMesa(tx, mesa, passoId);
     if (!passo) return recusa("Este passo não é da fase liberada para a mesa.", 403);
-    const concluidos = await passosConcluidos(tx, mesa.id);
+    const ctx = await contextoDaMesa(tx, mesa);
+    const concluidos = new Set(ctx.concluidos);
     const avaliacao = avaliarPasso(
-      { id: passo.id, ordem: passo.ordem, tipo: passo.tipo_atividade, criterio: passo.criterio },
-      { concluidos },
+      { id: passo.id, ordem: passo.ordem, tipo: passo.tipo_atividade, criterio: passo.criterio, config: passo.config },
+      ctx,
     );
     if (!avaliacao.ok) return recusa(avaliacao.falta ?? "O critério do passo ainda não foi atendido.");
     await tx`

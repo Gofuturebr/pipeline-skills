@@ -127,6 +127,7 @@ tests/                    testes dos critérios de aceite
 - Fonte grande e alto contraste na tela da mesa: ela é lida por 6 pessoas a 1 metro de distância.
 - Cada entrega deve passar em `npm run lint`, `npm run typecheck` e `npm test`.
 - Registre em `docs/decisoes.md` toda decisão que não está na especificação.
+- A cada marco, atualize `docs/manual-gestor.md` (gestor e facilitador) e `docs/guia-da-mesa.md` (grupo e Piloto) com o que mudou. Os dois são para quem opera, não para quem programa: linguagem simples, sem termos técnicos.
 
 ## Decisões em aberto e padrão assumido
 

@@ -7,7 +7,11 @@ import {
   PAPEIS,
   TEMAS_ENTREVISTA,
   TIPOS_ATIVIDADE,
+  atividadePronta,
   avaliarFase,
+  avaliarPasso,
+  marcoDaAtividade,
+  problemaDaTarefa,
 } from "@/lib/jornada";
 
 const todosOsTextos = FASES.flatMap((f) => [
@@ -16,6 +20,7 @@ const todosOsTextos = FASES.flatMap((f) => [
   f.entrega,
   f.criterioTexto,
   f.aprofundamento,
+  f.rotuloContribuicao ?? "",
   ...f.passos.map((p) => p.instrucao),
 ]);
 
@@ -60,6 +65,53 @@ describe("jornada em dados", () => {
     const passos = FASES[0].passos.map((p, i) => ({ id: `p${i}`, ordem: i + 1, tipo: p.tipo, criterio: p.criterio }));
     const r = avaliarFase(FASES[0], passos, { concluidos: new Set(["p0"]) });
     expect(r).toEqual({ ok: false, falta: "Faltam 2 passos" });
-    expect(avaliarFase(FASES[0], passos, { concluidos: new Set(["p0", "p1", "p2"]) }).ok).toBe(true);
+    // Com os passos concluídos, a Fase 0 ainda exige os 6 papéis com nome.
+    const todos = new Set(["p0", "p1", "p2"]);
+    expect(avaliarFase(FASES[0], passos, { concluidos: todos })).toEqual({ ok: false, falta: "Faltam 6 papéis sem nome" });
+    expect(avaliarFase(FASES[0], passos, { concluidos: todos, papeisComNome: new Set(PAPEIS) }).ok).toBe(true);
+  });
+
+  it("papéis: o passo de distribuir só conclui com os 6 papéis com nome", () => {
+    const distribuir = FASES[0].passos.find((p) => p.chave === "distribuir")!;
+    const passo = { id: "d", ordem: 2, tipo: distribuir.tipo, criterio: distribuir.criterio, config: distribuir.config };
+    const cinco = new Set(PAPEIS.slice(0, 5));
+    expect(avaliarPasso(passo, { concluidos: new Set(), papeisComNome: cinco })).toEqual({
+      ok: false,
+      falta: "Falta dar nome a 1 papel",
+    });
+    expect(avaliarPasso(passo, { concluidos: new Set(), papeisComNome: new Set(PAPEIS) }).ok).toBe(true);
+  });
+
+  it("Fase 1: leitura pede Lemos e a fase pede a tarefa confirmada", () => {
+    const passos = FASES[1].passos.map((p, i) => ({
+      id: `q${i}`,
+      ordem: i + 1,
+      tipo: p.tipo,
+      criterio: p.criterio,
+      config: p.config,
+    }));
+    const ficha = passos.find((p) => p.config?.conteudo === "ficha")!;
+    expect(avaliarPasso(ficha, { concluidos: new Set() }).ok).toBe(false);
+    expect(avaliarPasso(ficha, { concluidos: new Set(), lidos: new Set([ficha.id]) }).ok).toBe(true);
+
+    const todos = new Set(passos.map((p) => p.id));
+    const lidos = new Set(passos.filter((p) => p.criterio === "lido").map((p) => p.id));
+    expect(avaliarFase(FASES[1], passos, { concluidos: todos, lidos }).ok).toBe(false);
+    expect(avaliarFase(FASES[1], passos, { concluidos: todos, lidos, tarefa: "Responder pedido com preço e prazo" }).ok).toBe(true);
+  });
+
+  it("a frase da Fase 7 (nome da skill) continua em construção", () => {
+    const nome = FASES[7].passos.find((p) => p.chave === "nome")!;
+    expect(atividadePronta(nome)).toBe(false);
+    expect(marcoDaAtividade(nome)).toBe(5);
+    const tarefa = FASES[1].passos.find((p) => p.chave === "tarefa")!;
+    expect(atividadePronta(tarefa)).toBe(true);
+  });
+
+  it("tarefa em uma linha: até 90 caracteres e com pelo menos três palavras", () => {
+    expect(problemaDaTarefa("")).not.toBeNull();
+    expect(problemaDaTarefa("Orçamento")).not.toBeNull();
+    expect(problemaDaTarefa("a ".repeat(50))).not.toBeNull();
+    expect(problemaDaTarefa("Responder pedido de orçamento com preço e prazo")).toBeNull();
   });
 });

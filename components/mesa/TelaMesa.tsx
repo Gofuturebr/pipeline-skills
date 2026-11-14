@@ -17,7 +17,7 @@ import { Trilha } from "./Trilha";
 
 const VIDA_AVISO_MS = 60_000;
 
-export function TelaMesa({ codigo }: { codigo: string }) {
+export function TelaMesa({ codigo, enderecoParticipante }: { codigo: string; enderecoParticipante: string }) {
   const remoto = useEstadoRemoto<EstadoMesaApi>(`/api/mesa/${encodeURIComponent(codigo)}/estado`, (d) =>
     d ? [canalMesa(d.mesa.id), canalEvento(d.evento.id)] : [],
   );
@@ -67,7 +67,11 @@ export function TelaMesa({ codigo }: { codigo: string }) {
   if (!estado) {
     return (
       <main className="flex min-h-dvh items-center justify-center text-xl text-tinta-suave" aria-busy>
-        {conexao === "sem_conexao" ? "Sem conexão. Tentando de novo." : "Abrindo a mesa"}
+        {conexao === "sem_conexao"
+          ? "Sem conexão. Tentando de novo."
+          : erro
+            ? `${erro.mensagem} Tentando de novo.`
+            : "Abrindo a mesa"}
       </main>
     );
   }
@@ -129,6 +133,9 @@ export function TelaMesa({ codigo }: { codigo: string }) {
         <p className="text-[17px] leading-normal">
           Abram este endereço no notebook. No celular, cada pessoa entra pelo QR que está no cartão da mesa.
         </p>
+        <Link href={`/p/${codigo}`} className="text-[17px] font-bold text-petroleo underline underline-offset-4">
+          Entrar como participante pelo celular
+        </Link>
       </main>
 
       <div className="relative hidden h-dvh flex-col overflow-hidden min-[1024px]:flex">
@@ -171,6 +178,8 @@ export function TelaMesa({ codigo }: { codigo: string }) {
               faseVista={vista}
               enviando={enviando}
               erroAcao={erroAcao}
+              enderecoParticipante={enderecoParticipante}
+              aoAgir={acao}
               aoVoltarAoAtual={() => {
                 setFaseRevendo(null);
                 const fase = estado.fases.find((f) => f.ordem === mesa.faseAtual);

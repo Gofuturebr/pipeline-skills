@@ -7,9 +7,10 @@ export async function copiarRoteiro(sql: Sql, eventoId: string): Promise<void> {
   for (const f of FASES) {
     const [fase] = await sql<{ id: string }[]>`
       insert into fase (evento_id, ordem, chave, nome, nome_curto, duracao_min, entrega,
-                        criterio, criterio_texto, aprofundamento)
+                        criterio, criterio_texto, aprofundamento, rotulo_contribuicao)
       values (${eventoId}, ${f.ordem}, ${f.chave}, ${f.nome}, ${f.nomeCurto}, ${f.duracaoMin},
-              ${f.entrega}, ${f.criterio}, ${f.criterioTexto}, ${f.aprofundamento})
+              ${f.entrega}, ${f.criterio}, ${f.criterioTexto}, ${f.aprofundamento},
+              ${f.rotuloContribuicao ?? ""})
       returning id`;
     for (const [i, p] of f.passos.entries()) {
       await sql`

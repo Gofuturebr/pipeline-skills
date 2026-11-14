@@ -8,6 +8,27 @@ export function erro(mensagem: string, status = 400): Response {
   return Response.json({ erro: mensagem }, { status, headers: { "Cache-Control": "no-store" } });
 }
 
+// Códigos de erro do Postgres e da rede que querem dizer "o banco não respondeu":
+// conexão recusada, senha errada, banco inexistente, tabela inexistente, queda.
+const FALHA_DE_BANCO = /^(ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ECONNRESET|CONNECT_TIMEOUT|CONNECTION_\w+|28P01|28000|3D000|42P01|57P0[1-3]|08\w{3})$/;
+
+export const MSG_FALHA_BANCO = "O sistema não conseguiu falar com o banco de dados. Avisem o gestor.";
+
+/**
+ * Executa a rota e transforma falhas inesperadas numa resposta com mensagem.
+ * O detalhe técnico vai para o terminal do servidor.
+ */
+export async function protegida(executar: () => Promise<Response>): Promise<Response> {
+  try {
+    return await executar();
+  } catch (e) {
+    console.error(e);
+    const codigo = String((e as { code?: unknown })?.code ?? "");
+    if (FALHA_DE_BANCO.test(codigo)) return erro(MSG_FALHA_BANCO, 503);
+    return erro("Algo deu errado no servidor. Tentem de novo.", 500);
+  }
+}
+
 export function ok<T>(dados: T, status = 200): Response {
   return Response.json(dados, { status, headers: { "Cache-Control": "no-store" } });
 }

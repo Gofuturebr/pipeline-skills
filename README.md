@@ -40,6 +40,27 @@ npm run dev
 
 Abra `http://localhost:3000` para a mesa e `http://localhost:3000/admin` para o gestor.
 
+### Celulares na mesma rede
+
+O `npm run dev` já aceita conexões da rede (linha `Network` no terminal). Quando a tela da mesa
+é aberta por `localhost`, o QR aponta para o endereço do computador na rede Wi-Fi, e os
+celulares conectados ao mesmo Wi-Fi conseguem entrar. No Windows, permita o Node.js no firewall
+quando ele perguntar. Para fixar outro endereço (por exemplo, o da Vercel), preencha
+`URL_PUBLICA` no `.env.local`.
+
+### Depois de baixar uma versão nova
+
+```bash
+npm install
+```
+
+```bash
+npm run db:migrar
+```
+
+O `db:migrar` aplica só o que mudou no banco, sem apagar o que já existe. Depois, reinicie o
+`npm run dev`.
+
 ## Verificações
 
 ```bash
@@ -64,9 +85,10 @@ npm run build && npm run test:e2e
 ## Estrutura
 
 ```
-app/                 rotas: mesa, admin, api
+app/                 rotas: mesa, p (celular), admin, api
 components/base/     Botao, Campo, Selo, Cronometro, Faixa, Dialogo, Icone
 components/mesa/     TelaMesa, Trilha, FolhaDeTrabalho, PastaViva
+components/participante/  tela do celular
 components/admin/    PainelAdmin, CartaoDaMesa, GavetaDaMesa
 components/atividades/  um componente por tipo de atividade
 lib/jornada/         fases, passos, papéis, temas e critérios (dados)

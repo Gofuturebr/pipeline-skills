@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { enviar, useEstadoRemoto } from "@/lib/cliente/estado-remoto";
@@ -353,6 +354,12 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
               <Botao variante="secundario" onClick={() => setConfirmacao({ tipo: "aviso_todas" })}>
                 Enviar aviso
               </Botao>
+              <Link
+                href="/admin/cartoes"
+                className="inline-flex min-h-11 items-center px-2 font-bold text-petroleo underline underline-offset-4"
+              >
+                Cartões com QR
+              </Link>
             </>
           ) : null}
           <Botao

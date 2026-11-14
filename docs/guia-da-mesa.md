@@ -17,8 +17,11 @@ Vocês não precisam saber nada de tecnologia. A tela mostra o que fazer, um pas
 1. **No notebook:** abram o endereço que o facilitador passar, digitem o código que está no
    cartão da mesa e cliquem em **Entrar na mesa**. Deixem a janela do Chrome em tela cheia,
    virada para o grupo.
-2. **No celular:** cada pessoa aponta a câmera para o QR do cartão da mesa e digita o primeiro
-   nome. Não precisa de conta nem de senha.
+2. **No celular:** cada pessoa aponta a câmera para o QR, que está no cartão da mesa e também
+   na tela do notebook, e digita o primeiro nome. Não precisa de conta nem de senha. Os nomes
+   aparecem na tela do notebook na hora.
+3. **Sem celular?** Tudo bem. A pessoa participa do mesmo jeito, e o nome dela é digitado na
+   hora de distribuir os papéis.
 
 ## Os papéis
 
@@ -34,6 +37,10 @@ Cada pessoa fica com um papel. A tela sempre diz de quem é a vez.
 | Porta-voz | Cuida do tempo, pede ajuda quando precisa e apresenta a skill no fim |
 
 Se a mesa tiver 5 pessoas, o Piloto também é o Porta-voz.
+
+Na tela, cada papel tem uma lista com os nomes de quem entrou pelo celular. Escolham um nome
+para cada papel, ou escolham "Digitar outro nome" para quem está sem celular. Depois disso, o
+celular de cada pessoa mostra o papel dela.
 
 ## A tela do notebook
 
@@ -73,6 +80,28 @@ em **Voltar ao passo atual**.
 | 6. Conserto | 20 min | Leem o relatório sobre a skill de vocês, escolhem a falha mais importante e consertam |
 | 7. Entrega | 15 min | Revisam o nome da skill, marcam como final, o Porta-voz apresenta em 1 minuto e todos baixam a skill pelo celular |
 
+## As duas primeiras fases, em detalhe
+
+**Fase 0, Check-in e papéis**
+
+1. Todos entram pelo QR. Cliquem em **Passo concluído** quando todos tiverem entrado.
+2. Escolham um nome para cada um dos 6 papéis. O botão só libera com os 6 preenchidos.
+3. O Porta-voz confere a lista. Cliquem em **Concluímos a fase**.
+
+**Fase 1, Entender o processo**
+
+1. Leiam a ficha do processo e cliquem em **Lemos**.
+2. Leiam o kit. Comparem o exemplo bom com o exemplo ruim e digam em voz alta o que muda. Na aba
+   **Materiais** estão as informações de apoio, como tabelas e prazos. Cliquem em **Lemos**.
+3. Cada pessoa manda pelo celular uma dúvida ou um caso parecido que já viveu. Os envios aparecem
+   na tela, com o nome de quem mandou. Leiam em voz alta e o Piloto clica em **Aceitar** ou
+   **Descartar**. Se aceitar por engano, abram "Ver as aceitas" e cliquem em **Desfazer**.
+4. Escrevam a tarefa em uma linha, com verbo e resultado, e cliquem em **Confirmar a tarefa**.
+   Exemplo: "Responder pedido de orçamento com preço e prazo em até 2 horas". A tarefa passa a
+   aparecer no alto da tela.
+
+Se o botão de avançar estiver apagado, leiam o texto ao lado dele: ele diz o que falta.
+
 ## Dicas para dar certo
 
 - **Contem como a tarefa é feita de verdade**, não como deveria ser. Valem casos reais, números
@@ -90,8 +119,10 @@ em **Voltar ao passo atual**.
 ## O celular de cada pessoa
 
 - Mostra a fase, o passo de agora e o seu papel.
-- Serve para mandar ideias para a mesa: dúvidas, exceções e casos que deram errado. Tudo cai
-  numa fila no notebook, e o Piloto aceita ou descarta cada ideia.
+- Nas Fases 1 e 2, serve para mandar ideias para a mesa: dúvidas, exceções e casos que deram
+  errado. Tudo cai numa fila no notebook, e o Piloto aceita ou descarta cada ideia. O celular
+  mostra quantas ideias a mesa aceitou.
+- Entrou com o nome errado? No pé da tela, toque em **Não é você? Trocar o nome**.
 - No fim, serve para baixar a skill pronta.
 
 ## Se acontecer alguma coisa

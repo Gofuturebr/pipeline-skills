@@ -51,5 +51,10 @@ export interface DefinicaoFase {
   criterioTexto: string;
   /** Atividade sugerida na tela de espera, quando a mesa conclui antes do tempo. */
   aprofundamento: string;
+  /**
+   * Texto do campo de contribuição no celular. Sem ele, a fase não recebe
+   * contribuições (seção 6 do frontend: só as Fases 1 e 2).
+   */
+  rotuloContribuicao?: string;
   passos: DefinicaoPasso[];
 }

@@ -61,6 +61,7 @@ export const FASES: DefinicaoFase[] = [
     criterio: "ficha_lida_e_tarefa",
     criterioTexto: "Ficha lida e frase da tarefa confirmada",
     aprofundamento: "Escrevam em uma frase o que acontece quando essa tarefa é mal feita.",
+    rotuloContribuicao: "Uma dúvida ou um caso parecido que você já viveu",
     passos: [
       {
         chave: "ficha",
@@ -113,6 +114,7 @@ export const FASES: DefinicaoFase[] = [
     criterioTexto: "8 temas cobertos e arquivo aprovado pela mesa",
     aprofundamento:
       "Contem mais um caso que já deu errado e acrescentem na seção Casos que já deram errado.",
+    rotuloContribuicao: "Lembrou de uma exceção ou de algo que já deu errado?",
     passos: [
       {
         chave: "entrevista",

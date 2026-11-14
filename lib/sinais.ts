@@ -6,6 +6,8 @@ export type TipoSinal =
   | "mesa" // fase, passo, estado ou cronômetro da mesa
   | "aviso"
   | "chamado"
+  | "participante" // alguém entrou pelo celular
+  | "contribuicao" // envio do celular, aceito ou descartado
   | "evento" // modo, fase de referência, pausa geral, início
   | "reconectado"; // gerado no próprio navegador ao reconectar
 
