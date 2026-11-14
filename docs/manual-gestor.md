@@ -1,4 +1,4 @@
-# Manual de uso da Mesa de Skills
+# Manual do gestor e do facilitador
 
 Este manual descreve o sistema como ele está hoje, ao fim do Marco 1. Ele é atualizado a
 cada marco. O que ainda não existe aparece marcado com o marco em que chega.

@@ -7,7 +7,8 @@ passo a passo, da leitura de um processo até uma skill do Claude testada e expo
 - Especificação funcional (fonte da verdade): [`docs/especificacao.md`](docs/especificacao.md)
 - Especificação de frontend: [`docs/frontend.md`](docs/frontend.md)
 - Decisões tomadas fora da especificação: [`docs/decisoes.md`](docs/decisoes.md)
-- Manual de uso (gestor, facilitador e mesa): [`docs/manual.md`](docs/manual.md)
+- Guia da mesa (para o grupo e o Piloto): [`docs/guia-da-mesa.md`](docs/guia-da-mesa.md)
+- Manual do gestor e do facilitador: [`docs/manual-gestor.md`](docs/manual-gestor.md)
 
 ## Rodar no seu computador
 
