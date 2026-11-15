@@ -11,6 +11,19 @@ async function entrar(page: Page, senha = "gestor-e2e", nome = "Gestora") {
   await expect(page.getByRole("heading", { name: /InovaPB/ })).toBeVisible();
 }
 
+test("antes de iniciar o evento, o gestor adiciona uma mesa pelo painel", async ({ browser }) => {
+  const contexto = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await contexto.newPage();
+  await entrar(page);
+  const antes = await page.getByRole("article").count();
+  await page.getByRole("button", { name: "Adicionar mesa" }).click();
+  await expect(page.getByText(/criada, código [A-Z0-9]{6}/)).toBeVisible();
+  await expect(page.getByRole("article")).toHaveCount(antes + 1);
+  // Com um processo só no evento, a mesa nova já vem com ele.
+  await expect(page.getByRole("article").last()).toContainText("Planejar um evento");
+  await contexto.close();
+});
+
 test("o painel mostra 20 mesas sem rolagem em 1440 por 900", async ({ browser }) => {
   const contexto = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await contexto.newPage();

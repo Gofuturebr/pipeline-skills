@@ -27,7 +27,7 @@ export interface ResultadoSemente {
   mesas: { id: string; numero: number; codigo: string }[];
 }
 
-/** Cria o evento de demonstração com 2 processos e 3 mesas. */
+/** Cria o evento de demonstração com os processos e as mesas de supabase/seed/demo.ts. */
 export async function semearDemo(sql: Sql): Promise<ResultadoSemente> {
   return sql.begin(async (tx) => {
     const t = tx as unknown as Sql;

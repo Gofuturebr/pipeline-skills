@@ -1,4 +1,4 @@
-// npm run db:seed   cria o evento de demonstração (1 evento, 2 processos, 3 mesas)
+// npm run db:seed   cria o evento de demonstração (1 evento, 1 processo, 3 mesas)
 import { existsSync } from "node:fs";
 import { encerrarSql, obterSql } from "@/lib/servidor/db";
 import { semearDemo } from "@/lib/servidor/semear";

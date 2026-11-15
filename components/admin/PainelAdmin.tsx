@@ -13,6 +13,7 @@ import { Botao } from "@/components/base/Botao";
 import { Campo, CampoTexto } from "@/components/base/Campo";
 import { ContagemAte, CronometroEvento } from "@/components/base/Cronometro";
 import { Dialogo } from "@/components/base/Dialogo";
+import { Icone } from "@/components/base/Icone";
 import { IndicadorConexao } from "@/components/base/Selo";
 import { CartaoDaMesa, type AcaoCartao } from "./CartaoDaMesa";
 import { GavetaDaMesa, type AcaoGaveta } from "./GavetaDaMesa";
@@ -160,6 +161,30 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
     [],
   );
 
+  // Antes de iniciar o evento, o gestor acrescenta mesas direto do painel. A mesa
+  // nova recebe o código e, se o evento tem um processo só, já vem com ele.
+  const acrescentarMesa = useCallback(async () => {
+    setEnviando(true);
+    setErroAcao(null);
+    const r = await enviar<{ resultado?: { nome: string; codigo: string } }>("/api/admin/preparo/mesa", {
+      nome: "",
+      processoId: null,
+    });
+    setEnviando(false);
+    if (!r.ok) {
+      setErroAcao(r.mensagem);
+      return;
+    }
+    const nova = r.dados.resultado;
+    setToast({
+      id: Date.now(),
+      texto: nova
+        ? `${nova.nome} criada, código ${nova.codigo}. Imprima o cartão em Mais, Cartões com QR.`
+        : "Mesa criada.",
+    });
+    recarregar();
+  }, [recarregar]);
+
   const acaoMesa = useCallback(
     async (mesa: CartaoMesaApi, acao: string, corpo?: unknown) => {
       const ok = await chamar(`/api/admin/mesas/${mesa.id}/${acao}`, corpo);
@@ -245,6 +270,8 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
 
   const mesaDaGaveta = painel.mesas.find((m) => m.id === mesaAberta) ?? null;
   const gestor = perfil === "gestor";
+  // O painel foi desenhado para até 20 mesas sem rolagem em 1440 por 900.
+  const podeAcrescentar = gestor && !painel.evento.iniciadoEm && filtro === "todas" && painel.mesas.length < 20;
   const dataEvento = evento.data.split("-").reverse().slice(0, 2).join("/");
 
   async function confirmar() {
@@ -540,6 +567,7 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
               aoAgir={aoAgirCartao}
             />
           ))}
+          {podeAcrescentar ? <CartaoAcrescentar enviando={enviando} aoClicar={acrescentarMesa} /> : null}
         </div>
         <div className="flex flex-col gap-3 min-[768px]:hidden">
           {ordenadasCelular.map((m) => (
@@ -554,6 +582,7 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
               aoAgir={aoAgirCartao}
             />
           ))}
+          {podeAcrescentar ? <CartaoAcrescentar enviando={enviando} aoClicar={acrescentarMesa} /> : null}
         </div>
         {filtradas.length === 0 ? <p className="py-8 text-tinta-suave">Nenhuma mesa neste filtro.</p> : null}
       </main>
@@ -681,5 +710,22 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
         />
       </Dialogo>
     </div>
+  );
+}
+
+function CartaoAcrescentar({ enviando, aoClicar }: { enviando: boolean; aoClicar: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={aoClicar}
+      disabled={enviando}
+      className="flex min-h-[7.5rem] flex-col items-center justify-center gap-1 rounded-folha border-2 border-dashed border-linha bg-papel p-3 text-petroleo disabled:text-tinta-suave"
+    >
+      <span className="inline-flex items-center gap-2 font-titulo text-[17px] font-bold">
+        <Icone nome="mais" className="h-5 w-5" />
+        {enviando ? "Criando a mesa" : "Adicionar mesa"}
+      </span>
+      <span className="text-[13px] text-tinta-suave">Até o início do evento</span>
+    </button>
   );
 }

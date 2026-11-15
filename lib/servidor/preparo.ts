@@ -197,7 +197,7 @@ export async function salvarMesa(
   eventoId: string,
   d: { id?: string | null; nome: string; processoId: string | null },
   autor: Autor,
-): Promise<Resultado> {
+): Promise<Resultado<{ nome: string; codigo: string }>> {
   const nome = d.nome.trim();
   if (d.processoId) {
     const [p] = await sql`select 1 from processo where id = ${d.processoId} and evento_id = ${eventoId}`;
@@ -212,10 +212,20 @@ export async function salvarMesa(
   } else {
     const [{ proximo }] = await sql<{ proximo: number }[]>`
       select coalesce(max(numero), 0)::int + 1 as proximo from mesa where evento_id = ${eventoId}`;
+    // Mesa nova sem processo escolhido: se o evento tem um processo só, ela já vem com ele.
+    let processoId = d.processoId;
+    if (!processoId) {
+      const unicos = await sql<{ id: string }[]>`select id from processo where evento_id = ${eventoId} limit 2`;
+      if (unicos.length === 1) processoId = unicos[0].id;
+    }
+    const nomeFinal = nome || `Mesa ${String(proximo).padStart(2, "0")}`;
+    const codigo = await codigoNovo(sql);
     await sql`
       insert into mesa (evento_id, numero, nome, codigo, processo_id)
-      values (${eventoId}, ${proximo}, ${nome || `Mesa ${String(proximo).padStart(2, "0")}`}, ${await codigoNovo(sql)},
-              ${d.processoId})`;
+      values (${eventoId}, ${proximo}, ${nomeFinal}, ${codigo}, ${processoId})`;
+    await registrar(sql, eventoId, null, "preparo_mesa", autor, { nome: nomeFinal });
+    await avisar(eventoId);
+    return { ok: true, dados: { nome: nomeFinal, codigo } };
   }
   await registrar(sql, eventoId, d.id ?? null, "preparo_mesa", autor, { nome });
   await avisar(eventoId);

@@ -31,8 +31,8 @@ para um único servidor.
 npm run db:reset
 ```
 
-Esse comando apaga o banco local, aplica o esquema e cria o evento de demonstração com 3
-mesas: códigos `K7PX2M`, `R4TW9H` e `B8NC3F`. Ele se recusa a rodar contra um banco que não
+Esse comando apaga o banco local, aplica o esquema e cria o evento de demonstração, com o
+processo "Planejar um evento e a comunicação para engajar o público" e 3 mesas: códigos `K7PX2M`, `R4TW9H` e `B8NC3F`. Ele se recusa a rodar contra um banco que não
 seja local.
 
 ```bash

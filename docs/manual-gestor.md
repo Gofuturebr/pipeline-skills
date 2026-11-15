@@ -20,6 +20,10 @@ avançou ou voltou cada mesa. A sessão dura 12 horas.
 
 1. **Confira o preparo.** No painel, abra **Mais** e clique em **Preparo** (veja abaixo). Confira
    o nome e a data do evento, os processos, as mesas e o processo de cada uma.
+   **Para acrescentar uma mesa,** clique no cartão **Adicionar mesa**, no fim da grade do painel.
+   Ele aparece até você clicar em **Iniciar evento**. A mesa nova recebe o código sozinha e, como
+   o evento tem um processo só, já vem com ele. Depois de iniciar, acrescente pela aba **Mesas** do
+   Preparo. Toda mesa nova precisa do cartão impresso.
 2. **Imprima os cartões das mesas.** No painel, abra **Mais**, clique em **Cartões com QR** e
    depois em **Imprimir os cartões**. Saem dois cartões por folha, cada um com o nome da mesa, o processo,
    o código para o notebook e o QR para os celulares.
@@ -41,7 +45,7 @@ Só o gestor abre. Tem quatro abas, e tudo que você guarda aparece nas telas na
 | --- | --- |
 | **Evento** | Mudar o nome, a data, os minutos de intervalo e a lista de palavras vagas que a Prova recusa |
 | **Processos** | Criar, editar e remover processos: ficha, materiais do kit, exemplo bom, exemplo ruim, caso de exemplo e caso novo. Um processo pode ir para mais de uma mesa. Só sai o processo que não está em nenhuma mesa |
-| **Mesas** | Criar mesas, mudar o nome e o processo de cada uma. O código da mesa é criado sozinho. Só sai a mesa que ainda não começou: na Fase 0, sem pasta e sem celulares |
+| **Mesas** | Criar mesas (**Acrescentar mesa**), mudar o nome e o processo de cada uma. O código da mesa é criado sozinho. Se o evento tem um processo só, a mesa nova já vem com ele. Só sai a mesa que ainda não começou: na Fase 0, sem pasta e sem celulares |
 | **Roteiro** | Mudar os minutos de cada fase, a atividade da tela de espera e o texto de cada passo. Ao lado, aparece como a mesa vai ver. A soma dos minutos aparece no topo |
 
 Os textos não podem ter travessão: a tela pede para trocar por vírgula, ponto ou dois-pontos.

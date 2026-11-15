@@ -50,7 +50,7 @@ describe.skipIf(!URL_TESTE)("Marco 4: caixa de ferramentas e prova", () => {
     expect(texto).toContain("Olá, Bruno!");
     let s = await estado();
     expect(s.rodadas).toHaveLength(1);
-    expect(s.rodadas[0].entrada).toContain("Cliente Bruno");
+    expect(s.rodadas[0].entrada).toContain("Rede de Confeiteiras");
 
     // A IA propõe; nada é salvo antes da mesa confirmar (RN13).
     const proposta = await congelar(sql, mesaId, "Olá, Bruno! Segue o orçamento:\n30 cadeiras: R$ 1.350,00");
