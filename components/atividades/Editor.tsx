@@ -1,0 +1,311 @@
+"use client";
+
+import { useState } from "react";
+import { Botao } from "@/components/base/Botao";
+import { Dialogo } from "@/components/base/Dialogo";
+import { Icone } from "@/components/base/Icone";
+import { Markdown } from "@/components/base/Markdown";
+import { lerFluxo } from "@/lib/cliente/fluxo";
+import { guardarRascunho, lerRascunho } from "@/lib/cliente/rascunho";
+import { dividirSecoes } from "@/lib/markdown";
+import { acharSensivel, mensagemSensivel } from "@/lib/sensivel";
+import type { ArquivoApi, EstadoMesaApi } from "@/lib/tipos-api";
+import type { PropsAtividade } from "./tipos";
+
+// Editor do SKILL.md (Fase 2): a IA escreve, a mesa responde às duas perguntas
+// finais, corrige por seção e aprova. Cada seção mostra o texto formatado; ao
+// clicar em "Editar", vira campo de texto.
+
+export function AtividadeEditor(props: PropsAtividade) {
+  const acao = String(props.passo.config.acao ?? "");
+  const caminho = String(props.passo.config.arquivo ?? "SKILL.md");
+  const arquivo = props.estado.arquivos.find((a) => a.caminho === caminho) ?? null;
+  if (props.somenteLeitura) {
+    return arquivo ? <Markdown texto={arquivo.conteudo} /> : <p className="text-xl text-tinta-suave">Arquivo ainda não escrito.</p>;
+  }
+  if (acao === "gerar") return <GerarSkill {...props} arquivo={arquivo} />;
+  return <RevisarSkill {...props} arquivo={arquivo} caminho={caminho} />;
+}
+
+function useEscritaDaIA(props: PropsAtividade) {
+  const [escrevendo, setEscrevendo] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  async function pedir(url: string, corpo?: unknown): Promise<boolean> {
+    setErro(null);
+    setEscrevendo("");
+    const r = await lerFluxo<EstadoMesaApi>(url, corpo, (acc) => setEscrevendo(acc));
+    setEscrevendo(null);
+    if (r.dados) props.aoSubstituir(r.dados);
+    if (!r.ok) setErro(r.mensagem);
+    return r.ok;
+  }
+  return { escrevendo, erro, pedir };
+}
+
+function TextoSendoEscrito({ texto }: { texto: string }) {
+  return (
+    <div className="rounded-folha border-2 border-petroleo bg-papel p-6" aria-live="polite" aria-busy>
+      <p className="mb-4 inline-flex items-center gap-2 text-lg font-bold text-petroleo">
+        <Icone nome="andamento" className="h-5 w-5" />A IA está escrevendo
+      </p>
+      {texto ? <Markdown texto={texto} /> : <p className="text-xl text-tinta-suave">Lendo a entrevista.</p>}
+    </div>
+  );
+}
+
+function Erro({ texto }: { texto: string }) {
+  return (
+    <p role="alert" className="rounded-folha border-2 border-estado-atrasada bg-papel p-4 text-xl font-bold">
+      {texto}
+    </p>
+  );
+}
+
+function GerarSkill(props: PropsAtividade & { arquivo: ArquivoApi | null }) {
+  const { estado, codigo, arquivo } = props;
+  const e = estado.entrevista;
+  const { escrevendo, erro, pedir } = useEscritaDaIA(props);
+  const [confirmarDeNovo, setConfirmarDeNovo] = useState(false);
+  const url = `/api/mesa/${encodeURIComponent(codigo)}/skill/gerar`;
+  const pausada = estado.mesa.estado === "pausada";
+  const motivo = pausada ? "A mesa está pausada" : e?.falta ? `${e.falta} na entrevista` : null;
+
+  if (escrevendo !== null) return <TextoSendoEscrito texto={escrevendo} />;
+  return (
+    <div className="flex flex-col gap-6">
+      {erro ? <Erro texto={erro} /> : null}
+      {arquivo ? (
+        <>
+          <p className="inline-flex items-center gap-2 text-xl font-bold" role="status">
+            <Icone nome="visto" className="h-6 w-6 text-estado-pronta" />
+            O SKILL.md está na pasta. Cliquem em Passo concluído para revisar.
+          </p>
+          <div className="rounded-folha border-2 border-linha bg-papel p-6">
+            <Markdown texto={arquivo.conteudo} />
+          </div>
+          <div>
+            <Botao variante="discreto" disabled={pausada} onClick={() => setConfirmarDeNovo(true)}>
+              Pedir para a IA escrever de novo
+            </Botao>
+          </div>
+          <Dialogo
+            aberto={confirmarDeNovo}
+            titulo="Escrever o SKILL.md de novo?"
+            textoConfirmar="Escrever de novo"
+            aoConfirmar={async () => {
+              setConfirmarDeNovo(false);
+              await pedir(url);
+            }}
+            aoCancelar={() => setConfirmarDeNovo(false)}
+          >
+            <p>A versão atual não se perde: ela fica no histórico do arquivo.</p>
+          </Dialogo>
+        </>
+      ) : (
+        <>
+          <p className="max-w-[60ch] text-xl leading-normal">
+            A IA vai juntar o que vocês contaram na entrevista e escrever as instruções da skill, com 7 partes: pra que
+            serve, quando usar, o que precisa, passos, decisões, pronto quando e casos que já deram errado.
+          </p>
+          <div>
+            <Botao
+              variante="secundario"
+              tamanho="mesa"
+              disabled={Boolean(motivo)}
+              motivo={motivo}
+              onClick={() => void pedir(url)}
+            >
+              Pedir à IA para escrever o SKILL.md
+            </Botao>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function RevisarSkill(props: PropsAtividade & { arquivo: ArquivoApi | null; caminho: string }) {
+  const { estado, codigo, arquivo, caminho } = props;
+  const e = estado.entrevista;
+  const { escrevendo, erro, pedir } = useEscritaDaIA(props);
+  const chaveErrou = `mesa:${codigo}:rascunho:errou`;
+  const chaveEsqueceu = `mesa:${codigo}:rascunho:esqueceu`;
+  const [errou, setErrou] = useState(() => lerRascunho(chaveErrou) ?? e?.respostasFinais.errou ?? "");
+  const [esqueceu, setEsqueceu] = useState(() => lerRascunho(chaveEsqueceu) ?? e?.respostasFinais.esqueceu ?? "");
+  const pausada = estado.mesa.estado === "pausada";
+
+  if (!arquivo) return <p className="text-xl">A IA ainda não escreveu o SKILL.md. Voltem ao passo anterior.</p>;
+  if (escrevendo !== null) return <TextoSendoEscrito texto={escrevendo} />;
+
+  const aprovado = e?.skillAprovadaVersao === arquivo.versao;
+  const perguntas = e?.perguntasFinais ?? ["O que eu errei?", "O que vocês esqueceram de me contar?"];
+
+  return (
+    <div className="flex flex-col gap-8">
+      {erro ? <Erro texto={erro} /> : null}
+
+      <section className="flex flex-col gap-4 rounded-folha border-2 border-petroleo bg-papel p-6">
+        <h3 className="font-titulo text-[28px] font-semibold leading-tight">Duas perguntas da IA</h3>
+        {[
+          { rotulo: perguntas[0], valor: errou, mudar: setErrou, chave: chaveErrou },
+          { rotulo: perguntas[1], valor: esqueceu, mudar: setEsqueceu, chave: chaveEsqueceu },
+        ].map((q) => (
+          <label key={q.chave} className="flex flex-col gap-2">
+            <span className="text-2xl font-bold">{q.rotulo}</span>
+            <textarea
+              rows={3}
+              value={q.valor}
+              maxLength={4000}
+              onChange={(ev) => {
+                q.mudar(ev.target.value);
+                guardarRascunho(q.chave, ev.target.value);
+              }}
+              className="rounded-folha border-2 border-linha bg-papel px-4 py-3 text-xl leading-normal"
+            />
+          </label>
+        ))}
+        <p className="text-lg text-tinta-suave">
+          Vocês podem corrigir direto no arquivo, abaixo, ou pedir para a IA aplicar as respostas.
+        </p>
+        <div>
+          <Botao
+            variante="secundario"
+            tamanho="mesa"
+            disabled={pausada || (!errou.trim() && !esqueceu.trim())}
+            motivo={pausada ? "A mesa está pausada" : !errou.trim() && !esqueceu.trim() ? "Respondam pelo menos uma pergunta" : null}
+            onClick={async () => {
+              const ok = await pedir(`/api/mesa/${encodeURIComponent(codigo)}/skill/corrigir`, { errou, esqueceu });
+              if (ok) {
+                guardarRascunho(chaveErrou, "");
+                guardarRascunho(chaveEsqueceu, "");
+              }
+            }}
+          >
+            Pedir à IA para corrigir
+          </Botao>
+        </div>
+      </section>
+
+      <EditorPorSecoes {...props} arquivo={arquivo} caminho={caminho} />
+
+      <section className="flex flex-wrap items-center gap-4 border-t-2 border-linha pt-6">
+        {aprovado ? (
+          <p className="inline-flex items-center gap-2 text-2xl font-bold" role="status">
+            <Icone nome="visto" className="h-7 w-7 text-estado-pronta" />
+            Aprovado. Esta é a versão {arquivo.versao}.
+          </p>
+        ) : (
+          <>
+            <Botao
+              variante="secundario"
+              tamanho="mesa"
+              disabled={pausada}
+              onClick={() => void props.aoAgir(`/api/mesa/${encodeURIComponent(codigo)}/skill/aprovar`)}
+            >
+              Aprovar o SKILL.md
+            </Botao>
+            {e?.skillAprovadaVersao ? (
+              <span className="text-lg text-tinta-suave">O arquivo mudou depois da aprovação. Aprovem de novo.</span>
+            ) : null}
+          </>
+        )}
+      </section>
+    </div>
+  );
+}
+
+/** Edição por seções de um arquivo da pasta, com o texto formatado ao lado. */
+export function EditorPorSecoes({
+  estado,
+  codigo,
+  aoAgir,
+  arquivo,
+  caminho,
+  secoesEditaveis,
+}: PropsAtividade & { arquivo: ArquivoApi; caminho: string; secoesEditaveis?: string[] }) {
+  const partes = dividirSecoes(arquivo.conteudo);
+  const [editando, setEditando] = useState<string | null>(null);
+  const [texto, setTexto] = useState("");
+  const [erro, setErro] = useState<string | null>(null);
+  const [guardando, setGuardando] = useState(false);
+  const pausada = estado.mesa.estado === "pausada";
+  const TITULO = "__titulo__";
+
+  function abrir(chave: string, valor: string) {
+    setErro(null);
+    setEditando(chave);
+    setTexto(valor);
+  }
+
+  async function guardar() {
+    if (editando === null) return;
+    const achado = acharSensivel(texto);
+    if (achado) {
+      setErro(mensagemSensivel(achado));
+      return;
+    }
+    setGuardando(true);
+    const ok = await aoAgir(`/api/mesa/${encodeURIComponent(codigo)}/arquivos/secao`, {
+      caminho,
+      secao: editando === TITULO ? null : editando,
+      corpo: texto,
+      versao: arquivo.versao,
+    });
+    setGuardando(false);
+    if (ok) setEditando(null);
+  }
+
+  const podeEditar = (nome: string) => !secoesEditaveis || secoesEditaveis.includes(nome);
+
+  const bloco = (chave: string, rotulo: string, valor: string, formatado: React.ReactNode) => (
+    <section key={chave} className="flex flex-col gap-3 rounded-folha border-2 border-linha bg-papel p-5">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="font-titulo text-[24px] font-semibold leading-tight">{rotulo}</h3>
+        {editando !== chave && podeEditar(chave) ? (
+          <Botao variante="discreto" disabled={pausada || estado.mesa.final} onClick={() => abrir(chave, valor)}>
+            Editar
+          </Botao>
+        ) : null}
+      </div>
+      {editando === chave ? (
+        <div className="flex flex-col gap-3">
+          <textarea
+            autoFocus
+            rows={chave === TITULO ? 1 : Math.min(14, Math.max(4, valor.split("\n").length + 1))}
+            value={texto}
+            onChange={(ev) => setTexto(ev.target.value)}
+            className="rounded-folha border-2 border-petroleo bg-papel px-4 py-3 font-mono text-lg leading-normal"
+            aria-label={`Texto de ${rotulo}`}
+          />
+          {erro ? (
+            <p role="alert" className="text-lg font-bold">
+              {erro}
+            </p>
+          ) : null}
+          <div className="flex flex-wrap gap-3">
+            <Botao variante="secundario" tamanho="mesa" enviando={guardando} textoEnviando="Guardando" onClick={guardar}>
+              Guardar na pasta
+            </Botao>
+            <Botao variante="discreto" tamanho="mesa" onClick={() => setEditando(null)}>
+              Cancelar
+            </Botao>
+          </div>
+        </div>
+      ) : (
+        formatado
+      )}
+    </section>
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-lg text-tinta-suave">
+        {caminho}, versão {arquivo.versao}
+      </p>
+      {partes.titulo && podeEditar(TITULO)
+        ? bloco(TITULO, "Nome da skill", partes.titulo, <p className="font-titulo text-[28px] font-bold">{partes.titulo}</p>)
+        : null}
+      {partes.secoes.map((s) => bloco(s.nome, s.nome, s.corpo, <Markdown texto={s.corpo || "(vazio)"} />))}
+    </div>
+  );
+}

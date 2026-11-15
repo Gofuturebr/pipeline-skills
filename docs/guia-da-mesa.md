@@ -80,7 +80,7 @@ em **Voltar ao passo atual**.
 | 6. Conserto | 20 min | Leem o relatório sobre a skill de vocês, escolhem a falha mais importante e consertam |
 | 7. Entrega | 15 min | Revisam o nome da skill, marcam como final, o Porta-voz apresenta em 1 minuto e todos baixam a skill pelo celular |
 
-## As duas primeiras fases, em detalhe
+## As primeiras fases, em detalhe
 
 **Fase 0, Check-in e papéis**
 
@@ -99,6 +99,24 @@ em **Voltar ao passo atual**.
 4. Escrevam a tarefa em uma linha, com verbo e resultado, e cliquem em **Confirmar a tarefa**.
    Exemplo: "Responder pedido de orçamento com preço e prazo em até 2 horas". A tarefa passa a
    aparecer no alto da tela.
+
+**Fase 2, Entrevista**
+
+1. A IA faz uma pergunta por vez, em letra grande. O Dono do processo responde em voz alta e o
+   Piloto digita no campo de resposta. Enter envia. Se o Chrome oferecer, dá para usar
+   **Ditar a resposta** e falar em vez de digitar.
+2. Quem lembrar de uma exceção ou de algo que já deu errado manda pelo celular. Na tela, cliquem
+   em **Incluir na resposta** para levar o texto para o campo, ou em **Descartar**.
+3. A barra no alto mostra os 8 temas. Quando as 8 perguntas estiverem respondidas e os 8 temas
+   pintados, aparece **Encerrar entrevista**.
+4. Cliquem em **Pedir à IA para escrever o SKILL.md**. Em cerca de meio minuto o arquivo aparece
+   na pasta amarela.
+5. Respondam às duas perguntas da IA: o que ela errou e o que vocês esqueceram de contar. Podem
+   pedir para a IA corrigir ou clicar em **Editar** em cada parte do arquivo.
+6. Quando estiver bom, cliquem em **Aprovar o SKILL.md** e depois em **Concluímos a fase**.
+
+Se a resposta da IA não chegar, cliquem em **Tentar de novo**: o que vocês escreveram continua
+lá. Para ver o arquivo inteiro ou as versões anteriores, cliquem no nome dele na pasta amarela.
 
 Se o botão de avançar estiver apagado, leiam o texto ao lado dele: ele diz o que falta.
 

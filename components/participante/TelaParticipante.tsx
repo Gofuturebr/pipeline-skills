@@ -146,6 +146,12 @@ export function TelaParticipante({ codigo }: { codigo: string }) {
           </Cartao>
         ) : null}
 
+        {estado.perguntaAtual && !pausada ? (
+          <Cartao titulo="A mesa está respondendo">
+            <p className="font-titulo text-[22px] font-bold leading-snug">{estado.perguntaAtual}</p>
+          </Cartao>
+        ) : null}
+
         {estado.ficha && (estado.ficha.objetivo || estado.ficha.resultadoEsperado) ? (
           <Cartao titulo="O processo da mesa">
             <dl className="flex flex-col gap-2">

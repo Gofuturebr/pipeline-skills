@@ -129,7 +129,7 @@ só pode:
 Ele não vê os botões de iniciar evento, modo de liberação, pausar, ajustar tempo, enviar aviso,
 cartões com QR, fase de referência e ações em todas as mesas.
 
-## 6. O que a mesa e os celulares fazem nas Fases 0 e 1
+## 6. O que a mesa e os celulares fazem em cada fase
 
 Saber isso ajuda a atender os pedidos de ajuda.
 
@@ -152,6 +152,25 @@ Saber isso ajuda a atender os pedidos de ajuda.
 4. A mesa escreve a tarefa em uma linha (até 90 letras, com verbo e resultado) e clica em
    **Confirmar a tarefa**. A tarefa passa a aparecer no alto da tela da mesa.
 
+**Fase 2, Entrevista**
+
+1. Ao abrir a fase, a IA faz a primeira pergunta sozinha. Ela pergunta uma coisa por vez, em letra
+   grande, e a resposta da mesa vai no campo logo abaixo. A próxima pergunta chega em poucos
+   segundos.
+2. No alto aparece a barra com os 8 temas que a IA precisa cobrir. Cada tema coberto fica pintado.
+3. O botão **Encerrar entrevista** só aparece depois de 8 perguntas respondidas e dos 8 temas
+   cobertos. Antes disso, a tela diz o que falta.
+4. Os celulares mostram a pergunta da vez e recebem exceções e casos que deram errado. Na tela da
+   mesa, cada envio tem **Incluir na resposta**, que leva o texto para o campo de resposta.
+5. A mesa pede à IA para escrever o SKILL.md. Leva cerca de meio minuto, e o texto vai aparecendo
+   na tela. O arquivo entra na pasta amarela, do lado direito.
+6. A IA faz duas perguntas finais: o que ela errou e o que a mesa esqueceu de contar. A mesa pode
+   pedir para a IA corrigir ou corrigir cada parte do arquivo com **Editar**. No fim, clica em
+   **Aprovar o SKILL.md**. Se mudar o arquivo depois, precisa aprovar de novo.
+
+A pasta amarela guarda todas as versões de cada arquivo. Clicando no arquivo e em **Ver versões
+anteriores**, aparece cada versão com a hora e quem mudou: a IA ou a mesa.
+
 Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está fazendo. Nas Fases
 1 e 2 eles têm o campo de envio. Nas outras fases, servem para acompanhar.
 
@@ -164,6 +183,10 @@ Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está faz
 | "Entrei com o nome errado no celular" | No pé da tela do celular, toque em **Não é você? Trocar o nome** |
 | "Mandei uma coisa e a mesa não vê" | O envio só aparece nas Fases 1 e 2. Confira se a mesa está numa delas |
 | "A tela mostra Algo deu errado" ou "não conseguiu falar com o banco de dados" | Aperte F5. Se continuar, avise o responsável técnico |
+| "A resposta da IA não chegou" | Clique em **Tentar de novo**. O que a mesa escreveu continua guardado. Se repetir várias vezes em várias mesas, avise o responsável técnico |
+| "A IA está com muitos pedidos agora" | Espere alguns segundos e tente de novo. Acontece quando muitas mesas pedem ao mesmo tempo |
+| "Isto parece um CPF" (ou CNPJ, senha, chave) | A mesa escreveu um dado que não pode entrar na skill. Troque por um dado inventado |
+| "O botão Encerrar entrevista não aparece" | A tela diz o que falta: perguntas ou temas. A mesa continua respondendo |
 | "A tela ficou pequena e só mostra um aviso" | Maximize a janela do Chrome. A tela da mesa precisa de um notebook |
 | "Não encontramos esta mesa" | Confira o código no cartão da mesa |
 | "Fechamos a janela sem querer" | Abram a página inicial e digitem o código. A mesa volta no mesmo passo, com tudo que já fez |
@@ -172,10 +195,9 @@ Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está faz
 
 | Parte | Etapa |
 | --- | --- |
-| Entrevista com a IA e a pasta da skill | Marco 3 |
 | Caixa de ferramentas, conferências e placar | Marco 4 |
 | Teste cruzado, conserto, entrega e download da skill pelo celular | Marco 5 |
 | Cadastro de processos e mesas pelo painel, linha do tempo da mesa, roteiro para imprimir | Marco 6 |
 
-Enquanto isso, os passos das Fases 2 a 7 mostram "Esta atividade ainda está em construção". A
+Enquanto isso, os passos das Fases 3 a 7 mostram "Esta atividade ainda está em construção". A
 mesa pode concluir esses passos normalmente, para testar o andamento das fases.

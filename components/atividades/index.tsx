@@ -2,6 +2,8 @@
 
 import type { ComponentType } from "react";
 import { atividadePronta, marcoDaAtividade, type TipoAtividade } from "@/lib/jornada";
+import { AtividadeEditor } from "./Editor";
+import { AtividadeEntrevista } from "./Entrevista";
 import { AtividadeFrase } from "./Frase";
 import { AtividadeLeitura } from "./Leitura";
 import { AtividadePapeis } from "./Papeis";
@@ -28,6 +30,8 @@ const ATIVIDADES: Partial<Record<TipoAtividade, ComponentType<PropsAtividade>>> 
   papeis: AtividadePapeis,
   leitura: AtividadeLeitura,
   frase: AtividadeFrase,
+  entrevista: AtividadeEntrevista,
+  editor: AtividadeEditor,
 };
 
 export function AtividadeDoPasso(props: PropsAtividade) {

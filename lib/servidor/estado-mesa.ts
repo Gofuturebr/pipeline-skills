@@ -11,6 +11,8 @@ import {
 } from "./consultas";
 import { contextoDaMesa } from "./contexto";
 import { JANELA_CONECTADO_S } from "./participantes";
+import { arquivosDaMesa } from "./arquivos";
+import { montarEntrevista } from "./entrevista-dados";
 import {
   avaliarFase,
   avaliarPasso,
@@ -87,7 +89,7 @@ function contribuicaoParaApi(c: LinhaContribuicao): ContribuicaoApi {
  * passos e sem textos: a mesa não consegue abrir fase não liberada.
  */
 export async function montarEstadoMesa(sql: Sql, mesa: LinhaMesa): Promise<EstadoMesaApi> {
-  const [evento, roteiro, ctx, avisos, chamados, participantes, papeis, processos, contribuicoes] =
+  const [evento, roteiro, ctx, avisos, chamados, participantes, papeis, processos, contribuicoes, arquivos, entrevista] =
     await Promise.all([
       eventoPorId(sql, mesa.evento_id),
       roteiroDoEvento(sql, mesa.evento_id),
@@ -117,6 +119,8 @@ export async function montarEstadoMesa(sql: Sql, mesa: LinhaMesa): Promise<Estad
         from contribuicao c left join participante p on p.id = c.participante_id
         where c.mesa_id = ${mesa.id} and c.fase <= ${mesa.fase_atual}
         order by c.criado_em`,
+      arquivosDaMesa(sql, mesa.id),
+      mesa.fase_atual >= 2 ? montarEntrevista(sql, mesa.id) : Promise.resolve(null),
     ]);
   if (!evento) throw new Error("Evento da mesa não encontrado");
 
@@ -188,6 +192,7 @@ export async function montarEstadoMesa(sql: Sql, mesa: LinhaMesa): Promise<Estad
       estado: mesa.estado,
       estadoMostrado: estadoMostrado(mesa.estado, restante),
       reabertaEm: iso(mesa.reaberta_em),
+      nomeSkill: mesa.nome_skill,
       final: mesa.final,
       versao: mesa.versao,
       relogio,
@@ -205,5 +210,7 @@ export async function montarEstadoMesa(sql: Sql, mesa: LinhaMesa): Promise<Estad
       aceitas: contribuicoes.filter((c) => c.estado === "aceita").map(contribuicaoParaApi),
       descartadas: contribuicoes.filter((c) => c.estado === "descartada" && c.fase === mesa.fase_atual).length,
     },
+    arquivos,
+    entrevista,
   };
 }

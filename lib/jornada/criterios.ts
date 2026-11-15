@@ -21,6 +21,12 @@ export interface ContextoCriterio {
   lidos?: ReadonlySet<string>;
   /** Tarefa em uma linha confirmada pela mesa (Fase 1). */
   tarefa?: string;
+  /** A mesa encerrou a entrevista (Fase 2). */
+  entrevistaEncerrada?: boolean;
+  /** Versão atual do SKILL.md, ou null se ainda não existe. */
+  skillVersao?: number | null;
+  /** Versão do SKILL.md que a mesa aprovou. */
+  skillAprovadaVersao?: number | null;
 }
 
 export interface Avaliacao {
@@ -40,6 +46,8 @@ export const ATIVIDADES_PRONTAS: ReadonlySet<TipoAtividade> = new Set<TipoAtivid
   "papeis",
   "leitura",
   "frase",
+  "entrevista",
+  "editor",
 ]);
 
 /** Em qual marco cada tipo de atividade fica pronto. Só para a mensagem na tela. */
@@ -65,10 +73,13 @@ export const MARCO_DA_ATIVIDADE: Record<TipoAtividade, number> = {
 const MARCO_DA_VARIANTE: Record<string, number> = {
   "frase:nome_skill": 5,
   "leitura:entrega": 5,
+  "editor:Quando usar": 5,
+  "editor:final": 5,
 };
 
 function chaveDaVariante(passo: { tipo: TipoAtividade; config?: Record<string, unknown> }): string {
-  const valor = passo.config?.campo ?? passo.config?.conteudo ?? "";
+  const c = passo.config ?? {};
+  const valor = c.campo ?? c.conteudo ?? c.secao ?? c.acao ?? "";
   return `${passo.tipo}:${String(valor)}`;
 }
 
@@ -96,6 +107,12 @@ function tarefaConfirmada(ctx: ContextoCriterio): Avaliacao {
 
 const FALTA_LER = 'Marquem "Lemos" depois de ler';
 
+function skillAprovada(ctx: ContextoCriterio): Avaliacao {
+  if (ctx.skillVersao == null) return { ok: false, falta: "Peçam à IA para escrever o SKILL.md" };
+  if (ctx.skillAprovadaVersao !== ctx.skillVersao) return { ok: false, falta: "Aprovem o SKILL.md" };
+  return OK;
+}
+
 type CriterioPasso = (ctx: ContextoCriterio, passo: PassoAvaliavel) => Avaliacao;
 type CriterioFase = (ctx: ContextoCriterio, passos: PassoAvaliavel[]) => Avaliacao;
 
@@ -104,6 +121,10 @@ const CRITERIOS_PASSO: Record<string, CriterioPasso> = {
   papeis_completos: (ctx) => papeisCompletos(ctx),
   lido: (ctx, passo) => (ctx.lidos?.has(passo.id) ? OK : { ok: false, falta: FALTA_LER }),
   tarefa_confirmada: (ctx) => tarefaConfirmada(ctx),
+  entrevista_completa: (ctx) =>
+    ctx.entrevistaEncerrada ? OK : { ok: false, falta: "Encerrem a entrevista quando o botão aparecer" },
+  skill_gerada: (ctx) => (ctx.skillVersao != null ? OK : { ok: false, falta: "Peçam à IA para escrever o SKILL.md" }),
+  skill_aprovada: (ctx) => skillAprovada(ctx),
 };
 
 const CRITERIOS_FASE: Record<string, CriterioFase> = {
@@ -113,6 +134,8 @@ const CRITERIOS_FASE: Record<string, CriterioFase> = {
     if (naoLidos.length > 0) return { ok: false, falta: FALTA_LER };
     return tarefaConfirmada(ctx);
   },
+  entrevista_e_skill_aprovada: (ctx) =>
+    ctx.entrevistaEncerrada ? skillAprovada(ctx) : { ok: false, falta: "Falta encerrar a entrevista" },
 };
 
 export function avaliarPasso(passo: PassoAvaliavel, ctx: ContextoCriterio): Avaliacao {

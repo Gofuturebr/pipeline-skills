@@ -13,6 +13,7 @@ export function FilaDeContribuicoes({
   aoAgir,
   somenteLeitura,
   destaque = false,
+  aoIncluir,
 }: {
   estado: EstadoMesaApi;
   codigo: string;
@@ -20,6 +21,8 @@ export function FilaDeContribuicoes({
   somenteLeitura: boolean;
   /** Na atividade própria da fila, os itens ficam maiores. */
   destaque?: boolean;
+  /** Na entrevista, aceitar inclui o texto na resposta (seção 5 do frontend). */
+  aoIncluir?: (texto: string) => void;
 }) {
   const { pendentes, aceitas } = estado.contribuicoes;
   const [emEnvio, setEmEnvio] = useState<string | null>(null);
@@ -28,8 +31,9 @@ export function FilaDeContribuicoes({
 
   async function decidir(c: ContribuicaoApi, novo: "aceita" | "descartada" | "pendente") {
     setEmEnvio(c.id);
-    await aoAgir(`/api/mesa/${encodeURIComponent(codigo)}/contribuicoes/${c.id}`, { estado: novo });
+    const ok = await aoAgir(`/api/mesa/${encodeURIComponent(codigo)}/contribuicoes/${c.id}`, { estado: novo });
     setEmEnvio(null);
+    if (ok && novo === "aceita" && aoIncluir) aoIncluir(c.texto);
   }
 
   const texto = destaque ? "text-2xl" : "text-xl";
@@ -60,7 +64,7 @@ export function FilaDeContribuicoes({
                       textoEnviando="Guardando"
                       onClick={() => decidir(c, "aceita")}
                     >
-                      Aceitar
+                      {aoIncluir ? "Incluir na resposta" : "Aceitar"}
                     </Botao>
                     <Botao variante="discreto" tamanho="mesa" disabled={pausada || emEnvio === c.id} onClick={() => decidir(c, "descartada")}>
                       Descartar

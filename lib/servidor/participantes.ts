@@ -89,7 +89,7 @@ export async function montarEstadoCelular(
   mesa: LinhaMesa,
   participante: LinhaParticipante | null,
 ): Promise<EstadoCelularApi> {
-  const [evento, roteiro, papeis, contagem, avisos, processos] = await Promise.all([
+  const [evento, roteiro, papeis, contagem, avisos, processos, pergunta] = await Promise.all([
     eventoPorId(sql, mesa.evento_id),
     roteiroDoEvento(sql, mesa.evento_id),
     participante
@@ -109,6 +109,13 @@ export async function montarEstadoCelular(
     mesa.processo_id && mesa.fase_atual === 1
       ? sql<{ ficha: unknown }[]>`select ficha from processo where id = ${mesa.processo_id}`
       : Promise.resolve([] as { ficha: unknown }[]),
+    // Na Fase 2, a pergunta da IA que está esperando resposta.
+    mesa.fase_atual === 2
+      ? sql<{ tipo: string; texto: string }[]>`
+          select tipo, texto from mensagem
+          where mesa_id = ${mesa.id} and fase = 2 and tipo in ('pergunta', 'resposta')
+          order by criado_em desc, id desc limit 1`
+      : Promise.resolve([] as { tipo: string; texto: string }[]),
   ]);
   if (!evento) throw new Error("Evento da mesa não encontrado");
 
@@ -155,6 +162,7 @@ export async function montarEstadoCelular(
       ? { rotulo: fase.rotulo_contribuicao, enviadas: contagem[0].enviadas, aceitas: contagem[0].aceitas }
       : null,
     ficha: ficha ? { objetivo: ficha.objetivo ?? "", resultadoEsperado: ficha.resultadoEsperado ?? "" } : null,
+    perguntaAtual: pergunta[0]?.tipo === "pergunta" ? pergunta[0].texto : null,
     avisos: avisos.map((a) => ({
       id: a.id,
       texto: a.texto,

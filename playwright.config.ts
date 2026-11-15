@@ -28,6 +28,9 @@ export default defineConfig({
       SESSION_SECRET: "segredo-e2e-com-mais-de-16-caracteres",
       NEXT_PUBLIC_SUPABASE_URL: "",
       SUPABASE_SERVICE_ROLE_KEY: "",
+      // Os testes de navegador usam a IA simulada: sem custo e sem variação.
+      IA_SIMULADA: "1",
+      ANTHROPIC_API_KEY: "",
     },
   },
 });

@@ -13,6 +13,7 @@ import { Icone } from "@/components/base/Icone";
 import { IndicadorConexao } from "@/components/base/Selo";
 import { FolhaDeTrabalho } from "./FolhaDeTrabalho";
 import { PastaViva } from "./PastaViva";
+import { VisualizadorDeArquivo } from "./VisualizadorDeArquivo";
 import { Trilha } from "./Trilha";
 
 const VIDA_AVISO_MS = 60_000;
@@ -31,6 +32,7 @@ export function TelaMesa({ codigo, enderecoParticipante }: { codigo: string; end
   const [reabertaFechada, setReabertaFechada] = useState<string | null>(null);
   const [pastaAberta, setPastaAberta] = useState(false);
   const [faseRegistrada, setFaseRegistrada] = useState<number | null>(null);
+  const [arquivoAberto, setArquivoAberto] = useState<string | null>(null);
   const agora = useAgora(defasagem);
 
   // A fase vem sempre do servidor. Quando ela muda, a tela volta para a fase
@@ -103,6 +105,20 @@ export function TelaMesa({ codigo, enderecoParticipante }: { codigo: string; end
     mesa.reabertaEm !== reabertaFechada &&
     Date.parse(mesa.reabertaEm) >= Date.parse(mesa.relogio.faseIniciadaEm) - 1000;
 
+  const arquivoVisto = arquivoAberto ? (estado.arquivos.find((a) => a.caminho === arquivoAberto) ?? null) : null;
+  const pastaViva = (
+    <PastaViva
+      nomeSkill={mesa.nomeSkill}
+      arquivos={estado.arquivos}
+      faseAtual={mesa.faseAtual}
+      agora={agora}
+      aoAbrir={(c) => {
+        setArquivoAberto(c);
+        setPastaAberta(false);
+      }}
+    />
+  );
+
   const pedirAjuda = estado.chamadoAberto ? (
     <div className="flex flex-col gap-2">
       <p className="inline-flex items-center gap-2 text-lg font-bold" role="status">
@@ -171,7 +187,7 @@ export function TelaMesa({ codigo, enderecoParticipante }: { codigo: string; end
               pedirAjuda={pedirAjuda}
             />
           </aside>
-          <section aria-label="Folha de trabalho" className="min-h-0 bg-papel shadow-folha">
+          <section aria-label="Folha de trabalho" className="relative min-h-0 bg-papel shadow-folha">
             <FolhaDeTrabalho
               estado={estado}
               codigo={codigo}
@@ -180,6 +196,7 @@ export function TelaMesa({ codigo, enderecoParticipante }: { codigo: string; end
               erroAcao={erroAcao}
               enderecoParticipante={enderecoParticipante}
               aoAgir={acao}
+              aoSubstituir={substituir}
               aoVoltarAoAtual={() => {
                 setFaseRevendo(null);
                 const fase = estado.fases.find((f) => f.ordem === mesa.faseAtual);
@@ -192,9 +209,17 @@ export function TelaMesa({ codigo, enderecoParticipante }: { codigo: string; end
                 await acao(`${base}/fase/concluir`);
               }}
             />
+            {arquivoVisto ? (
+              <VisualizadorDeArquivo
+                key={`${arquivoVisto.caminho}:${arquivoVisto.versao}`}
+                arquivo={arquivoVisto}
+                urlVersoes={`${base}/arquivos/versoes?caminho=${encodeURIComponent(arquivoVisto.caminho)}`}
+                aoFechar={() => setArquivoAberto(null)}
+              />
+            ) : null}
           </section>
           <aside className="hidden min-h-0 border-l-2 border-linha bg-bancada min-[1366px]:block">
-            <PastaViva nomeSkill="" />
+            {pastaViva}
           </aside>
         </div>
 
@@ -209,7 +234,7 @@ export function TelaMesa({ codigo, enderecoParticipante }: { codigo: string; end
         </button>
         {pastaAberta ? (
           <div className="absolute bottom-0 right-10 top-16 w-[320px] border-l-2 border-linha bg-bancada shadow-lg min-[1366px]:hidden">
-            <PastaViva nomeSkill="" />
+            {pastaViva}
           </div>
         ) : null}
 

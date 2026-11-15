@@ -78,6 +78,7 @@ export interface EstadoMesaApi {
     estado: EstadoBase;
     estadoMostrado: EstadoMostrado;
     reabertaEm: string | null;
+    nomeSkill: string;
     final: boolean;
     versao: number;
     relogio: RelogioApi;
@@ -98,6 +99,43 @@ export interface EstadoMesaApi {
     /** Descartadas na fase atual. */
     descartadas: number;
   };
+  /** Arquivos da pasta da mesa, com o conteúdo atual. */
+  arquivos: ArquivoApi[];
+  /** Entrevista com a IA. Só a partir da Fase 2. */
+  entrevista: EntrevistaApi | null;
+}
+
+export interface ArquivoApi {
+  caminho: string;
+  conteudo: string;
+  versao: number;
+  faseAlterada: number;
+  autor: string;
+  atualizadoEm: string;
+}
+
+export interface VersaoArquivoApi {
+  versao: number;
+  conteudo: string;
+  fase: number;
+  autor: string;
+  criadoEm: string;
+}
+
+export interface EntrevistaApi {
+  perguntas: { id: string; texto: string; tema: string | null; temaNome: string; resposta: string | null }[];
+  temasCobertos: string[];
+  respondidas: number;
+  minimo: number;
+  encerrada: boolean;
+  /** A IA está escrevendo agora (em outra tela ou nesta). */
+  ocupada: boolean;
+  podeEncerrar: boolean;
+  /** O que falta para encerrar e escrever o SKILL.md (RN07). */
+  falta: string | null;
+  skillAprovadaVersao: number | null;
+  respostasFinais: { errou: string; esqueceu: string };
+  perguntasFinais: string[];
 }
 
 export interface ParticipanteApi {
@@ -157,6 +195,8 @@ export interface EstadoCelularApi {
   contribuicao: { rotulo: string; enviadas: number; aceitas: number } | null;
   /** Resumo da ficha, na Fase 1. */
   ficha: { objetivo: string; resultadoEsperado: string } | null;
+  /** Pergunta da IA que a mesa está respondendo, na Fase 2. */
+  perguntaAtual: string | null;
   avisos: AvisoApi[];
 }
 

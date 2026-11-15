@@ -17,6 +17,7 @@ export function FolhaDeTrabalho({
   erroAcao,
   enderecoParticipante,
   aoAgir,
+  aoSubstituir,
   aoVoltarAoAtual,
   aoConcluirPasso,
   aoConcluirFase,
@@ -28,6 +29,7 @@ export function FolhaDeTrabalho({
   erroAcao: string | null;
   enderecoParticipante: string;
   aoAgir: (url: string, corpo?: unknown) => Promise<boolean>;
+  aoSubstituir: (estado: EstadoMesaApi) => void;
   aoVoltarAoAtual: () => void;
   aoConcluirPasso: (passoId: string) => void;
   aoConcluirFase: (passoIdPendente: string | null) => void;
@@ -44,6 +46,7 @@ export function FolhaDeTrabalho({
         codigo={codigo}
         enderecoParticipante={enderecoParticipante}
         aoAgir={aoAgir}
+        aoSubstituir={aoSubstituir}
         aoVoltarAoAtual={aoVoltarAoAtual}
       />
     );
@@ -131,7 +134,13 @@ export function FolhaDeTrabalho({
           </p>
           <SeloPapel texto={passo.papelNome} tamanho="mesa" />
         </div>
-        <h2 className="max-w-[28ch] font-titulo text-[40px] font-bold leading-[1.15]" aria-live="polite">
+        {/* Na entrevista, o maior texto da tela é a pergunta da IA, não a instrução. */}
+        <h2
+          className={`max-w-[28ch] font-titulo font-bold leading-[1.15] ${
+            passo.tipo === "entrevista" ? "text-[26px]" : "text-[40px]"
+          }`}
+          aria-live="polite"
+        >
           {passo.instrucao}
         </h2>
         <div className="mt-8 flex max-w-[1100px] flex-col gap-10">
@@ -142,9 +151,11 @@ export function FolhaDeTrabalho({
             somenteLeitura={false}
             enderecoParticipante={enderecoParticipante}
             aoAgir={aoAgir}
+            aoSubstituir={aoSubstituir}
           />
-          {/* Nas fases que recebem envios do celular, a fila fica sempre à mão. */}
-          {fase.recebeContribuicoes && passo.config.conteudo !== "contribuicoes" ? (
+          {/* Nas fases que recebem envios do celular, a fila fica sempre à mão.
+              A entrevista tem a sua própria, com "Incluir na resposta". */}
+          {fase.recebeContribuicoes && passo.config.conteudo !== "contribuicoes" && passo.tipo !== "entrevista" ? (
             <div className="border-t-2 border-linha pt-6">
               <FilaDeContribuicoes estado={estado} codigo={codigo} aoAgir={aoAgir} somenteLeitura={false} />
             </div>
@@ -169,6 +180,7 @@ function FaseEmLeitura({
   codigo,
   enderecoParticipante,
   aoAgir,
+  aoSubstituir,
   aoVoltarAoAtual,
 }: {
   fase: FaseApi;
@@ -176,6 +188,7 @@ function FaseEmLeitura({
   codigo: string;
   enderecoParticipante: string;
   aoAgir: (url: string, corpo?: unknown) => Promise<boolean>;
+  aoSubstituir: (estado: EstadoMesaApi) => void;
   aoVoltarAoAtual: () => void;
 }) {
   return (
@@ -207,6 +220,7 @@ function FaseEmLeitura({
                 somenteLeitura
                 enderecoParticipante={enderecoParticipante}
                 aoAgir={aoAgir}
+                aoSubstituir={aoSubstituir}
               />
             </li>
           ))}

@@ -34,6 +34,7 @@ export interface LinhaMesa {
   ajuste_tempo_s: number;
   reaberta_em: Date | null;
   tarefa: string;
+  nome_skill: string;
   final: boolean;
   versao: number;
 }
@@ -74,7 +75,7 @@ const COLUNAS_MESA = (sql: Sql) => sql`
   m.id, m.evento_id, m.numero, m.nome, m.codigo, m.processo_id, p.nome as processo_nome,
   m.fase_atual, m.passo_atual, m.estado, m.estado_antes_pausa, m.fase_iniciada_em,
   m.pausada_desde, m.pausa_acumulada_s, m.ajuste_tempo_s, m.reaberta_em, m.tarefa,
-  m.final, m.versao`;
+  m.nome_skill, m.final, m.versao`;
 
 export function normalizarCodigo(codigo: string): string {
   return codigo.replace(/[\s-]/g, "").toUpperCase().slice(0, 16);

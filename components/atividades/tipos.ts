@@ -10,4 +10,6 @@ export interface PropsAtividade {
   enderecoParticipante: string;
   /** Chama uma rota da mesa e troca o estado da tela pela resposta. */
   aoAgir: (url: string, corpo?: unknown) => Promise<boolean>;
+  /** Troca o estado da tela pelo que veio no fim de uma resposta em fluxo. */
+  aoSubstituir: (estado: EstadoMesaApi) => void;
 }

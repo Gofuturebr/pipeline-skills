@@ -101,3 +101,35 @@ O histórico de arquivos (RN06) é gravado por gatilho no banco: toda inserção
 ### Robustez
 
 - **Mensagem quando o banco falha.** As rotas da mesa, do celular e do painel devolvem "O sistema não conseguiu falar com o banco de dados. Avisem o gestor." quando o banco recusa a conexão, a senha está errada, o banco não existe ou faltam as tabelas. O detalhe técnico vai para o terminal do servidor.
+
+## 15/11/2026: Marco 3
+
+### IA
+
+- **Modelo e chamada.** O modelo vem de `ANTHROPIC_MODEL`; vazio, vale `claude-opus-5-5`. A chamada usa o SDK oficial (`@anthropic-ai/sdk`), com streaming, só em rotas de servidor (`lib/ia/cliente.ts`). O endereço da API é fixo (`https://api.anthropic.com`), para nenhuma variável do ambiente desviar as chamadas.
+- **Esforço por tarefa.** Perguntas da entrevista com esforço baixo (a primeira palavra chega em cerca de 2 segundos; a especificação pede até 5). Escrita do SKILL.md com esforço médio (cerca de 25 segundos).
+- **Troca automática de modelo quando a IA recusa.** Nos modelos que aceitam, as chamadas pedem `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`): se a IA recusar por regra de segurança, a API tenta outro modelo na mesma chamada. Se ainda assim recusar, a mesa vê a mensagem e o botão "Tentar de novo".
+- **Pergunta e cobertura juntas.** Cada turno da entrevista volta em formato estruturado: os temas cobertos, o tema da pergunta e a pergunta. A tela mostra só a pergunta, que vai aparecendo enquanto a IA escreve. O servidor guarda a cobertura e só deixa encerrar e escrever o SKILL.md com 8 perguntas respondidas e os 8 temas cobertos (RN07). Tema coberto continua coberto.
+- **Uma IA por mesa por vez.** Uma trava no banco impede duas chamadas simultâneas para a mesma mesa (dois cliques, duas abas).
+- **IA simulada para testes.** Com `IA_SIMULADA=1`, o servidor usa uma IA simulada, sem custo. Só os testes de navegador ligam essa variável. Os testes automáticos usam a mesma simulação.
+
+### Entrevista e SKILL.md
+
+- **A primeira pergunta sai sozinha** ao abrir a entrevista.
+- **Contribuições na entrevista.** Na fila da Fase 2, "Incluir na resposta" aceita o envio e acrescenta o texto no campo de resposta, para a mesa decidir antes de responder.
+- **Ditado por voz** pelo reconhecimento de fala do navegador, quando o Chrome oferece.
+- **Duas perguntas finais** ("O que eu errei?" e "O que vocês esqueceram de me contar?") aparecem no passo de revisão, com campo de resposta. A mesa pode corrigir direto no arquivo ou pedir para a IA aplicar as respostas.
+- **Editor por seções.** Cada seção aparece formatada, com "Editar". Ao editar, vira campo de texto e "Guardar na pasta". A especificação pedia o texto formatado ao lado do campo; com 806 pixels na Folha de trabalho, lado a lado ficava apertado demais para leitura a um metro, então a mesma seção alterna entre ver e editar.
+- **Aprovação por versão.** "Aprovar" vale para a versão atual do SKILL.md. Se o arquivo muda depois, a mesa aprova de novo.
+- **Nome da pasta** sai do título do SKILL.md, em minúsculas e com hífens, e aparece na aba da Pasta viva.
+- **Seções garantidas.** Se a IA esquecer alguma das 7 seções, o servidor acrescenta com "A completar".
+
+### Pasta viva e histórico
+
+- **Visualização sobre a Folha de trabalho**, com "Ver versões anteriores": cada versão mostra hora, fase e se foi a IA ou a mesa (RN06). A edição fica nos passos que pedem, não na visualização.
+- **Conflito de versão.** Guardar uma seção leva o número da versão; se o arquivo mudou em outra tela, o servidor recusa com "O arquivo mudou em outra tela".
+
+### Dados sensíveis (RN14)
+
+- **Detector em `lib/sensivel.ts`**, usado na tela e no servidor. CPF e CNPJ com pontuação são sempre barrados; só números, apenas quando os dígitos verificadores batem, para não confundir com telefone. Também barra "senha: ...", chaves conhecidas e "token = ...".
+- **Onde vale.** Bloqueia salvar arquivo na pasta e também enviar resposta da entrevista ou das perguntas finais, para o dado não chegar à IA. O texto que vem da IA passa por uma máscara de proteção antes de entrar na pasta.
