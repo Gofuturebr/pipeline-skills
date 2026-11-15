@@ -11,7 +11,9 @@ function dica(e: unknown): string {
   const texto = `${e instanceof Error ? e.message : String(e)} ${(e as { cause?: unknown })?.cause ?? ""}`;
   if (e instanceof Anthropic.AuthenticationError) return "A chave não foi aceita. Confira a linha ANTHROPIC_API_KEY no .env.local (sem espaços nem aspas).";
   if (e instanceof Anthropic.PermissionDeniedError) return "A chave não tem permissão para este modelo ou a conta está sem créditos.";
-  if (e instanceof Anthropic.NotFoundError) return "O modelo não existe para esta conta. Deixe ANTHROPIC_MODEL vazio no .env.local para usar o padrão.";
+  if (e instanceof Anthropic.NotFoundError) {
+    return "O modelo não existe para esta conta. No .env.local, deixe a linha exatamente assim: ANTHROPIC_MODEL=claude-opus-5-5 (ou ANTHROPIC_MODEL= vazio, para usar o padrão).";
+  }
   if (e instanceof Anthropic.RateLimitError) return "Limite de pedidos ou de gasto da conta atingido. Confira o painel da Anthropic.";
   if (e instanceof Anthropic.BadRequestError) return "A IA recusou o pedido. Se a mensagem fala em créditos ou cobrança, a conta precisa de saldo.";
   if (/certificate|self.signed|SELF_SIGNED|UNABLE_TO_GET_ISSUER|unable to verify/i.test(texto)) {

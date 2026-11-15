@@ -38,7 +38,8 @@ const COM_TROCA_AUTOMATICA = /^claude-(opus-5-5|opus-5|fable-5(-[12])?|sonnet-5-
  * e converte para o identificador da API ("claude-opus-5-5"). Vazio vale o padrão.
  */
 export function normalizarModelo(bruto: string | undefined): string {
-  const valor = (bruto ?? "").trim();
+  // Linha colada duas vezes ("ANTHROPIC_MODEL=claude-opus-5-5"): vale o que vem depois do último "=".
+  const valor = (bruto ?? "").split("=").pop()!.trim().replace(/^["']|["']$/g, "");
   if (!valor) return MODELO_PADRAO;
   if (/^claude-[a-z0-9-]+$/.test(valor)) return valor;
   const id = valor

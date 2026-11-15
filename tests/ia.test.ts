@@ -75,6 +75,8 @@ describe("nome do modelo no .env.local", () => {
     expect(normalizarModelo("claude-opus-5-5")).toBe("claude-opus-5-5");
     expect(normalizarModelo("")).toBe(MODELO_PADRAO);
     expect(normalizarModelo(undefined)).toBe(MODELO_PADRAO);
+    expect(normalizarModelo("ANTHROPIC_MODEL=claude-opus-5-5")).toBe("claude-opus-5-5");
+    expect(normalizarModelo('"claude-opus-5-5"')).toBe("claude-opus-5-5");
   });
 });
 
