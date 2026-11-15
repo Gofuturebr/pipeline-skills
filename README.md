@@ -9,6 +9,7 @@ passo a passo, da leitura de um processo até uma skill do Claude testada e expo
 - Decisões tomadas fora da especificação: [`docs/decisoes.md`](docs/decisoes.md)
 - Guia da mesa (para o grupo e o Piloto): [`docs/guia-da-mesa.md`](docs/guia-da-mesa.md)
 - Manual do gestor e do facilitador: [`docs/manual-gestor.md`](docs/manual-gestor.md)
+- Critérios de aceite e onde cada um é conferido: [`docs/aceite.md`](docs/aceite.md)
 
 ## Rodar no seu computador
 
@@ -82,6 +83,57 @@ variável, eles são pulados.
 npm run build && npm run test:e2e
 ```
 
+Os testes de navegador usam a IA simulada (`IA_SIMULADA=1`), sem custo e sem chave.
+
+### Teste de carga
+
+Com o servidor rodando (de preferência `npm run build && npm start`) e um banco de teste:
+
+```bash
+npm run carga -- --url http://localhost:3000 --senha SENHA_DO_GESTOR --mesas 20 --celulares 100 --segundos 60
+```
+
+O script cria as mesas que faltarem, conecta os celulares, muda fases pelo admin e mostra o
+tempo de resposta de cada rota, os erros e quanto uma mudança de fase leva para chegar à mesa.
+O resultado mais recente está em [`docs/aceite.md`](docs/aceite.md).
+
+## Publicar para o evento (Vercel e Supabase)
+
+1. **Supabase:** crie um projeto. Em Project Settings, Database, copie duas strings de conexão:
+   a do pooler em modo transação (porta 6543), para o servidor, e a conexão direta (porta 5432),
+   para as migrações. Em Project Settings, API, copie a URL do projeto, a chave `anon` e a chave
+   `service_role`.
+2. **Banco:** no seu computador, com `DATABASE_URL` apontando para a conexão direta do Supabase,
+   rode as migrações e, se quiser o evento de demonstração, o seed:
+
+   ```bash
+   npm run db:migrar
+   ```
+
+   ```bash
+   npm run db:seed
+   ```
+
+   Depois, ajuste o evento, os processos e as mesas pela página de Preparo do admin.
+3. **Vercel:** importe o repositório e preencha as variáveis de ambiente:
+
+   | Variável | Valor |
+   | --- | --- |
+   | `DATABASE_URL` | Conexão do pooler do Supabase (porta 6543) |
+   | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | Do passo 1. **Obrigatórias na Vercel:** sem elas, cada instância do servidor teria o próprio canal de tempo real e as telas deixariam de receber as mudanças |
+   | `ANTHROPIC_API_KEY` | Chave da API. Fica só no servidor |
+   | `ANTHROPIC_MODEL` | Opcional. Sem valor, vale o modelo padrão do `.env.example` |
+   | `ADMIN_PASSWORD`, `FACILITADOR_PASSWORD` | Senhas do painel |
+   | `SESSION_SECRET` | Texto longo e aleatório |
+   | `URL_PUBLICA` | O endereço final, por exemplo `https://oficina.vercel.app`, para os QR codes |
+
+   Não preencha `IA_SIMULADA` nem `DATABASE_URL_TESTE` na Vercel.
+4. **Conferir antes do dia:** os itens da seção "Antes do evento" em [`docs/aceite.md`](docs/aceite.md),
+   principalmente o tempo real pelo Supabase, que não é exercitado pelos testes automáticos.
+
+Para recomeçar um banco remoto do zero, `npm run db:migrar -- --reset --forcar` apaga tudo.
+Use com cuidado.
+
 ## Estrutura
 
 ```
@@ -89,12 +141,15 @@ app/                 rotas: mesa, p (celular), admin, api
 components/base/     Botao, Campo, Selo, Cronometro, Faixa, Dialogo, Icone
 components/mesa/     TelaMesa, Trilha, FolhaDeTrabalho, PastaViva
 components/participante/  tela do celular
-components/admin/    PainelAdmin, CartaoDaMesa, GavetaDaMesa
+components/admin/    PainelAdmin, CartaoDaMesa, GavetaDaMesa, DetalheDaMesa, PreparoAdmin
 components/atividades/  um componente por tipo de atividade
 lib/jornada/         fases, passos, papéis, temas e critérios (dados)
 lib/maquina.ts       máquina de estados da mesa
-lib/servidor/        banco, ações, sessão do admin e sinais de tempo real
+lib/ia/              cliente da API, IA simulada para testes e prompts de cada fase
+lib/exportacao/      montagem da pasta, LEIA-ME e .zip
+lib/servidor/        banco, ações, entrevista, rodadas, teste, conserto, entrega, preparo
 supabase/migrations/ esquema do banco
 supabase/seed/       evento de demonstração
+scripts/             migrações, seed e teste de carga
 tests/               testes unitários, de integração e de ponta a ponta
 ```

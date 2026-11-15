@@ -17,7 +17,8 @@ export async function POST(req: NextRequest) {
   resposta.headers.append(
     "Set-Cookie",
     `${COOKIE_ADMIN}=${criarSessao(perfil, corpo.dados.nome)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${DURACAO_SESSAO_S}${
-      process.env.NODE_ENV === "production" ? "; Secure" : ""
+      // Secure só em https: num servidor local acessado pelo Wi-Fi (http), o cookie precisa valer.
+      req.nextUrl.protocol === "https:" || req.headers.get("x-forwarded-proto") === "https" ? "; Secure" : ""
     }`,
   );
   return resposta;

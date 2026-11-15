@@ -1,8 +1,8 @@
 # Manual do gestor e do facilitador
 
-Para quem opera o painel durante a oficina. Descreve o sistema como ele está hoje e é
-atualizado a cada etapa de construção. O que ainda não existe aparece no fim, na seção
-"O que ainda vai chegar".
+Para quem opera o painel durante a oficina. Descreve o sistema como ele está hoje. Todas as
+partes já funcionam. O que precisa ser conferido à mão antes do dia está no fim, na seção
+"Antes do dia: o que conferir".
 
 ## 1. Os endereços
 
@@ -18,16 +18,33 @@ avançou ou voltou cada mesa. A sessão dura 12 horas.
 
 ## 2. Antes da oficina
 
-1. **Imprima os cartões das mesas.** No painel, clique em **Cartões com QR** e depois em
-   **Imprimir os cartões**. Saem dois cartões por folha, cada um com o nome da mesa, o processo,
+1. **Confira o preparo.** No painel, abra **Mais** e clique em **Preparo** (veja abaixo). Confira
+   o nome e a data do evento, os processos, as mesas e o processo de cada uma.
+2. **Imprima os cartões das mesas.** No painel, abra **Mais**, clique em **Cartões com QR** e
+   depois em **Imprimir os cartões**. Saem dois cartões por folha, cada um com o nome da mesa, o processo,
    o código para o notebook e o QR para os celulares.
-2. **Teste um QR com o seu celular** antes de imprimir tudo. Se a tela da mesa abrir no
+3. **Teste um QR com o seu celular** antes de imprimir tudo. Se a tela da mesa abrir no
    celular, está tudo certo. Se não abrir, avise o responsável técnico: o celular precisa
    conseguir chegar ao endereço que aparece no topo da página de cartões.
-3. **Abra cada notebook** na página inicial e digite o código da mesa. Deixe a janela do Chrome
+4. **Abra cada notebook** na página inicial e digite o código da mesa. Deixe a janela do Chrome
    em tela cheia.
-4. Quando todos estiverem sentados, clique em **Iniciar evento**. Isso liga o cronômetro geral
+5. **Imprima um roteiro de reserva** de cada mesa, se quiser ter um plano para a internet
+   cair: no detalhe da mesa, clique em **Roteiro para imprimir**.
+6. Quando todos estiverem sentados, clique em **Iniciar evento**. Isso liga o cronômetro geral
    e zera o cronômetro das mesas que estão na Fase 0.
+
+### A página de Preparo
+
+Só o gestor abre. Tem quatro abas, e tudo que você guarda aparece nas telas na hora.
+
+| Aba | O que dá para fazer |
+| --- | --- |
+| **Evento** | Mudar o nome, a data, os minutos de intervalo e a lista de palavras vagas que a Prova recusa |
+| **Processos** | Criar, editar e remover processos: ficha, materiais do kit, exemplo bom, exemplo ruim, caso de exemplo e caso novo. Um processo pode ir para mais de uma mesa. Só sai o processo que não está em nenhuma mesa |
+| **Mesas** | Criar mesas, mudar o nome e o processo de cada uma. O código da mesa é criado sozinho. Só sai a mesa que ainda não começou: na Fase 0, sem pasta e sem celulares |
+| **Roteiro** | Mudar os minutos de cada fase, a atividade da tela de espera e o texto de cada passo. Ao lado, aparece como a mesa vai ver. A soma dos minutos aparece no topo |
+
+Os textos não podem ter travessão: a tela pede para trocar por vírgula, ponto ou dois-pontos.
 
 ## 3. As fases
 
@@ -69,8 +86,7 @@ disser outro tempo).
 | **Pausar todas** | Abre o intervalo. Pergunta quantos minutos. O tempo das fases para; o tempo do evento continua |
 | **Retomar todas** | Encerra o intervalo. Retoma também as mesas pausadas uma a uma |
 | **Enviar aviso** | Manda um aviso curto (até 280 letras) para todas as mesas e todos os celulares |
-| **Cartões com QR** | Abre os cartões das mesas para imprimir |
-| **Exportar todas (.zip)** | Baixa a pasta com todas as skills, um LEIA-ME e o .zip de cada uma, pronto para enviar ao claude.ai |
+| **Mais** | Abre três opções: **Preparo** (evento, processos, mesas e textos do roteiro), **Cartões com QR** (para imprimir) e **Exportar todas (.zip)** (a pasta com todas as skills, um LEIA-ME e o .zip de cada uma, pronto para enviar ao claude.ai) |
 | **Som ligado** ou **Som desligado** | Liga ou desliga o som de pedido de ajuda |
 | **Sair** | Sai do painel |
 
@@ -78,10 +94,11 @@ disser outro tempo).
 
 - **Fase de referência:** a fase em que a maioria das mesas deveria estar agora. Serve de base
   para "Avançar todas".
-- **Tempo de todas as mesas:** **+5 min** e **-5 min** valem para todas de uma vez.
-- **Avançar as mesas prontas:** libera de uma vez todas as mesas que estão prontas.
+- **Todas as mesas:** **+5 min** e **-5 min** valem para todas de uma vez.
+- **Avançar as mesas prontas:** libera de uma vez todas as mesas que estão prontas. Quando
+  nenhuma está pronta, aparece o texto "Nenhuma mesa pronta" no lugar do botão.
 - **Iniciar teste cruzado:** forma os pares do teste cruzado. Clique quando as primeiras mesas
-  chegarem à Fase 5. Depois de formados, o botão fica apagado.
+  chegarem à Fase 5. Depois de formados, aparece o texto "Pares do teste formados".
 - **Avançar todas:** passa para a fase seguinte todas as mesas que estão na fase de referência,
   prontas ou não. Antes, aparece quantas ainda não concluíram. Mesas em outras fases não mudam.
 - Logo abaixo, uma linha mostra quantas mesas estão em cada fase.
@@ -93,7 +110,8 @@ disser outro tempo).
 ### Cartão de cada mesa
 
 Mostra o nome, o tempo da fase, o processo, a fase e o passo, o estado e **quantas pessoas
-estão com o celular conectado** naquele momento. O número cai quando o celular fica com a tela
+estão com o celular conectado** naquele momento. Quando a skill já foi marcada como final,
+aparece "Final." antes do número de pessoas. O número cai quando o celular fica com a tela
 apagada por mais de 45 segundos; isso é normal.
 
 | Estado | Botão | O que faz |
@@ -106,7 +124,10 @@ apagada por mais de 45 segundos; isso é normal.
 
 ### Detalhe da mesa
 
-Clique no corpo do cartão para abrir o detalhe, do lado direito:
+Clique no corpo do cartão para abrir o detalhe, do lado direito. No topo ficam o código da
+mesa, **Abrir a tela da mesa** e **Roteiro para imprimir** (o plano B, veja a seção 7).
+
+O detalhe tem abas. A aba **Agora** tem as ações:
 
 - **Fase:** **Avançar**, **Forçar avanço** e **Voltar fase**. Voltar nunca apaga nada; a mesa
   vê uma faixa avisando que a fase foi reaberta.
@@ -115,6 +136,15 @@ Clique no corpo do cartão para abrir o detalhe, do lado direito:
 - **Skill e teste cruzado:** qual mesa ela testa (dá para trocar), **Destravar a skill** quando
   ela já foi marcada como final, e **Baixar a skill (.zip)**.
 - Se a mesa pediu ajuda: **Marcar chamado como atendido**.
+
+As outras abas são só para ler, e só o gestor vê:
+
+| Aba | O que mostra |
+| --- | --- |
+| **Pasta** | Os arquivos da mesa, com a versão de cada um. Clique no nome para ler |
+| **Conversa** | A entrevista inteira, pergunta e resposta, com a hora. Embaixo, o que os celulares mandaram |
+| **Linha do tempo** | Tudo que aconteceu com a mesa, com a hora e quem fez: avanços, voltas, avisos, arquivos guardados, rodadas, consertos. Embaixo, os pedidos de ajuda e quem atendeu |
+| **Teste** | O teste que a mesa fez na parceira e o teste que recebeu, com o placar de cada um |
 
 Feche com o X ou com a tecla Esc.
 
@@ -132,7 +162,9 @@ só pode:
 - atender pedidos de ajuda.
 
 Ele não vê os botões de iniciar evento, modo de liberação, pausar, ajustar tempo, enviar aviso,
-cartões com QR, fase de referência, ações em todas as mesas, teste cruzado, destravar e exportar.
+o menu **Mais** (preparo, cartões com QR e exportar), fase de referência, ações em todas as
+mesas, teste cruzado e destravar. No detalhe da mesa, ele vê só a aba **Agora** e o link do
+roteiro para imprimir.
 
 ## 6. O que a mesa e os celulares fazem em cada fase
 
@@ -250,11 +282,18 @@ Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está faz
 | "A tela ficou pequena e só mostra um aviso" | Maximize a janela do Chrome. A tela da mesa precisa de um notebook |
 | "Não encontramos esta mesa" | Confira o código no cartão da mesa |
 | "Fechamos a janela sem querer" | Abram a página inicial e digitem o código. A mesa volta no mesmo passo, com tudo que já fez |
+| "A internet caiu e não volta" | A mesa continua digitando: o texto fica guardado no notebook e vai quando a internet voltar. Se demorar muito, entregue o roteiro impresso (detalhe da mesa, **Roteiro para imprimir**). Ele tem as fases, os passos, a ficha, o kit, as perguntas da entrevista e espaço para escrever. Quando voltar, o Piloto passa para a tela |
 
-## 8. O que ainda vai chegar
+## 8. Antes do dia: o que conferir
 
-| Parte | Etapa |
-| --- | --- |
-| Cadastro de processos e mesas pelo painel, linha do tempo da mesa, roteiro para imprimir | Marco 6 |
-
-Todas as atividades das 8 fases já funcionam.
+1. **Instale uma skill de teste numa conta Claude.** Baixe a skill de uma mesa de teste, abra o
+   claude.ai, vá em Personalizar, Skills, envie o .zip e peça a tarefa com o caso novo do kit.
+   A execução de código precisa estar ligada nas configurações da conta.
+2. **Faça um ensaio com 3 mesas de verdade** e marque o tempo de cada fase. Se alguma fase
+   passar muito, ajuste os minutos na aba **Roteiro** do Preparo.
+3. **No ensaio, leia a pergunta da entrevista a 1 metro** de um notebook de 14 polegadas, como
+   as pessoas vão ler no dia.
+4. **Avance uma mesa no painel e veja a tela dela mudar** em até 2 segundos, já no endereço
+   que vai ser usado no dia.
+5. **Peça ao responsável técnico para confirmar** que a conta da IA aguenta todas as mesas
+   pedindo ao mesmo tempo.

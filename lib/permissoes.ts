@@ -25,7 +25,8 @@ export type AcaoAdmin =
   | "preparo"
   | "exportar"
   | "destravar"
-  | "teste_cruzado";
+  | "teste_cruzado"
+  | "ver_pasta";
 
 const DO_FACILITADOR: ReadonlySet<AcaoAdmin> = new Set<AcaoAdmin>([
   "avancar",

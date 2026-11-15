@@ -348,3 +348,53 @@ export interface PainelApi {
 export interface ErroApi {
   erro: string;
 }
+
+/** Detalhe da mesa no painel do gestor (só leitura). */
+export interface DetalheMesaApi {
+  mesaId: string;
+  arquivos: ArquivoApi[];
+  conversa: { autor: "mesa" | "ia"; texto: string; fase: number; tipo: string; criadoEm: string }[];
+  contribuicoes: { texto: string; estado: string; fase: number; criadoEm: string }[];
+  linhaDoTempo: {
+    acao: string;
+    autorPerfil: string;
+    autorNome: string;
+    detalhes: Record<string, unknown>;
+    criadoEm: string;
+  }[];
+  chamados: {
+    fase: number;
+    passo: number;
+    estado: string;
+    abertoEm: string;
+    atendidoPor: string | null;
+    atendidoEm: string | null;
+  }[];
+  teste: TesteApi | null;
+}
+
+/** Cadastros do evento, para a página de preparação do gestor. */
+export interface PreparoApi {
+  evento: { nome: string; data: string; duracaoIntervaloMin: number; palavrasVagas: string[] };
+  fases: {
+    id: string;
+    ordem: number;
+    nome: string;
+    duracaoMin: number;
+    aprofundamento: string;
+    passos: { id: string; ordem: number; instrucao: string; papel: string; chave: string }[];
+  }[];
+  processos: {
+    id: string;
+    nome: string;
+    ficha: Ficha;
+    kitMateriais: string;
+    exemploBom: string;
+    exemploRuim: string;
+    casoExemplo: string;
+    casoNovo: string;
+    /** Quantas mesas usam este processo. */
+    mesas: number;
+  }[];
+  mesas: { id: string; numero: number; nome: string; codigo: string; processoId: string | null; faseAtual: number }[];
+}

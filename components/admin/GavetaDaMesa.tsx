@@ -9,9 +9,10 @@ import { Icone } from "@/components/base/Icone";
 import { pode, type Perfil } from "@/lib/permissoes";
 import type { CartaoMesaApi } from "@/lib/tipos-api";
 import { useEstadoAoVivo } from "./CartaoDaMesa";
+import { DetalheDaMesa, type AbaDetalhe } from "./DetalheDaMesa";
 
-// Gaveta de detalhe, aba "Agora". As abas Pasta, Conversa, Linha do tempo e
-// Teste chegam nos Marcos 5 e 6.
+// Gaveta de detalhe: a aba "Agora" tem as ações; Pasta, Conversa, Linha do
+// tempo e Teste são só leitura, para o gestor (seção 5 da especificação).
 
 export type AcaoGaveta =
   | { tipo: "avancar" | "forcar" | "voltar" | "pausar" | "retomar" | "atender" }
@@ -42,6 +43,16 @@ export function GavetaDaMesa({
 }) {
   const estado = useEstadoAoVivo(mesa, defasagem);
   const [aviso, setAviso] = useState("");
+  const [aba, setAba] = useState<"agora" | AbaDetalhe>("agora");
+  const abas: { chave: "agora" | AbaDetalhe; texto: string }[] = pode(perfil, "ver_pasta")
+    ? [
+        { chave: "agora", texto: "Agora" },
+        { chave: "pasta", texto: "Pasta" },
+        { chave: "conversa", texto: "Conversa" },
+        { chave: "linha", texto: "Linha do tempo" },
+        { chave: "teste", texto: "Teste" },
+      ]
+    : [{ chave: "agora", texto: "Agora" }];
   const titulo = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -75,6 +86,10 @@ export function GavetaDaMesa({
             <a className="font-bold text-petroleo underline underline-offset-4" href={`/mesa/${mesa.codigo}`} target="_blank" rel="noreferrer">
               Abrir a tela da mesa
             </a>
+            {" · "}
+            <a className="font-bold text-petroleo underline underline-offset-4" href={`/mesa/${mesa.codigo}/imprimir`} target="_blank" rel="noreferrer">
+              Roteiro para imprimir
+            </a>
           </p>
         </div>
         <Botao variante="discreto" onClick={aoFechar} aria-label="Fechar detalhe da mesa">
@@ -83,12 +98,26 @@ export function GavetaDaMesa({
         </Botao>
       </header>
 
-      <div role="tablist" aria-label="Detalhe da mesa" className="flex gap-1 border-b-2 border-linha px-5">
-        <span role="tab" aria-selected className="border-b-4 border-petroleo px-3 py-2 font-bold">
-          Agora
-        </span>
+      <div role="tablist" aria-label="Detalhe da mesa" className="flex gap-1 overflow-x-auto border-b-2 border-linha px-3">
+        {abas.map((a) => (
+          <button
+            key={a.chave}
+            type="button"
+            role="tab"
+            aria-selected={aba === a.chave}
+            onClick={() => setAba(a.chave)}
+            className={`min-h-11 shrink-0 px-3 font-bold ${aba === a.chave ? "border-b-4 border-petroleo" : "text-tinta-suave"}`}
+          >
+            {a.texto}
+          </button>
+        ))}
       </div>
 
+      {aba !== "agora" ? (
+        <div className="flex-1 overflow-y-auto">
+          <DetalheDaMesa mesaId={mesa.id} versao={mesa.versao} aba={aba} />
+        </div>
+      ) : (
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-5">
         <section className="flex flex-col gap-2">
           <h3 className="text-[17px] font-bold">
@@ -234,6 +263,7 @@ export function GavetaDaMesa({
           </section>
         ) : null}
       </div>
+      )}
     </aside>
   );
 }

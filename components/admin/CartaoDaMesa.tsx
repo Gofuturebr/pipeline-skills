@@ -43,27 +43,27 @@ function CartaoDaMesaBase({
   let acao: React.ReactNode = null;
   if (mesa.pediuAjuda) {
     acao = (
-      <Botao variante="principal" onClick={() => aoAgir(mesa, "atender")} className="w-full">
+      <Botao variante="principal" onClick={() => aoAgir(mesa, "atender")} className="shrink-0">
         Atender
       </Botao>
     );
   } else if (mesa.estado === "pausada") {
     acao = podePausar ? (
-      <Botao variante="secundario" onClick={() => aoAgir(mesa, "retomar")} className="w-full">
+      <Botao variante="secundario" onClick={() => aoAgir(mesa, "retomar")} className="shrink-0">
         Retomar
       </Botao>
     ) : null;
   } else if (mesa.faseAtual >= 7) {
-    acao = <span className="flex min-h-11 items-center text-[13px] text-tinta-suave">Última fase</span>;
+    acao = <span className="flex min-h-11 shrink-0 items-center text-[13px] text-tinta-suave">Última fase</span>;
   } else if (mesa.estado === "pronta") {
     acao = podeFase ? (
-      <Botao variante="principal" onClick={() => aoAgir(mesa, "avancar")} className="w-full">
+      <Botao variante="principal" onClick={() => aoAgir(mesa, "avancar")} className="shrink-0">
         Avançar
       </Botao>
     ) : null;
   } else {
     acao = podeFase ? (
-      <Botao variante="discreto" onClick={() => aoAgir(mesa, "forcar")} className="w-full">
+      <Botao variante="discreto" onClick={() => aoAgir(mesa, "forcar")} className="shrink-0">
         Avançar
       </Botao>
     ) : null;
@@ -88,18 +88,23 @@ function CartaoDaMesaBase({
             <CronometroFase relogio={mesa.relogio} defasagem={defasagem} className="text-[15px]" />
           </span>
           <span className="truncate text-[13px] text-tinta-suave">{mesa.processo ?? "Sem processo"}</span>
-          <span className="numeros-tabulares">
-            Fase {mesa.faseAtual}, passo {mesa.passoAtual} de {mesa.totalPassos}
-          </span>
-          <span className="flex flex-wrap items-center justify-between gap-x-2">
-            {mesa.pediuAjuda ? <SeloEstado estado="ajuda" /> : <SeloEstado estado={estado} />}
+          <span className="flex flex-wrap items-baseline justify-between gap-x-2">
+            <span className="numeros-tabulares">
+              Fase {mesa.faseAtual}, passo {mesa.passoAtual} de {mesa.totalPassos}
+            </span>
             <span className="text-[13px] text-tinta-suave">
               {mesa.final ? "Final. " : ""}
               {mesa.pessoas === 1 ? "1 pessoa" : `${mesa.pessoas} pessoas`}
             </span>
           </span>
         </button>
-        {acao}
+        {/* Estado e ação na mesma linha: com 20 mesas, a grade cabe em 1440 por 900. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-2">
+          <button type="button" onClick={() => aoAbrir(mesa.id)} className="min-h-11 text-left">
+            {mesa.pediuAjuda ? <SeloEstado estado="ajuda" /> : <SeloEstado estado={estado} />}
+          </button>
+          {acao}
+        </div>
       </div>
     </article>
   );

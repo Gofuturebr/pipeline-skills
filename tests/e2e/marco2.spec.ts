@@ -73,6 +73,7 @@ test("cartões com QR para imprimir, só para o gestor", async ({ page }) => {
   await page.getByLabel("Seu nome").fill("Gestora");
   await page.getByLabel("Senha").fill("gestor-e2e");
   await page.getByRole("button", { name: "Entrar" }).click();
+  await page.getByText("Mais", { exact: true }).click();
   await page.getByRole("link", { name: "Cartões com QR" }).click();
   await expect(page.getByRole("heading", { name: "Cartões das mesas" })).toBeVisible();
   await expect(page.getByRole("img", { name: /QR da Mesa/ })).toHaveCount(3);

@@ -201,3 +201,47 @@ Conferido na documentação atual da Anthropic (Agent Skills, visão geral e boa
 - **"Revisamos a seção Quando usar"** fica junto da descrição que o Claude vai ver, para a mesa entender por que essa seção importa.
 - **Marcar como final** pede confirmação e trava a pasta (RN15). O gestor destrava no detalhe da mesa.
 - **Apresentação de 1 minuto** sai pronta na tela: a tarefa, uma conferência que passou na prova e o que o conserto mudou.
+
+## Marco 6: robustez para o dia do evento (15/11/2026)
+
+### Detalhe da mesa
+
+- **Abas Pasta, Conversa, Linha do tempo e Teste só para o gestor.** A seção 5 da especificação põe "Ver pasta" entre as ações do gestor, e o facilitador tem a função de atender chamados e liberar fases. O facilitador vê só a aba Agora. A rota `/api/admin/mesas/[id]/detalhe` confere o perfil (`ver_pasta`).
+- **A Conversa do detalhe mostra a entrevista e os envios dos celulares.** É a única tela fora da própria mesa que mostra a conversa; a mesa testadora continua sem acesso (RN09).
+- **Linha do tempo em frases**, a partir do registro de ações (RN16), com a hora e o nome de quem fez. Ações sem frase própria aparecem pelo nome.
+
+### Preparo pelo admin
+
+- **Página `/admin/preparo`, só do gestor**, com as abas Evento, Processos, Mesas e Roteiro. Cada alteração registra a ação e avisa as telas pelo canal de tempo real.
+- **O código da mesa é gerado pelo sistema**, com 6 letras e números sem os que se confundem (0, O, 1, I, L). Não é editável, para não quebrar os cartões já impressos.
+- **Só sai a mesa que não começou:** Fase 0, sem arquivos e sem celulares. Só sai o processo sem mesa. Assim, nada que a mesa fez se perde (RN05).
+- **Textos do roteiro sem travessão.** O servidor recusa travessões nas instruções e na atividade da tela de espera, com a mensagem que diz o que usar no lugar. A instrução de um passo vai até 300 caracteres.
+- **A aba Roteiro mostra a soma dos minutos** e uma prévia de como a mesa vê cada passo.
+
+### Plano B impresso
+
+- **`/mesa/[codigo]/imprimir`**: o roteiro da mesa numa folha A4, com fases, passos, papéis, ficha, kit, as perguntas guia dos 8 temas e linhas para escrever a skill e as conferências. Abre pelo detalhe da mesa ("Roteiro para imprimir") e com o código da mesa, como a própria tela.
+
+### Painel com 20 mesas
+
+- **Menu "Mais"** na barra de cima, com Preparo, Cartões com QR e Exportar todas. Com tudo à vista, a barra quebrava em duas linhas e a grade de 20 mesas passava de 900 px de altura.
+- **Texto no lugar de botão desabilitado na barra de fases:** "Nenhuma mesa pronta" e "Pares do teste formados". O frontend pede que todo botão desabilitado mostre o motivo; o texto curto diz a mesma coisa e cabe numa linha.
+- **Cartão mais baixo:** estado e ação na mesma linha, pessoas conectadas na linha da fase, "Final." antes das pessoas quando a skill foi marcada como final. Com isso, 20 cartões cabem em 1440 por 900 sem rolagem (teste em `tests/e2e/marco6-aceite.spec.ts`).
+
+### Robustez
+
+- **Rascunhos nas edições por seção**: o texto em edição fica no navegador (`localStorage`) até ser guardado, para não se perder com F5, queda de rede ou janela fechada.
+- **Cookie do admin com `Secure` só em https.** Em http (rede local do evento ou `localhost`), o navegador recusaria o cookie e o gestor não conseguiria entrar.
+
+### Teste de carga
+
+- **Script próprio (`scripts/carga.ts`)**, sem dependência nova: abre um canal de tempo real por mesa, por celular e pelo admin, busca o estado com a frequência real das telas, manda contribuições e muda fases pelo admin, medindo quanto a mudança leva para chegar à mesa.
+- **Resultado em 15/11/2026**, servidor de produção local com o canal local de tempo real, 20 mesas, 100 celulares e 60 segundos: nenhum erro; estado do celular com mediana de 7 ms e 95% abaixo de 14 ms; painel com 95% abaixo de 280 ms; mudança de fase chegando à mesa com mediana de 9 ms e 95% abaixo de 19 ms.
+- **Não testado:** o caminho do Supabase Realtime e a IA de verdade com muitas mesas ao mesmo tempo. Os dois ficam na lista de conferências antes do evento (`docs/aceite.md`).
+
+### Testes
+
+- **IA simulada nos testes** (`IA_SIMULADA=1`, `lib/ia/simulada.ts`): os testes de navegador e de integração percorrem as 8 fases sem chave e sem custo. A IA simulada respeita os mesmos esquemas de resposta da real.
+- **Teste de textos** (`tests/textos.test.ts`): falha se algum texto do código tiver travessão ou se algum componente usar caixa alta.
+- **Mapa de aceite** em `docs/aceite.md`, ligando cada critério das seções 8 da especificação e do frontend ao teste que o confere ou à conferência manual.
+

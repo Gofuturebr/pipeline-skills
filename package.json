@@ -12,7 +12,8 @@
     "test:e2e": "playwright test --trace off",
     "db:migrar": "tsx scripts/migrar.ts",
     "db:seed": "tsx scripts/seed.ts",
-    "db:reset": "tsx scripts/migrar.ts --reset && tsx scripts/seed.ts"
+    "db:reset": "tsx scripts/migrar.ts --reset && tsx scripts/seed.ts",
+    "carga": "tsx scripts/carga.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.8.0",

@@ -200,10 +200,18 @@ export function EditorPorSecoes({
   const pausada = estado.mesa.estado === "pausada";
   const TITULO = "__titulo__";
 
+  // Rascunho de cada seção guardado no navegador a cada tecla (seção 3 do frontend).
+  const chaveRascunho = (chave: string) => `mesa:${codigo}:rascunho:secao:${caminho}:${chave}`;
+
   function abrir(chave: string, valor: string) {
     setErro(null);
     setEditando(chave);
-    setTexto(valor);
+    setTexto(lerRascunho(chaveRascunho(chave)) ?? valor);
+  }
+
+  function fechar() {
+    if (editando !== null) guardarRascunho(chaveRascunho(editando), "");
+    setEditando(null);
   }
 
   async function guardar() {
@@ -221,7 +229,7 @@ export function EditorPorSecoes({
       versao: arquivo.versao,
     });
     setGuardando(false);
-    if (ok) setEditando(null);
+    if (ok) fechar();
   }
 
   const podeEditar = (nome: string) => !secoesEditaveis || secoesEditaveis.includes(nome);
@@ -242,7 +250,10 @@ export function EditorPorSecoes({
             autoFocus
             rows={chave === TITULO ? 1 : Math.min(14, Math.max(4, valor.split("\n").length + 1))}
             value={texto}
-            onChange={(ev) => setTexto(ev.target.value)}
+            onChange={(ev) => {
+              setTexto(ev.target.value);
+              guardarRascunho(chaveRascunho(chave), ev.target.value);
+            }}
             className="rounded-folha border-2 border-petroleo bg-papel px-4 py-3 font-mono text-lg leading-normal"
             aria-label={`Texto de ${rotulo}`}
           />
@@ -255,7 +266,7 @@ export function EditorPorSecoes({
             <Botao variante="secundario" tamanho="mesa" enviando={guardando} textoEnviando="Guardando" onClick={guardar}>
               Guardar na pasta
             </Botao>
-            <Botao variante="discreto" tamanho="mesa" onClick={() => setEditando(null)}>
+            <Botao variante="discreto" tamanho="mesa" onClick={fechar}>
               Cancelar
             </Botao>
           </div>

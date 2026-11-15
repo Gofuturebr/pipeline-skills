@@ -359,18 +359,22 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
               <Botao variante="secundario" onClick={() => setConfirmacao({ tipo: "aviso_todas" })}>
                 Enviar aviso
               </Botao>
-              <a
-                href="/api/admin/exportar"
-                className="inline-flex min-h-11 items-center px-2 font-bold text-petroleo underline underline-offset-4"
-              >
-                Exportar todas (.zip)
-              </a>
-              <Link
-                href="/admin/cartoes"
-                className="inline-flex min-h-11 items-center px-2 font-bold text-petroleo underline underline-offset-4"
-              >
-                Cartões com QR
-              </Link>
+              <details className="relative">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center px-2 font-bold text-petroleo underline underline-offset-4">
+                  Mais
+                </summary>
+                <div className="absolute right-0 z-30 mt-1 flex w-56 flex-col rounded-folha border-2 border-linha bg-papel p-2 shadow-lg">
+                  <Link href="/admin/preparo" className="flex min-h-11 items-center px-2 font-bold text-petroleo">
+                    Preparo
+                  </Link>
+                  <Link href="/admin/cartoes" className="flex min-h-11 items-center px-2 font-bold text-petroleo">
+                    Cartões com QR
+                  </Link>
+                  <a href="/api/admin/exportar" className="flex min-h-11 items-center px-2 font-bold text-petroleo">
+                    Exportar todas (.zip)
+                  </a>
+                </div>
+              </details>
             </>
           ) : null}
           <Botao
@@ -425,7 +429,7 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
           )}
           {gestor ? (
             <span className="flex items-center gap-2">
-              Tempo de todas as mesas
+              Todas as mesas
               <Botao variante="secundario" onClick={() => chamar("/api/admin/todas/tempo", { minutos: 5 })}>
                 +5 min
               </Botao>
@@ -435,32 +439,38 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
             </span>
           ) : null}
           {gestor ? (
-            <div className="ml-auto flex flex-wrap items-center gap-3">
-              <Botao
-                variante="principal"
-                disabled={prontasParaAvancar === 0}
-                motivo={prontasParaAvancar === 0 ? "Nenhuma mesa pronta" : null}
-                enviando={enviando}
-                textoEnviando="Avançando"
-                onClick={() => chamar("/api/admin/todas/avancar-prontas").then((ok) => ok && recarregar())}
-              >
-                {prontasParaAvancar === 1 ? "Avançar a mesa pronta" : `Avançar as ${prontasParaAvancar} mesas prontas`}
-              </Botao>
-              <Botao
-                variante="secundario"
-                disabled={painel.paresFormados}
-                motivo={painel.paresFormados ? "Pares formados" : null}
-                onClick={() =>
-                  chamar("/api/admin/teste/pares").then((ok) => {
-                    if (ok) {
-                      setToast({ id: Date.now(), texto: "Pares do teste cruzado formados." });
-                      recarregar();
-                    }
-                  })
-                }
-              >
-                Iniciar teste cruzado
-              </Botao>
+            <div className="ml-auto flex flex-wrap items-center gap-x-4 gap-y-2">
+              {/* Sem mesa pronta ou com os pares já formados, um texto curto no lugar do botão:
+                  com 20 mesas, a barra cabe numa linha em 1440 por 900. */}
+              {prontasParaAvancar === 0 ? (
+                <span className="text-tinta-suave">Nenhuma mesa pronta</span>
+              ) : (
+                <Botao
+                  variante="principal"
+                  enviando={enviando}
+                  textoEnviando="Avançando"
+                  onClick={() => chamar("/api/admin/todas/avancar-prontas").then((ok) => ok && recarregar())}
+                >
+                  {prontasParaAvancar === 1 ? "Avançar a mesa pronta" : `Avançar as ${prontasParaAvancar} mesas prontas`}
+                </Botao>
+              )}
+              {painel.paresFormados ? (
+                <span className="text-tinta-suave">Pares do teste formados</span>
+              ) : (
+                <Botao
+                  variante="secundario"
+                  onClick={() =>
+                    chamar("/api/admin/teste/pares").then((ok) => {
+                      if (ok) {
+                        setToast({ id: Date.now(), texto: "Pares do teste cruzado formados." });
+                        recarregar();
+                      }
+                    })
+                  }
+                >
+                  Iniciar teste cruzado
+                </Botao>
+              )}
               <Botao
                 variante="secundario"
                 disabled={naRef.length === 0 || ref >= 7}

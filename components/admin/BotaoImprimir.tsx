@@ -2,10 +2,10 @@
 
 import { Botao } from "@/components/base/Botao";
 
-export function BotaoImprimir() {
+export function BotaoImprimir({ texto = "Imprimir os cartões" }: { texto?: string }) {
   return (
     <Botao variante="principal" onClick={() => window.print()}>
-      Imprimir os cartões
+      {texto}
     </Botao>
   );
 }

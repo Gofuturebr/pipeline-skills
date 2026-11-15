@@ -196,7 +196,8 @@ Se o botão de avançar estiver apagado, leiam o texto ao lado dele: ele diz o q
 | "Mesa pausada pelo gestor" | Esperar. A tela volta sozinha |
 | "Intervalo. Voltamos em ..." | Hora do intervalo. A tela mostra quanto falta |
 | "O gestor reabriu a Fase ..." | O gestor pediu para vocês reverem uma fase. Nada foi apagado |
-| "Sem conexão" | Continuem. Quando a internet voltar, a tela se atualiza sozinha |
+| "Sem conexão" | Continuem digitando: o texto fica guardado. Quando a internet voltar, a tela se atualiza sozinha |
+| A internet caiu e não volta | Peçam ao gestor o roteiro impresso da mesa. Ele tem os passos, a ficha, o kit, as perguntas da entrevista e espaço para escrever. Continuem no papel e, quando a internet voltar, o Piloto passa para a tela |
 | O tempo da fase fica vermelho | O tempo acabou. Terminem o passo e cliquem em **Concluímos a fase** |
 | A tela travou ou ficou estranha | Apertem F5. Nada se perde |
 | Fecharam a janela sem querer | Abram o endereço de novo e digitem o código. A mesa volta no mesmo passo |
