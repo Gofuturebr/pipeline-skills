@@ -159,7 +159,7 @@ export default async function PaginaImprimir({ params }: PageProps<"/mesa/[codig
       </section>
 
       <section className="flex break-inside-avoid flex-col gap-2">
-        <h2 className="font-titulo text-[22px] font-bold">Conferências da prova (de 5 a 10)</h2>
+        <h2 className="font-titulo text-[22px] font-bold">Conferências da prova (até 10)</h2>
         <p>Cada uma diz o que confere e contra qual fonte. Nada de “claro”, “profissional” ou “de qualidade”.</p>
         <table className="w-full border-collapse">
           <thead>

@@ -161,6 +161,13 @@ describe.skipIf(!URL_TESTE)("Marco 3: entrevista com a IA e SKILL.md", () => {
     expect((await concluirPasso(sql, mesaId, gerar.id)).ok).toBe(true);
     c = await celular();
     expect(c.skill!.perguntasDaRevisao).toEqual(["O que eu errei?", "O que vocês esqueceram de me contar?"]);
+
+    // Na tela da mesa, o passo de revisar mostra só o que mudou desde a versão da IA.
+    expect((await estado()).entrevista!.revisao).toEqual({ versaoDaIA: 1, versaoAtual: 1, mudancas: [] });
+    expect((await editarSecao(sql, mesaId, "SKILL.md", "Passos", "1. Ler a pesquisa de temas.", 1)).ok).toBe(true);
+    const revisao = (await estado()).entrevista!.revisao!;
+    expect(revisao.versaoAtual).toBe(2);
+    expect(revisao.mudancas).toEqual([{ secao: "Passos", tipo: "mudou", texto: "1. Ler a pesquisa de temas." }]);
   });
 
   it("a IA não responde duas vezes ao mesmo tempo, e recusa vira mensagem para a mesa", async () => {

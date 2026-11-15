@@ -1,7 +1,8 @@
 // Conferências da prova (RN08): cada uma diz o que confere e contra qual fonte,
 // sem palavras vagas. Usado na tela (aviso ao sair do campo) e no servidor.
 
-export const MINIMO_CONFERENCIAS = 5;
+// Sem número mínimo além de 1 (decisão de 15/11/2026, em docs/decisoes.md).
+export const MINIMO_CONFERENCIAS = 1;
 export const MAXIMO_CONFERENCIAS = 10;
 
 function semAcento(s: string): string {

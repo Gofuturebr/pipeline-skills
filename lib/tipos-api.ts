@@ -240,6 +240,12 @@ export interface EntrevistaApi {
   skillAprovadaVersao: number | null;
   respostasFinais: { errou: string; esqueceu: string };
   perguntasFinais: string[];
+  /** Passo de revisar: o que mudou no SKILL.md desde a versão que a IA escreveu. */
+  revisao: {
+    versaoDaIA: number;
+    versaoAtual: number;
+    mudancas: { secao: string; tipo: "mudou" | "nova" | "tirada"; texto: string }[];
+  } | null;
 }
 
 export interface ParticipanteApi {

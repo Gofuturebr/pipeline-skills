@@ -1,4 +1,5 @@
 import type { Sql } from "./db";
+import { mudancasEntre } from "@/lib/markdown";
 import { PERGUNTAS_FINAIS } from "@/lib/ia/prompts/skill";
 import { MINIMO_PERGUNTAS, TEMAS_ENTREVISTA, type TemaEntrevista } from "@/lib/jornada";
 import type { EntrevistaApi } from "@/lib/tipos-api";
@@ -90,6 +91,27 @@ export async function montarEntrevista(sql: Sql, mesaId: string): Promise<Entrev
     skillAprovadaVersao: base.skill_aprovada_versao,
     respostasFinais: { errou: base.respostas_finais?.errou ?? "", esqueceu: base.respostas_finais?.esqueceu ?? "" },
     perguntasFinais: [...PERGUNTAS_FINAIS],
+    revisao: await revisaoDoSkill(sql, mesaId),
+  };
+}
+
+/**
+ * Passo de revisar: o que mudou no SKILL.md desde a versão que a IA escreveu no
+ * passo 2 (a última versão gravada na Fase 2 até esse passo). Nulo sem arquivo.
+ */
+async function revisaoDoSkill(sql: Sql, mesaId: string): Promise<EntrevistaApi["revisao"]> {
+  const [atual] = await sql<{ id: string; conteudo: string; versao: number }[]>`
+    select id, conteudo, versao from arquivo where mesa_id = ${mesaId} and caminho = 'SKILL.md'`;
+  if (!atual) return null;
+  const [base] = await sql<{ conteudo: string; versao: number }[]>`
+    select conteudo, versao from arquivo_versao
+    where arquivo_id = ${atual.id} and fase = 2 and coalesce(passo, 0) <= 2
+    order by versao desc limit 1`;
+  const daIA = base ?? { conteudo: atual.conteudo, versao: atual.versao };
+  return {
+    versaoDaIA: daIA.versao,
+    versaoAtual: atual.versao,
+    mudancas: daIA.versao === atual.versao ? [] : mudancasEntre(daIA.conteudo, atual.conteudo),
   };
 }
 

@@ -271,3 +271,10 @@ Conferido na documentação atual da Anthropic (Agent Skills, visão geral e boa
 - **A pergunta da entrevista só aparece no passo 1.** Antes, a última pergunta sem resposta continuava no celular depois de encerrar a entrevista.
 - **Sinal para os celulares no fim de cada ação da IA** (pergunta nova, SKILL.md escrito ou corrigido, rodadas): os celulares buscam o estado na hora, em vez de esperar a busca de 15 segundos.
 
+### Prova e revisão mais curtas (15/11/2026)
+
+- **Prova sem número mínimo além de 1**, a pedido: o Cético conclui o passo com 1 conferência válida, até 10. A especificação pedia de 5 a 10; vale este registro. A regra da RN08 continua igual: fonte declarada e sem palavras vagas. A lista de palavras vagas não mudou ("tudo" e "qualquer uma" continuam aceitos, por decisão do pedido).
+- **Lista de conferências compacta**: uma linha por conferência (número, o que confere, fonte, situação e Tirar), com os rótulos no cabeçalho da lista. O exemplo bom e o ruim viraram duas linhas curtas.
+- **Passo 3 da entrevista é validar**: no alto, o que mudou no SKILL.md desde a versão que a IA escreveu no passo 2 (por parte do arquivo: mudou, nova ou tirada) e o botão Aprovar. Responder às perguntas da IA e corrigir parte por parte ficam recolhidos. O arquivo inteiro continua na Pasta viva.
+- **Textos do roteiro atualizados nos eventos existentes** pela migração `20261119000000_prova_e_revisao_mais_curtas.sql`, só quando o texto ainda é o padrão: o que o gestor editou no Preparo fica como está.
+

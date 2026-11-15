@@ -56,6 +56,31 @@ export function trocarSecao(conteudo: string, nome: string, corpo: string): stri
   return juntarSecoes(a);
 }
 
+export interface MudancaDeSecao {
+  secao: string;
+  tipo: "mudou" | "nova" | "tirada";
+  /** Texto atual da seção (vazio quando foi tirada). */
+  texto: string;
+}
+
+/** Seções que mudaram de uma versão para outra, na ordem do arquivo novo. O título conta como "Nome da skill". */
+export function mudancasEntre(antes: string, depois: string): MudancaDeSecao[] {
+  const a = dividirSecoes(antes);
+  const d = dividirSecoes(depois);
+  const mudancas: MudancaDeSecao[] = [];
+  if (a.titulo.trim() !== d.titulo.trim()) mudancas.push({ secao: "Nome da skill", tipo: "mudou", texto: d.titulo });
+  const chave = (nome: string) => nome.trim().toLowerCase();
+  const antigas = new Map(a.secoes.map((s) => [chave(s.nome), s.corpo.trim()]));
+  for (const s of d.secoes) {
+    const anterior = antigas.get(chave(s.nome));
+    if (anterior === undefined) mudancas.push({ secao: s.nome, tipo: "nova", texto: s.corpo });
+    else if (anterior !== s.corpo.trim()) mudancas.push({ secao: s.nome, tipo: "mudou", texto: s.corpo });
+  }
+  const atuais = new Set(d.secoes.map((s) => chave(s.nome)));
+  for (const s of a.secoes) if (!atuais.has(chave(s.nome))) mudancas.push({ secao: s.nome, tipo: "tirada", texto: "" });
+  return mudancas;
+}
+
 export function lerSecao(conteudo: string, nome: string): string | null {
   const s = dividirSecoes(conteudo).secoes.find((x) => x.nome.toLowerCase() === nome.toLowerCase());
   return s ? s.corpo : null;

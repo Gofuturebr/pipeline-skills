@@ -135,7 +135,7 @@ export const FASES: DefinicaoFase[] = [
       {
         chave: "revisar",
         instrucao:
-          "Respondam às duas perguntas da IA: o que ela errou e o que vocês esqueceram de contar. Corrijam direto no arquivo e aprovem.",
+          "Confiram o que mudou no SKILL.md e aprovem.",
         papel: "mesa",
         tipo: "editor",
         criterio: "skill_aprovada",
@@ -200,13 +200,13 @@ export const FASES: DefinicaoFase[] = [
     duracaoMin: 20,
     entrega: "Seção Pronto quando",
     criterio: "conferencias_validas",
-    criterioTexto: "De 5 a 10 conferências válidas",
+    criterioTexto: "De 1 a 10 conferências válidas",
     aprofundamento: "Troquem uma conferência por outra mais fácil de contar ou comparar.",
     passos: [
       {
         chave: "escrever",
         instrucao:
-          "Cético, escreva de 5 a 10 conferências. Cada uma diz o que confere e contra qual fonte.",
+          "Cético, escreva as conferências, até 10. Cada uma diz o que confere e contra qual fonte.",
         papel: "cetico",
         tipo: "conferencias",
         criterio: "conferencias_validas",

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { acharSensivel, mascararSensivel, mensagemSensivel } from "@/lib/sensivel";
 import { lerCampoParcial } from "@/lib/ia/json-parcial";
 import { completarSecoes, nomeDaPasta, SECOES_SKILL } from "@/lib/ia/prompts/skill";
-import { dividirSecoes, lerSecao, trocarSecao } from "@/lib/markdown";
+import { dividirSecoes, lerSecao, mudancasEntre, trocarSecao } from "@/lib/markdown";
 import { SISTEMA_ENTREVISTA } from "@/lib/ia/prompts/entrevista";
 import { MODELO_PADRAO, normalizarModelo } from "@/lib/ia/cliente";
 
@@ -77,6 +77,20 @@ describe("nome do modelo no .env.local", () => {
     expect(normalizarModelo(undefined)).toBe(MODELO_PADRAO);
     expect(normalizarModelo("ANTHROPIC_MODEL=claude-opus-5-5")).toBe("claude-opus-5-5");
     expect(normalizarModelo('"claude-opus-5-5"')).toBe("claude-opus-5-5");
+  });
+});
+
+describe("o que mudou no SKILL.md", () => {
+  it("lista as partes que mudaram, as novas e as tiradas", () => {
+    const antes = "# Convite\n\n## Passos\n1. Ler a pesquisa.\n\n## Decisões\n- Se lotar, abrir lista de espera.\n\n## Tom\nAmigável.";
+    const depois = "# Convite do evento\n\n## Passos\n1. Ler a pesquisa.\n2. Escolher o tema.\n\n## Decisões\n- Se lotar, abrir lista de espera.\n\n## Pronto quando\n- [ ] Tem data (fonte: kit)";
+    expect(mudancasEntre(antes, depois)).toEqual([
+      { secao: "Nome da skill", tipo: "mudou", texto: "Convite do evento" },
+      { secao: "Passos", tipo: "mudou", texto: "1. Ler a pesquisa.\n2. Escolher o tema." },
+      { secao: "Pronto quando", tipo: "nova", texto: "- [ ] Tem data (fonte: kit)" },
+      { secao: "Tom", tipo: "tirada", texto: "" },
+    ]);
+    expect(mudancasEntre(antes, antes)).toEqual([]);
   });
 });
 

@@ -54,9 +54,9 @@ test("conferência vaga é recusada e o placar aparece depois de rodar", async (
     await mesa.getByLabel("O que confere").last().fill(o);
     await mesa.getByLabel("Contra qual fonte").last().fill(f);
     await mesa.getByRole("heading", { level: 2 }).click();
-    await expect(mesa.getByText(`Válidas: ${i + 1}. A prova pede de 5 a 10.`)).toBeVisible();
+    await expect(mesa.getByText(`Válidas: ${i + 1}, de no máximo 10.`)).toBeVisible();
   }
-  await expect(mesa.getByText("Válidas: 5. A prova pede de 5 a 10.")).toBeVisible();
+  await expect(mesa.getByText("Válidas: 5, de no máximo 10.")).toBeVisible();
   await mesa.getByRole("button", { name: "Passo concluído" }).click();
   await mesa.getByRole("button", { name: "Rodar a tarefa e conferir" }).click();
   await expect(mesa.getByText("5 de 5 passaram")).toBeVisible({ timeout: 10000 });

@@ -42,22 +42,21 @@ export function AtividadeConferencias(props: PropsAtividade) {
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="grid gap-3 min-[1180px]:grid-cols-2" aria-label="Exemplo de conferência">
-        <div className="rounded-folha border-2 border-estado-pronta bg-papel p-4 text-lg">
-          <p className="inline-flex items-center gap-2 font-bold">
-            <Icone nome="visto" className="h-5 w-5 text-estado-pronta" />
-            Conferência boa
-          </p>
-          <p className="mt-1">O total bate com a soma dos itens. Fonte: tabela de preços do kit.</p>
-        </div>
-        <div className="rounded-folha border-2 border-estado-atrasada bg-papel p-4 text-lg">
-          <p className="inline-flex items-center gap-2 font-bold">
-            <Icone nome="xis" className="h-5 w-5 text-estado-atrasada" />
-            Conferência ruim
-          </p>
-          <p className="mt-1">A mensagem está clara e profissional. Sem fonte: não dá para conferir.</p>
-        </div>
-      </section>
+      {/* Exemplo curto, numa linha só: a lista é o que importa nesta tela. */}
+      <p className="flex flex-wrap items-center gap-x-6 gap-y-1 text-lg" aria-label="Exemplo de conferência">
+        <span className="inline-flex items-center gap-2">
+          <Icone nome="visto" className="h-5 w-5 text-estado-pronta" />
+          <span>
+            <strong>Boa:</strong> o total bate com a soma dos itens. Fonte: tabela de preços do kit.
+          </span>
+        </span>
+        <span className="inline-flex items-center gap-2">
+          <Icone nome="xis" className="h-5 w-5 text-estado-atrasada" />
+          <span>
+            <strong>Ruim:</strong> está clara e profissional, sem fonte.
+          </span>
+        </span>
+      </p>
 
       {placar && naoConferidas.size > 0 ? (
         <p className="rounded-folha border-2 border-estado-atrasada bg-papel p-4 text-xl" role="status">
@@ -86,7 +85,18 @@ export function AtividadeConferencias(props: PropsAtividade) {
         </div>
       ) : null}
 
-      <ol className="flex flex-col gap-4">
+      {total > 0 ? (
+        <div
+          aria-hidden
+          className="hidden gap-3 px-3 text-lg font-bold text-tinta-suave min-[1180px]:grid min-[1180px]:grid-cols-[2rem_minmax(0,3fr)_minmax(0,2fr)_9rem]"
+        >
+          <span>Nº</span>
+          <span>O que confere</span>
+          <span>Contra qual fonte</span>
+          <span />
+        </div>
+      ) : null}
+      <ol className="flex flex-col gap-2">
         {conferencias.map((c) => (
           <LinhaDeConferencia
             key={`${c.id}:${c.descricao}:${c.fonte}`}
@@ -128,7 +138,9 @@ export function AtividadeConferencias(props: PropsAtividade) {
           Acrescentar conferência
         </Botao>
         <p className="text-xl font-bold" role="status">
-          Válidas: {validas}. A prova pede de {MINIMO_CONFERENCIAS} a {MAXIMO_CONFERENCIAS}.
+          {MINIMO_CONFERENCIAS > 1
+            ? `Válidas: ${validas}. A prova pede de ${MINIMO_CONFERENCIAS} a ${MAXIMO_CONFERENCIAS}.`
+            : `Válidas: ${validas}, de no máximo ${MAXIMO_CONFERENCIAS}.`}
         </p>
       </div>
     </div>
@@ -171,57 +183,57 @@ function LinhaDeConferencia({
     setSalvando(false);
   }
 
+  // Uma linha por conferência: número, o que confere, fonte, situação e Tirar.
   return (
     <li
-      className={`flex flex-col gap-3 rounded-folha border-2 bg-papel p-4 ${
+      className={`flex flex-col gap-1 rounded-folha border-2 bg-papel px-3 py-2 ${
         recusada ? "border-estado-atrasada" : naoConferida ? "border-estado-ajuda" : "border-linha"
       }`}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) void aoSair();
       }}
     >
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-lg font-bold">Conferência {n}</span>
-        <span className="flex items-center gap-3">
-          {conferencia?.valida && !motivoLocal ? (
-            <span className="inline-flex items-center gap-1.5 font-bold">
+      <div className="grid items-center gap-2 min-[1180px]:grid-cols-[2rem_minmax(0,3fr)_minmax(0,2fr)_9rem] min-[1180px]:gap-3">
+        <span className="text-lg font-bold" aria-label={`Conferência ${n}`}>
+          {n}
+        </span>
+        <input
+          value={descricao}
+          maxLength={400}
+          disabled={desabilitada}
+          aria-label="O que confere"
+          placeholder="O que confere"
+          onChange={(e) => {
+            setDescricao(e.target.value);
+            setMotivoLocal(null);
+          }}
+          className="min-h-12 rounded-folha border-2 border-linha px-3 text-xl"
+        />
+        <input
+          value={fonte}
+          maxLength={300}
+          disabled={desabilitada}
+          aria-label="Contra qual fonte"
+          placeholder="Contra qual fonte"
+          onChange={(e) => {
+            setFonte(e.target.value);
+            setMotivoLocal(null);
+          }}
+          className="min-h-12 rounded-folha border-2 border-linha px-3 text-xl"
+        />
+        <span className="flex items-center justify-end gap-2">
+          {salvando ? (
+            <span className="text-tinta-suave">Guardando</span>
+          ) : conferencia?.valida && !motivoLocal ? (
+            <span className="inline-flex items-center gap-1 font-bold">
               <Icone nome="visto" className="h-5 w-5 text-estado-pronta" />
               Válida
             </span>
           ) : null}
-          {salvando ? <span className="text-tinta-suave">Guardando</span> : null}
           <Botao variante="discreto" disabled={desabilitada} onClick={() => void aoTirar()}>
             Tirar
           </Botao>
         </span>
-      </div>
-      <div className="grid gap-3 min-[1180px]:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <label className="flex flex-col gap-1.5 text-lg font-bold">
-          O que confere
-          <input
-            value={descricao}
-            maxLength={400}
-            disabled={desabilitada}
-            onChange={(e) => {
-              setDescricao(e.target.value);
-              setMotivoLocal(null);
-            }}
-            className="min-h-14 rounded-folha border-2 border-linha px-3 text-xl font-normal"
-          />
-        </label>
-        <label className="flex flex-col gap-1.5 text-lg font-bold">
-          Contra qual fonte
-          <input
-            value={fonte}
-            maxLength={300}
-            disabled={desabilitada}
-            onChange={(e) => {
-              setFonte(e.target.value);
-              setMotivoLocal(null);
-            }}
-            className="min-h-14 rounded-folha border-2 border-linha px-3 text-xl font-normal"
-          />
-        </label>
       </div>
       {motivo ? (
         <p className="text-lg font-bold" role="alert">

@@ -75,7 +75,7 @@ em **Voltar ao passo atual**.
 | 2. Entrevista | 35 min | A IA faz uma pergunta por vez. O Dono responde em voz alta e o Piloto digita. Os outros mandam pelo celular exceções e casos que deram errado. No fim, a IA escreve a skill e a mesa corrige o que estiver errado |
 | 3. Caixa de ferramentas | 25 min | Usam a skill com um caso de exemplo. O que ficou bom vira modelo, guardado na pasta |
 | Intervalo | 10 min | Pausa para todos |
-| 4. Prova | 20 min | O Cético escreve de 5 a 10 conferências: o que conferir e onde conferir. A IA confere e mostra o que passou e o que falhou |
+| 4. Prova | 20 min | O Cético escreve as conferências, até 10: o que conferir e onde conferir. A IA confere e mostra o que passou e o que falhou |
 | 5. Teste cruzado | 30 min | A mesa testa a skill de outra mesa com um caso novo, e a outra mesa testa a de vocês. O Testador anota cada falha e envia o relatório |
 | 6. Conserto | 20 min | Leem o relatório sobre a skill de vocês, escolhem a falha mais importante e consertam |
 | 7. Entrega | 15 min | Revisam o nome da skill, marcam como final, o Porta-voz apresenta em 1 minuto e todos baixam a skill pelo celular |
@@ -112,8 +112,9 @@ em **Voltar ao passo atual**.
 4. Cliquem em **Pedir à IA para escrever o SKILL.md**. Em cerca de meio minuto o arquivo aparece
    na pasta amarela. Ele aparece também no celular de cada pessoa, só para ler: assim todo
    mundo lê ao mesmo tempo e manda pelo celular o que está errado ou o que faltou contar.
-5. Respondam às duas perguntas da IA: o que ela errou e o que vocês esqueceram de contar. Podem
-   pedir para a IA corrigir ou clicar em **Editar** em cada parte do arquivo.
+5. No passo 3, a tela mostra só o que mudou no SKILL.md desde a versão da IA e o botão
+   **Aprovar o SKILL.md**. Se nada mudou, leiam o arquivo na pasta amarela. Para mudar algo, abram
+   **Responder às perguntas da IA** (a IA corrige) ou **Corrigir o arquivo parte por parte**.
 6. Quando estiver bom, cliquem em **Aprovar o SKILL.md** e depois em **Concluímos a fase**.
 
 **Fase 3, Caixa de ferramentas**
@@ -128,8 +129,8 @@ em **Voltar ao passo atual**.
 
 **Fase 4, Prova**
 
-1. O Cético escreve de 5 a 10 conferências. Cada uma tem duas partes: o que conferir e contra
-   qual fonte. Exemplo: "O total bate com a soma dos itens", fonte "tabela de preços do kit".
+1. O Cético escreve as conferências, até 10. Basta 1 para concluir o passo. Cada uma é uma linha
+   com duas partes: o que conferir e contra qual fonte. Exemplo: "O total bate com a soma dos itens", fonte "tabela de preços do kit".
 2. A tela recusa palavras vagas e conferência sem fonte. Leiam o motivo e corrijam.
 3. O Piloto clica em **Rodar a tarefa e conferir**. A IA faz a tarefa, confere cada item,
    conserta o que falhou e mostra o placar.

@@ -61,7 +61,7 @@ Cada mesa passa por 8 fases. A mesa nunca muda de fase sozinha: ela avisa que co
 | 1 | Entender o processo | 15 min | Marcou "Lemos" na ficha e no kit e confirmou a tarefa em uma linha |
 | 2 | Entrevista | 35 min | A IA cobriu os 8 temas e a mesa aprovou o arquivo |
 | 3 | Caixa de ferramentas | 25 min | Guardou pelo menos 1 modelo e 1 exemplo |
-| 4 | Prova | 20 min | Tem de 5 a 10 conferências válidas |
+| 4 | Prova | 20 min | Tem de 1 a 10 conferências válidas |
 | 5 | Teste cruzado | 30 min | A mesa parceira registrou o placar |
 | 6 | Conserto | 20 min | Registrou pelo menos 1 conserto e rodou de novo |
 | 7 | Entrega | 15 min | Marcou a skill como final |
@@ -207,9 +207,10 @@ Saber isso ajuda a atender os pedidos de ajuda.
    na tela. O arquivo entra na pasta amarela, do lado direito. Nos passos 2 e 3, os celulares mostram o
    SKILL.md para ler, com as duas perguntas da IA no passo 3, e o campo de envio pede "o que está
    errado ou o que faltou contar". Os envios caem na fila da tela da mesa.
-6. A IA faz duas perguntas finais: o que ela errou e o que a mesa esqueceu de contar. A mesa pode
-   pedir para a IA corrigir ou corrigir cada parte do arquivo com **Editar**. No fim, clica em
-   **Aprovar o SKILL.md**. Se mudar o arquivo depois, precisa aprovar de novo.
+6. No passo 3, a tela mostra só o que mudou no SKILL.md desde a versão da IA e o botão
+   **Aprovar o SKILL.md**. As duas perguntas finais da IA (o que ela errou e o que a mesa esqueceu
+   de contar) e a correção parte por parte ficam recolhidas e abrem com um clique. Se mudar o
+   arquivo depois de aprovar, precisa aprovar de novo.
 
 **Fase 3, Caixa de ferramentas**
 
@@ -223,8 +224,8 @@ Saber isso ajuda a atender os pedidos de ajuda.
 
 **Fase 4, Prova**
 
-1. O Cético escreve de 5 a 10 conferências: o que confere e contra qual fonte. Se a lista estiver
-   vazia, dá para começar com **Trazer do SKILL.md**.
+1. O Cético escreve as conferências, até 10, uma por linha: o que confere e contra qual fonte.
+   Basta 1 válida para concluir. Se a lista estiver vazia, dá para começar com **Trazer do SKILL.md**.
 2. A tela recusa conferência sem fonte ou com palavra vaga, como "claro", "profissional" ou "de
    qualidade", e diz o motivo.
 3. A mesa clica em **Rodar a tarefa e conferir**. Em cerca de 20 segundos aparece o placar, por

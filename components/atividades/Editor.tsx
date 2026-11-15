@@ -107,77 +107,116 @@ function RevisarSkill(props: PropsAtividade & { arquivo: ArquivoApi | null; cami
 
   const aprovado = e?.skillAprovadaVersao === arquivo.versao;
   const perguntas = e?.perguntasFinais ?? ["O que eu errei?", "O que vocês esqueceram de me contar?"];
+  const mudancas = e?.revisao?.mudancas ?? [];
+  const versaoDaIA = e?.revisao?.versaoDaIA ?? arquivo.versao;
 
+  // O passo é validar: no alto, o que mudou desde a versão da IA e o botão de
+  // aprovar. Responder às perguntas da IA e corrigir parte por parte ficam
+  // recolhidos e abrem só quando a mesa quer mudar alguma coisa.
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       {erro ? <Erro texto={erro} /> : null}
 
       <section className="flex flex-col gap-4 rounded-folha border-2 border-petroleo bg-papel p-6">
-        <h3 className="font-titulo text-[28px] font-semibold leading-tight">Duas perguntas da IA</h3>
-        {[
-          { rotulo: perguntas[0], valor: errou, mudar: setErrou, chave: chaveErrou },
-          { rotulo: perguntas[1], valor: esqueceu, mudar: setEsqueceu, chave: chaveEsqueceu },
-        ].map((q) => (
-          <label key={q.chave} className="flex flex-col gap-2">
-            <span className="text-2xl font-bold">{q.rotulo}</span>
-            <textarea
-              rows={3}
-              value={q.valor}
-              maxLength={4000}
-              onChange={(ev) => {
-                q.mudar(ev.target.value);
-                guardarRascunho(q.chave, ev.target.value);
-              }}
-              className="rounded-folha border-2 border-linha bg-papel px-4 py-3 text-xl leading-normal"
-            />
-          </label>
-        ))}
-        <p className="text-lg text-tinta-suave">
-          Vocês podem corrigir direto no arquivo, abaixo, ou pedir para a IA aplicar as respostas.
-        </p>
-        <div>
-          <Botao
-            variante="secundario"
-            tamanho="mesa"
-            disabled={pausada || (!errou.trim() && !esqueceu.trim())}
-            motivo={pausada ? "A mesa está pausada" : !errou.trim() && !esqueceu.trim() ? "Respondam pelo menos uma pergunta" : null}
-            onClick={async () => {
-              const ok = await pedir(`/api/mesa/${encodeURIComponent(codigo)}/skill/corrigir`, { errou, esqueceu });
-              if (ok) {
-                guardarRascunho(chaveErrou, "");
-                guardarRascunho(chaveEsqueceu, "");
-              }
-            }}
-          >
-            Pedir à IA para corrigir
-          </Botao>
+        {mudancas.length ? (
+          <>
+            <h3 className="font-titulo text-[28px] font-semibold leading-tight">
+              O que mudou desde a versão da IA (versão {versaoDaIA} para {arquivo.versao})
+            </h3>
+            <ul className="flex flex-col gap-4">
+              {mudancas.map((m) => (
+                <li key={`${m.tipo}:${m.secao}`} className="flex flex-col gap-1 border-l-4 border-petroleo pl-4">
+                  <p className="text-xl font-bold">
+                    {m.secao}
+                    {m.tipo === "nova" ? ", parte nova" : m.tipo === "tirada" ? ", tirada do arquivo" : ""}
+                  </p>
+                  {m.tipo !== "tirada" ? <Markdown texto={m.texto || "(vazio)"} /> : null}
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <>
+            <h3 className="font-titulo text-[28px] font-semibold leading-tight">O SKILL.md está como a IA escreveu</h3>
+            <p className="text-xl leading-normal">
+              Leiam o arquivo na pasta amarela, à direita. Se estiver bom, aprovem. Se algo estiver errado ou
+              faltando, abram uma das opções abaixo.
+            </p>
+          </>
+        )}
+        <div className="flex flex-wrap items-center gap-4 border-t-2 border-linha pt-4">
+          {aprovado ? (
+            <p className="inline-flex items-center gap-2 text-2xl font-bold" role="status">
+              <Icone nome="visto" className="h-7 w-7 text-estado-pronta" />
+              Aprovado. Esta é a versão {arquivo.versao}.
+            </p>
+          ) : (
+            <>
+              <Botao
+                variante="secundario"
+                tamanho="mesa"
+                disabled={pausada}
+                onClick={() => void props.aoAgir(`/api/mesa/${encodeURIComponent(codigo)}/skill/aprovar`)}
+              >
+                Aprovar o SKILL.md
+              </Botao>
+              {e?.skillAprovadaVersao ? (
+                <span className="text-lg text-tinta-suave">O arquivo mudou depois da aprovação. Aprovem de novo.</span>
+              ) : null}
+            </>
+          )}
         </div>
       </section>
 
-      <EditorPorSecoes {...props} arquivo={arquivo} caminho={caminho} />
-
-      <section className="flex flex-wrap items-center gap-4 border-t-2 border-linha pt-6">
-        {aprovado ? (
-          <p className="inline-flex items-center gap-2 text-2xl font-bold" role="status">
-            <Icone nome="visto" className="h-7 w-7 text-estado-pronta" />
-            Aprovado. Esta é a versão {arquivo.versao}.
-          </p>
-        ) : (
-          <>
+      <details open={Boolean(errou.trim() || esqueceu.trim()) || undefined} className="rounded-folha border-2 border-linha bg-papel p-5">
+        <summary className="min-h-12 cursor-pointer text-2xl font-bold">
+          Responder às perguntas da IA: {perguntas.join(" ")}
+        </summary>
+        <div className="mt-4 flex flex-col gap-4">
+          {[
+            { rotulo: perguntas[0], valor: errou, mudar: setErrou, chave: chaveErrou },
+            { rotulo: perguntas[1], valor: esqueceu, mudar: setEsqueceu, chave: chaveEsqueceu },
+          ].map((q) => (
+            <label key={q.chave} className="flex flex-col gap-2">
+              <span className="text-xl font-bold">{q.rotulo}</span>
+              <textarea
+                rows={2}
+                value={q.valor}
+                maxLength={4000}
+                onChange={(ev) => {
+                  q.mudar(ev.target.value);
+                  guardarRascunho(q.chave, ev.target.value);
+                }}
+                className="rounded-folha border-2 border-linha bg-papel px-4 py-3 text-xl leading-normal"
+              />
+            </label>
+          ))}
+          <div>
             <Botao
               variante="secundario"
               tamanho="mesa"
-              disabled={pausada}
-              onClick={() => void props.aoAgir(`/api/mesa/${encodeURIComponent(codigo)}/skill/aprovar`)}
+              disabled={pausada || (!errou.trim() && !esqueceu.trim())}
+              motivo={pausada ? "A mesa está pausada" : !errou.trim() && !esqueceu.trim() ? "Respondam pelo menos uma pergunta" : null}
+              onClick={async () => {
+                const ok = await pedir(`/api/mesa/${encodeURIComponent(codigo)}/skill/corrigir`, { errou, esqueceu });
+                if (ok) {
+                  guardarRascunho(chaveErrou, "");
+                  guardarRascunho(chaveEsqueceu, "");
+                }
+              }}
             >
-              Aprovar o SKILL.md
+              Pedir à IA para corrigir
             </Botao>
-            {e?.skillAprovadaVersao ? (
-              <span className="text-lg text-tinta-suave">O arquivo mudou depois da aprovação. Aprovem de novo.</span>
-            ) : null}
-          </>
-        )}
-      </section>
+          </div>
+        </div>
+      </details>
+
+      <details className="rounded-folha border-2 border-linha bg-papel p-5">
+        <summary className="min-h-12 cursor-pointer text-2xl font-bold">Corrigir o arquivo parte por parte</summary>
+        <div className="mt-4">
+          <EditorPorSecoes {...props} arquivo={arquivo} caminho={caminho} />
+        </div>
+      </details>
     </div>
   );
 }
