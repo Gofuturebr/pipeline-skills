@@ -105,13 +105,22 @@ export function TelaMesa({ codigo, enderecoParticipante }: { codigo: string; end
     mesa.reabertaEm !== reabertaFechada &&
     Date.parse(mesa.reabertaEm) >= Date.parse(mesa.relogio.faseIniciadaEm) - 1000;
 
-  const arquivoVisto = arquivoAberto ? (estado.arquivos.find((a) => a.caminho === arquivoAberto) ?? null) : null;
+  // No teste cruzado, enquanto testa, a mesa vê a pasta da parceira em leitura (RN09).
+  const passoAtual = estado.fases.find((f) => f.ordem === mesa.faseAtual)?.passos.find((p) => p.ordem === mesa.passoAtual);
+  const vendoParceira =
+    mesa.faseAtual === 5 &&
+    Boolean(estado.teste?.liberado) &&
+    ["rodar", "observar", "enviar"].includes(passoAtual?.chave ?? "");
+  const arquivosNaPasta = vendoParceira ? (estado.teste?.pastaParceira ?? []) : estado.arquivos;
+  const arquivoVisto = arquivoAberto ? (arquivosNaPasta.find((a) => a.caminho === arquivoAberto) ?? null) : null;
   const pastaViva = (
     <PastaViva
       nomeSkill={mesa.nomeSkill}
-      arquivos={estado.arquivos}
+      arquivos={arquivosNaPasta}
       faseAtual={mesa.faseAtual}
       agora={agora}
+      rotulo={vendoParceira ? `Pasta da ${estado.teste?.parceira?.nome ?? "parceira"}, somente leitura` : undefined}
+      somenteLeitura={vendoParceira}
       aoAbrir={(c) => {
         setArquivoAberto(c);
         setPastaAberta(false);
@@ -213,7 +222,7 @@ export function TelaMesa({ codigo, enderecoParticipante }: { codigo: string; end
               <VisualizadorDeArquivo
                 key={`${arquivoVisto.caminho}:${arquivoVisto.versao}`}
                 arquivo={arquivoVisto}
-                urlVersoes={`${base}/arquivos/versoes?caminho=${encodeURIComponent(arquivoVisto.caminho)}`}
+                urlVersoes={vendoParceira ? null : `${base}/arquivos/versoes?caminho=${encodeURIComponent(arquivoVisto.caminho)}`}
                 aoFechar={() => setArquivoAberto(null)}
               />
             ) : null}

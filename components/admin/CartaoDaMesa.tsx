@@ -94,6 +94,7 @@ function CartaoDaMesaBase({
           <span className="flex flex-wrap items-center justify-between gap-x-2">
             {mesa.pediuAjuda ? <SeloEstado estado="ajuda" /> : <SeloEstado estado={estado} />}
             <span className="text-[13px] text-tinta-suave">
+              {mesa.final ? "Final. " : ""}
               {mesa.pessoas === 1 ? "1 pessoa" : `${mesa.pessoas} pessoas`}
             </span>
           </span>

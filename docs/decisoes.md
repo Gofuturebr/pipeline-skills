@@ -157,3 +157,47 @@ O histórico de arquivos (RN06) é gravado por gatilho no banco: toda inserção
 - **Pronto quando sincronizado:** toda mudança nas conferências reescreve a seção Pronto quando do SKILL.md com as válidas, no formato "- [ ] o que conferir (fonte: onde conferir)". A entrega da Fase 4 fica sempre em dia.
 - **Placar:** a IA faz a tarefa, confere item por item, conserta o que falhou e devolve, para cada conferência, passou ou falhou, a prova usada e se conseguiu conferir. Fonte que não veio no caso (por exemplo, uma planilha do balcão) aparece como "Não deu para conferir", e o passo seguinte pede para a mesa ajustar ou tirar esses itens.
 - **Critério da Fase 4:** de 5 a 10 conferências válidas e nenhuma recusada na lista.
+
+## 15/11/2026: Marco 5
+
+### Formato da skill exportada
+
+Conferido na documentação atual da Anthropic (Agent Skills, visão geral e boas práticas, e a central de ajuda do claude.ai):
+
+- `SKILL.md` com cabeçalho YAML com `name` e `description`. O `name` tem até 64 caracteres, só minúsculas, números e hífens, sem "anthropic" nem "claude"; no claude.ai, precisa ser igual ao nome da pasta. A `description` diz o que a skill faz e quando usar, em terceira pessoa, até 1024 caracteres.
+- A central de ajuda cita 200 caracteres para a descrição. O sistema monta a descrição tentando ficar abaixo disso: a primeira frase de "Pra que serve" e, se couber, as frases de "Quando usar".
+- O .zip tem a pasta da skill na raiz. A instalação é em Personalizar > Skills no claude.ai, com a execução de código ligada.
+- O prompt do SKILL.md passou a pedir "Pra que serve" em terceira pessoa, no presente, porque a descrição sai dessa seção.
+
+### Exportação
+
+- **.zip gerado pelo próprio sistema**, sem compressão, num código curto (`lib/exportacao/zip.ts`). Os arquivos são texto e pequenos; não vale uma dependência para isso.
+- **LEIA-ME.md dentro da pasta da skill**, com os 3 passos de instalação. O formato aceita arquivos extras na pasta, e assim o .zip continua com uma única pasta na raiz, como o claude.ai pede.
+- **notas.md sempre presente.** Sem conserto, sai com "Nenhum conserto registrado".
+- **Pasta consolidada** (só o gestor): `skills-sebrae-inovapb/`, com LEIA-ME.md, uma pasta numerada por skill e, em `zips/`, o .zip de cada uma, pronto para enviar. Entram todas as mesas com SKILL.md; as que não foram marcadas como final aparecem assim no LEIA-ME.
+- **Download pelo celular e pela tela da mesa** só depois da skill final. O gestor baixa a qualquer momento.
+
+### Teste cruzado
+
+- **"Iniciar teste cruzado"** (só o gestor) forma os pares por número de mesa: 1 e 2, 3 e 4. Com número ímpar, as três últimas formam o ciclo da RN10 (A testa B, B testa C, C testa A).
+- **O teste só começa quando as duas mesas estão na Fase 5** (RN10). Antes disso, a tela diz que a parceira ainda está terminando a Prova.
+- **Trocar o par** (RN11) fica no detalhe da mesa, no painel. Trocar recomeça o teste daquela mesa.
+- **Pasta da parceira na Pasta viva**, com outra cor e o nome "Pasta da Mesa 02, somente leitura", nos passos de rodar, observar e enviar. A tela e a API mandam só os arquivos, nunca a conversa (RN09).
+- **O teste confere sem consertar**, com esforço baixo da IA, para ser mais rápido. Usa o caso novo do kit da parceira.
+- **Enviar o relatório** exige a observação do Testador em cada falha.
+
+### Conserto
+
+- **Um conserto por vez.** A mesa escolhe a falha do relatório recebido; sem falhas, descreve uma melhoria. Marca a camada, pede a proposta e aprova. Depois de aprovado, pode começar outro.
+- **Diagnóstico (RN12)** só aparece quando mais de duas conferências falharam no teste.
+- **A mesa pode ajustar a proposta** antes de aprovar: o texto do arquivo ou a conferência nova.
+- **Camada prova** acrescenta uma conferência, que passa pela mesma validação da RN08, e a seção Pronto quando é atualizada.
+- **notas.md**: cada conserto aprovado entra no topo, com data, o que deu errado, a camada e o que mudou.
+- **Antes e depois:** o placar do teste da parceira (antes) e o da nova rodada com o mesmo caso novo (depois), lado a lado.
+
+### Entrega
+
+- **Nome da skill** vira o título do SKILL.md e o nome da pasta, convertido para minúsculas e hífens; a tela mostra como a pasta vai se chamar.
+- **"Revisamos a seção Quando usar"** fica junto da descrição que o Claude vai ver, para a mesa entender por que essa seção importa.
+- **Marcar como final** pede confirmação e trava a pasta (RN15). O gestor destrava no detalhe da mesa.
+- **Apresentação de 1 minuto** sai pronta na tela: a tarefa, uma conferência que passou na prova e o que o conserto mudou.

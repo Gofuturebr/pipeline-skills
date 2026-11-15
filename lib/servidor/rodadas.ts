@@ -254,7 +254,8 @@ export async function executarPlacar(
             content: `${pedidoDoCaso(pasta, processo?.kit_materiais ?? "", caso)}\n\nConferências:\n${lista}`,
           },
         ],
-        esforco: "medium",
+        // Conferir sem consertar é mais leve: esforço baixo deixa o teste mais rápido.
+        esforco: pedido.consertar ? "medium" : "low",
         maxTokens: 32000,
         esquema: ESQUEMA_PLACAR as unknown as Record<string, unknown>,
       },

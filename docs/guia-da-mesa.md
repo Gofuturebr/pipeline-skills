@@ -134,6 +134,31 @@ em **Voltar ao passo atual**.
    conserta o que falhou e mostra o placar.
 4. O que a IA não conseguiu conferir aparece marcado. Ajustem a fonte ou tirem o item.
 
+**Fase 5, Teste cruzado**
+
+1. O Testador clica em **Rodar a skill** da outra mesa, com o caso novo do kit. A pasta dela fica
+   do lado direito, em outra cor, só para ler. Ninguém da outra mesa explica nada.
+2. Para cada falha do placar, o Testador escreve o que aconteceu.
+3. Enviem o relatório para a outra mesa.
+4. Leiam o relatório que a outra mesa fez sobre a skill de vocês. Ele aparece sozinho quando chega.
+
+**Fase 6, Conserto**
+
+1. Escolham a falha que mais atrapalharia quem usa a skill.
+2. Marquem a camada que falhou: processo (faltou passo ou regra), caixa (modelo errado ou que
+   faltou) ou prova (faltou conferência).
+3. Peçam a proposta da IA. Leiam, ajustem se quiserem e cliquem em **Aprovar o conserto**. Ele
+   fica anotado em notas.md, na pasta.
+4. Rodem a tarefa de novo e comparem o antes e o depois.
+
+**Fase 7, Entrega**
+
+1. Confirmem o nome da skill: palavras simples, que digam o que ela faz.
+2. Revisem a seção Quando usar com as frases que alguém digitaria para pedir a tarefa. Embaixo,
+   a tela mostra como o Claude vai entender quando usar a skill.
+3. Marquem a skill como final. Depois disso, ela não muda mais.
+4. O Porta-voz apresenta em 1 minuto, com o roteiro da tela. Todos baixam a skill pelo celular.
+
 Se a resposta da IA não chegar, cliquem em **Tentar de novo**: o que vocês escreveram continua
 lá. Para ver o arquivo inteiro ou as versões anteriores, cliquem no nome dele na pasta amarela.
 
@@ -160,7 +185,8 @@ Se o botão de avançar estiver apagado, leiam o texto ao lado dele: ele diz o q
   errado. Tudo cai numa fila no notebook, e o Piloto aceita ou descarta cada ideia. O celular
   mostra quantas ideias a mesa aceitou.
 - Entrou com o nome errado? No pé da tela, toque em **Não é você? Trocar o nome**.
-- No fim, serve para baixar a skill pronta.
+- No fim, serve para baixar a skill pronta: o botão **Baixar a pasta** aparece quando a mesa
+  marca a skill como final, com os 3 passos para instalar no claude.ai.
 
 ## Se acontecer alguma coisa
 

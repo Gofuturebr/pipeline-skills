@@ -11,6 +11,69 @@ import type { PropsAtividade } from "./tipos";
 // superior da mesa depois de confirmada.
 
 export function AtividadeFrase(props: PropsAtividade) {
+  if (props.passo.config.campo === "nome_skill") return <NomeDaSkill {...props} />;
+  return <TarefaEmUmaLinha {...props} />;
+}
+
+/** Fase 7: o nome da skill vira o título do SKILL.md e o nome da pasta. */
+function NomeDaSkill({ estado, codigo, aoAgir, somenteLeitura, passo }: PropsAtividade) {
+  const e = estado.entrega;
+  const [nome, setNome] = useState(e?.titulo ?? "");
+  const [salvando, setSalvando] = useState(false);
+  const limite = Number(passo.config.limite ?? 60);
+  if (!e) return null;
+  if (somenteLeitura || estado.mesa.final) return <p className="font-titulo text-[28px] font-bold">{e.titulo}</p>;
+  const confirmado = e.nomeConfirmado && nome.trim() === e.titulo;
+  return (
+    <div className="flex flex-col gap-4">
+      <label htmlFor="nome-skill" className="text-xl font-bold">
+        Nome da skill
+      </label>
+      <input
+        id="nome-skill"
+        value={nome}
+        maxLength={limite}
+        onChange={(ev) => setNome(ev.target.value)}
+        className="min-h-16 rounded-folha border-2 border-linha bg-papel px-4 font-titulo text-[28px]"
+      />
+      <p className="flex flex-wrap justify-between gap-3 text-lg text-tinta-suave">
+        <span>Exemplo: {String(passo.config.exemplo ?? "")}</span>
+        <span className="numeros-tabulares">
+          {nome.length} de {limite} caracteres
+        </span>
+      </p>
+      <p className="text-lg">
+        A pasta vai se chamar <span className="font-mono font-bold">{e.nomePasta}</span>. O Claude exige letras minúsculas e
+        hífens no nome da pasta.
+      </p>
+      {confirmado ? (
+        <p className="inline-flex items-center gap-2 text-xl font-bold" role="status">
+          <Icone nome="visto" className="h-6 w-6 text-estado-pronta" />
+          Nome confirmado
+        </p>
+      ) : (
+        <div>
+          <Botao
+            variante="secundario"
+            tamanho="mesa"
+            disabled={!nome.trim() || estado.mesa.estado === "pausada"}
+            enviando={salvando}
+            textoEnviando="Guardando"
+            onClick={async () => {
+              setSalvando(true);
+              await aoAgir(`/api/mesa/${encodeURIComponent(codigo)}/entrega/nome`, { nome });
+              setSalvando(false);
+            }}
+          >
+            Confirmar o nome
+          </Botao>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TarefaEmUmaLinha(props: PropsAtividade) {
   const { estado, codigo, aoAgir, somenteLeitura, passo } = props;
   const salva = estado.mesa.tarefa;
   const chave = `mesa:${codigo}:rascunho:tarefa`;

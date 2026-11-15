@@ -20,7 +20,7 @@ const FORMATO = `O arquivo tem exatamente este formato:
 # Nome curto da skill (até 60 letras, diz o que ela faz)
 
 ## Pra que serve
-Uma ou duas frases: que tarefa a skill faz e qual resultado entrega.
+Uma ou duas frases, em terceira pessoa e com o verbo no presente, dizendo que tarefa a skill faz e qual resultado entrega. Exemplo: "Monta a resposta a um pedido de orçamento pelo WhatsApp, com itens, total, prazo e validade."
 
 ## Quando usar
 Lista com as frases que alguém digitaria para pedir esta tarefa ao Claude. Use as palavras do dia a dia do grupo.

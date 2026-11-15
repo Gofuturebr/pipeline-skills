@@ -4,12 +4,14 @@ import type { ComponentType } from "react";
 import { atividadePronta, marcoDaAtividade, type TipoAtividade } from "@/lib/jornada";
 import { AtividadeCaixa } from "./Caixa";
 import { AtividadeConferencias } from "./Conferencias";
+import { AtividadeConserto } from "./Conserto";
 import { AtividadeEditor } from "./Editor";
 import { AtividadeEntrevista } from "./Entrevista";
 import { AtividadeFrase } from "./Frase";
 import { AtividadeLeitura } from "./Leitura";
 import { AtividadePapeis } from "./Papeis";
 import { AtividadePlacar } from "./Placar";
+import { AtividadeRelatorio } from "./Relatorio";
 import { AtividadeRodada } from "./Rodada";
 import type { PropsAtividade } from "./tipos";
 
@@ -40,6 +42,8 @@ const ATIVIDADES: Partial<Record<TipoAtividade, ComponentType<PropsAtividade>>> 
   caixa: AtividadeCaixa,
   conferencias: AtividadeConferencias,
   placar: AtividadePlacar,
+  relatorio: AtividadeRelatorio,
+  conserto: AtividadeConserto,
 };
 
 export function AtividadeDoPasso(props: PropsAtividade) {

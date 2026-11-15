@@ -36,6 +36,20 @@ export interface ContextoCriterio {
   /** Conferências da prova: válidas e recusadas. */
   conferenciasValidas?: number;
   conferenciasRecusadas?: number;
+  /** Teste cruzado (Fase 5). */
+  testeRodado?: boolean;
+  falhasSemObservacao?: number;
+  relatorioEnviado?: boolean;
+  relatorioRecebido?: boolean;
+  /** Conserto (Fase 6). */
+  falhaEscolhida?: boolean;
+  camadaEscolhida?: boolean;
+  consertoAprovado?: boolean;
+  rodadaDepoisDoConserto?: boolean;
+  /** Entrega (Fase 7). */
+  nomeConfirmado?: boolean;
+  quandoRevisado?: boolean;
+  final?: boolean;
 }
 
 export interface Avaliacao {
@@ -61,6 +75,8 @@ export const ATIVIDADES_PRONTAS: ReadonlySet<TipoAtividade> = new Set<TipoAtivid
   "caixa",
   "conferencias",
   "placar",
+  "relatorio",
+  "conserto",
 ]);
 
 /** Em qual marco cada tipo de atividade fica pronto. Só para a mensagem na tela. */
@@ -83,15 +99,7 @@ export const MARCO_DA_ATIVIDADE: Record<TipoAtividade, number> = {
  * a frase da Fase 1 (tarefa) chega no Marco 2, e a da Fase 7 (nome da skill),
  * no Marco 5. A chave é "tipo:valor" de config.campo ou config.conteudo.
  */
-const MARCO_DA_VARIANTE: Record<string, number> = {
-  "rodada:caso_novo": 5,
-  "placar:teste": 5,
-  "placar:observar": 5,
-  "frase:nome_skill": 5,
-  "leitura:entrega": 5,
-  "editor:Quando usar": 5,
-  "editor:final": 5,
-};
+const MARCO_DA_VARIANTE: Record<string, number> = {};
 
 function chaveDaVariante(passo: { tipo: TipoAtividade; config?: Record<string, unknown> }): string {
   const c = passo.config ?? {};
@@ -161,6 +169,24 @@ const CRITERIOS_PASSO: Record<string, CriterioPasso> = {
   exemplo_salvo: (ctx) => ((ctx.exemplos ?? 0) > 0 ? OK : { ok: false, falta: "Salvem pelo menos um exemplo" }),
   conferencias_validas: (ctx) => conferenciasValidas(ctx),
   placar_executado: temRodada("prova", "Rodem a tarefa para ver o placar"),
+  teste_rodado: (ctx) => (ctx.testeRodado ? OK : { ok: false, falta: "Rodem a skill da mesa parceira" }),
+  falhas_observadas: (ctx) =>
+    !ctx.testeRodado
+      ? { ok: false, falta: "Rodem a skill da mesa parceira" }
+      : (ctx.falhasSemObservacao ?? 0) > 0
+        ? { ok: false, falta: "Escrevam o que aconteceu em cada falha" }
+        : OK,
+  relatorio_enviado: (ctx) => (ctx.relatorioEnviado ? OK : { ok: false, falta: "Enviem o relatório" }),
+  relatorio_recebido: (ctx) =>
+    ctx.relatorioRecebido ? OK : { ok: false, falta: "Esperem o relatório da mesa parceira" },
+  falha_escolhida: (ctx) => (ctx.falhaEscolhida ? OK : { ok: false, falta: "Escolham a falha mais importante" }),
+  camada_escolhida: (ctx) => (ctx.camadaEscolhida ? OK : { ok: false, falta: "Marquem a camada que falhou" }),
+  conserto_aprovado: (ctx) => (ctx.consertoAprovado ? OK : { ok: false, falta: "Aprovem o conserto" }),
+  rodada_conserto_feita: (ctx) =>
+    ctx.rodadaDepoisDoConserto ? OK : { ok: false, falta: "Rodem a tarefa de novo depois do conserto" },
+  nome_definido: (ctx) => (ctx.nomeConfirmado ? OK : { ok: false, falta: "Confirmem o nome da skill" }),
+  secao_revisada: (ctx) => (ctx.quandoRevisado ? OK : { ok: false, falta: "Marquem que revisaram a seção Quando usar" }),
+  skill_final: (ctx) => (ctx.final ? OK : { ok: false, falta: "Marquem a skill como final" }),
 };
 
 const CRITERIOS_FASE: Record<string, CriterioFase> = {
@@ -177,6 +203,19 @@ const CRITERIOS_FASE: Record<string, CriterioFase> = {
         ? { ok: false, falta: "Falta salvar pelo menos um exemplo" }
         : OK,
   conferencias_validas: (ctx) => conferenciasValidas(ctx),
+  teste_cruzado_completo: (ctx) =>
+    !ctx.relatorioEnviado
+      ? { ok: false, falta: "Falta enviar o relatório à mesa parceira" }
+      : !ctx.relatorioRecebido
+        ? { ok: false, falta: "Falta receber o relatório da mesa parceira" }
+        : OK,
+  conserto_e_nova_rodada: (ctx) =>
+    !ctx.consertoAprovado
+      ? { ok: false, falta: "Falta aprovar um conserto" }
+      : !ctx.rodadaDepoisDoConserto
+        ? { ok: false, falta: "Falta rodar de novo depois do conserto" }
+        : OK,
+  skill_final: (ctx) => (ctx.final ? OK : { ok: false, falta: "Falta marcar a skill como final" }),
   entrevista_e_skill_aprovada: (ctx) =>
     ctx.entrevistaEncerrada ? skillAprovada(ctx) : { ok: false, falta: "Falta encerrar a entrevista" },
 };

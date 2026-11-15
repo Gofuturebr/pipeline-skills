@@ -12,6 +12,13 @@ import type { PropsAtividade } from "./tipos";
 // falhou e mostra uma linha por conferência, com a prova usada.
 
 export function AtividadePlacar(props: PropsAtividade) {
+  const modo = String(props.passo.config.modo ?? "prova");
+  if (modo === "teste") return <TesteDaParceira {...props} />;
+  if (modo === "observar") return <ObservarFalhas {...props} />;
+  return <PlacarDaProva {...props} />;
+}
+
+function PlacarDaProva(props: PropsAtividade) {
   const { estado, codigo, somenteLeitura } = props;
   const rodada = ultimaRodada(estado, "prova");
   const { escrevendo, erro, pedir } = useEscritaDaIA(props.aoSubstituir);
@@ -102,5 +109,109 @@ export function PlacarDaRodada({
       </button>
       {verResultado ? <CasoEResultado entrada={rodada.entrada} saida={<Markdown texto={rodada.saida} />} /> : null}
     </div>
+  );
+}
+
+/** Fase 5: o Testador roda a skill da parceira com o caso novo, sem explicação da outra mesa. */
+function TesteDaParceira(props: PropsAtividade) {
+  const { estado, codigo, somenteLeitura } = props;
+  const teste = estado.teste;
+  const { escrevendo, erro, pedir } = useEscritaDaIA(props.aoSubstituir);
+  if (!teste) return null;
+  const parceira = teste.parceira?.nome ?? "mesa parceira";
+  if (somenteLeitura) return teste.rodada ? <PlacarDaRodada rodada={teste.rodada} /> : null;
+  if (!teste.liberado) {
+    return <p className="rounded-folha border-2 border-linha bg-bancada p-5 text-2xl">{teste.motivoEspera}</p>;
+  }
+  const pausada = estado.mesa.estado === "pausada";
+  return (
+    <div className="flex flex-col gap-6">
+      <p className="text-2xl font-bold">Vocês estão testando a skill da {parceira}. A pasta dela está do lado direito, só para ler.</p>
+      {erro ? <Erro texto={erro} /> : null}
+      {escrevendo !== null ? (
+        <TextoSendoEscrito texto={escrevendo} rotulo={`A IA está usando a skill da ${parceira}`} />
+      ) : teste.rodada ? (
+        <PlacarDaRodada rodada={teste.rodada} />
+      ) : null}
+      {escrevendo === null && !teste.enviado ? (
+        <div>
+          <Botao
+            variante="secundario"
+            tamanho="mesa"
+            disabled={pausada}
+            motivo={pausada ? "A mesa está pausada" : null}
+            onClick={() => void pedir(`/api/mesa/${encodeURIComponent(codigo)}/teste/rodar`)}
+          >
+            {teste.rodada ? "Rodar o teste de novo" : `Rodar a skill da ${parceira} com o caso novo`}
+          </Botao>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** Fase 5: o Testador escreve o que aconteceu em cada falha. */
+function ObservarFalhas(props: PropsAtividade) {
+  const { estado, codigo, aoAgir, somenteLeitura } = props;
+  const rodada = estado.teste?.rodada;
+  if (!rodada) return <p className="text-xl">Rodem o teste no passo anterior.</p>;
+  const bloqueado = somenteLeitura || Boolean(estado.teste?.enviado) || estado.mesa.estado === "pausada";
+  const falhas = (rodada.placar ?? []).filter((p) => !p.passou);
+  return (
+    <div className="flex flex-col gap-4">
+      {falhas.length === 0 ? (
+        <p className="text-2xl font-bold">Nenhuma conferência falhou. Não há o que observar.</p>
+      ) : (
+        <p className="text-xl">Para cada falha, escrevam o que aconteceu no resultado: o que veio errado ou o que faltou.</p>
+      )}
+      <PlacarDaRodada
+        rodada={rodada}
+        extraDoItem={(item) =>
+          item.passou ? null : (
+            <ObservacaoDaFalha
+              key={`${item.id}:${item.observacao}`}
+              inicial={item.observacao}
+              bloqueado={bloqueado}
+              aoGuardar={(texto) =>
+                aoAgir(`/api/mesa/${encodeURIComponent(codigo)}/teste/observar`, { resultadoId: item.id, texto })
+              }
+            />
+          )
+        }
+      />
+    </div>
+  );
+}
+
+function ObservacaoDaFalha({
+  inicial,
+  bloqueado,
+  aoGuardar,
+}: {
+  inicial: string;
+  bloqueado: boolean;
+  aoGuardar: (texto: string) => Promise<boolean>;
+}) {
+  const [texto, setTexto] = useState(inicial);
+  const [guardando, setGuardando] = useState(false);
+  return (
+    <label className="flex flex-col gap-1.5 text-lg font-bold">
+      O que aconteceu?
+      <textarea
+        rows={2}
+        value={texto}
+        disabled={bloqueado}
+        maxLength={600}
+        onChange={(e) => setTexto(e.target.value)}
+        onBlur={async () => {
+          if (texto.trim() === inicial.trim()) return;
+          setGuardando(true);
+          await aoGuardar(texto);
+          setGuardando(false);
+        }}
+        className={`rounded-folha border-2 px-3 py-2 text-xl font-normal ${inicial.trim() ? "border-linha" : "border-estado-atrasada"}`}
+      />
+      {guardando ? <span className="text-base font-normal text-tinta-suave">Guardando</span> : null}
+    </label>
   );
 }

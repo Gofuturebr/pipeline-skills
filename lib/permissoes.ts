@@ -24,7 +24,8 @@ export type AcaoAdmin =
   | "configurar_evento"
   | "preparo"
   | "exportar"
-  | "destravar";
+  | "destravar"
+  | "teste_cruzado";
 
 const DO_FACILITADOR: ReadonlySet<AcaoAdmin> = new Set<AcaoAdmin>([
   "avancar",

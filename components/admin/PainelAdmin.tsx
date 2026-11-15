@@ -291,6 +291,11 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
         return acaoMesa(mesaDaGaveta, "tempo", { minutos: acao.minutos });
       case "aviso":
         return acaoMesa(mesaDaGaveta, "aviso", { texto: acao.texto });
+      case "parceira": {
+        const ok = await acaoMesa(mesaDaGaveta, "parceira", { autoraId: acao.autoraId });
+        if (ok) recarregar();
+        return ok;
+      }
       default:
         return acaoMesa(mesaDaGaveta, acao.tipo);
     }
@@ -354,6 +359,12 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
               <Botao variante="secundario" onClick={() => setConfirmacao({ tipo: "aviso_todas" })}>
                 Enviar aviso
               </Botao>
+              <a
+                href="/api/admin/exportar"
+                className="inline-flex min-h-11 items-center px-2 font-bold text-petroleo underline underline-offset-4"
+              >
+                Exportar todas (.zip)
+              </a>
               <Link
                 href="/admin/cartoes"
                 className="inline-flex min-h-11 items-center px-2 font-bold text-petroleo underline underline-offset-4"
@@ -434,6 +445,21 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
                 onClick={() => chamar("/api/admin/todas/avancar-prontas").then((ok) => ok && recarregar())}
               >
                 {prontasParaAvancar === 1 ? "Avançar a mesa pronta" : `Avançar as ${prontasParaAvancar} mesas prontas`}
+              </Botao>
+              <Botao
+                variante="secundario"
+                disabled={painel.paresFormados}
+                motivo={painel.paresFormados ? "Pares formados" : null}
+                onClick={() =>
+                  chamar("/api/admin/teste/pares").then((ok) => {
+                    if (ok) {
+                      setToast({ id: Date.now(), texto: "Pares do teste cruzado formados." });
+                      recarregar();
+                    }
+                  })
+                }
+              >
+                Iniciar teste cruzado
               </Botao>
               <Botao
                 variante="secundario"
@@ -531,6 +557,7 @@ export function PainelAdmin({ perfil, nome, mesaInicial }: { perfil: Perfil; nom
           enviando={enviando}
           aoFechar={fecharMesa}
           aoAgir={agirNaGaveta}
+          outras={painel.mesas.filter((m) => m.id !== mesaDaGaveta.id).map((m) => ({ id: m.id, nome: m.nome }))}
         />
       ) : null}
 

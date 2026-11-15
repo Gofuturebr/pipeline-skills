@@ -16,7 +16,9 @@ import { useEstadoAoVivo } from "./CartaoDaMesa";
 export type AcaoGaveta =
   | { tipo: "avancar" | "forcar" | "voltar" | "pausar" | "retomar" | "atender" }
   | { tipo: "tempo"; minutos: number }
-  | { tipo: "aviso"; texto: string };
+  | { tipo: "aviso"; texto: string }
+  | { tipo: "parceira"; autoraId: string }
+  | { tipo: "destravar" };
 
 export function GavetaDaMesa({
   mesa,
@@ -26,8 +28,11 @@ export function GavetaDaMesa({
   enviando,
   aoFechar,
   aoAgir,
+  outras,
 }: {
   mesa: CartaoMesaApi;
+  /** As outras mesas do evento, para trocar o par do teste cruzado (RN11). */
+  outras: { id: string; nome: string }[];
   nomeFase: (ordem: number) => string;
   defasagem: number;
   perfil: Perfil;
@@ -162,6 +167,45 @@ export function GavetaDaMesa({
               <Botao variante="secundario" onClick={() => aoAgir({ tipo: "tempo", minutos: -5 })}>
                 -5 min
               </Botao>
+            </div>
+          </section>
+        ) : null}
+
+        {pode(perfil, "teste_cruzado") ? (
+          <section className="flex flex-col gap-3">
+            <h3 className="text-[17px] font-bold">Skill e teste cruzado</h3>
+            <label className="flex flex-col gap-1.5">
+              <span className="font-bold">Esta mesa testa a skill da</span>
+              <select
+                value={mesa.testa?.id ?? ""}
+                onChange={(e) => e.target.value && void aoAgir({ tipo: "parceira", autoraId: e.target.value })}
+                className="min-h-11 rounded-folha border-2 border-linha bg-papel px-2"
+              >
+                <option value="">Par ainda não formado</option>
+                {outras.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.nome}
+                  </option>
+                ))}
+              </select>
+              <span className="text-[13px] text-tinta-suave">Trocar o par recomeça o teste desta mesa.</span>
+            </label>
+            <div className="flex flex-wrap items-center gap-3">
+              {mesa.final ? (
+                <Botao variante="secundario" onClick={() => aoAgir({ tipo: "destravar" })}>
+                  Destravar a skill
+                </Botao>
+              ) : (
+                <span className="text-tinta-suave">A skill ainda não foi marcada como final.</span>
+              )}
+              {mesa.temSkill ? (
+                <a
+                  className="inline-flex min-h-11 items-center font-bold text-petroleo underline underline-offset-4"
+                  href={`/api/admin/exportar?mesa=${mesa.id}`}
+                >
+                  Baixar a skill (.zip)
+                </a>
+              ) : null}
             </div>
           </section>
         ) : null}

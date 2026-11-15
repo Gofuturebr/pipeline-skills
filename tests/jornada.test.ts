@@ -100,12 +100,10 @@ describe("jornada em dados", () => {
     expect(avaliarFase(FASES[1], passos, { concluidos: todos, lidos, tarefa: "Responder pedido com preço e prazo" }).ok).toBe(true);
   });
 
-  it("a frase da Fase 7 (nome da skill) continua em construção", () => {
+  it("todas as atividades do roteiro estão construídas", () => {
+    for (const f of FASES) for (const p of f.passos) expect(atividadePronta(p), `${f.ordem}:${p.chave}`).toBe(true);
     const nome = FASES[7].passos.find((p) => p.chave === "nome")!;
-    expect(atividadePronta(nome)).toBe(false);
-    expect(marcoDaAtividade(nome)).toBe(5);
-    const tarefa = FASES[1].passos.find((p) => p.chave === "tarefa")!;
-    expect(atividadePronta(tarefa)).toBe(true);
+    expect(marcoDaAtividade(nome)).toBe(2);
   });
 
   it("tarefa em uma linha: até 90 caracteres e com pelo menos três palavras", () => {

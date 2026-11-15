@@ -109,6 +109,65 @@ export interface EstadoMesaApi {
   rodadas: RodadaApi[];
   /** Conferências da prova (Fase 4 em diante). */
   conferencias: ConferenciaApi[];
+  /** Teste cruzado (Fase 5 em diante). */
+  teste: TesteApi | null;
+  /** Conserto (Fase 6 em diante). */
+  conserto: ConsertoApi | null;
+  /** Entrega (Fase 7). */
+  entrega: EntregaApi | null;
+}
+
+export interface TesteApi {
+  /** A mesa cuja skill esta mesa testa. */
+  parceira: { id: string; nome: string } | null;
+  /** As duas mesas concluíram a Fase 4 (RN10). */
+  liberado: boolean;
+  motivoEspera: string | null;
+  /** Rodada do teste feita por esta mesa na pasta da parceira. */
+  rodada: RodadaApi | null;
+  enviado: boolean;
+  /** Pasta da parceira, só leitura e sem a conversa (RN09). */
+  pastaParceira: ArquivoApi[];
+  /** A mesa que testa a skill desta mesa. */
+  testadaPor: { id: string; nome: string } | null;
+  /** Relatório recebido sobre a skill desta mesa. */
+  recebido: { testadora: string; rodada: RodadaApi | null; enviadoEm: string } | null;
+}
+
+export interface ConsertoApi {
+  id: string | null;
+  resultadoConferenciaId: string | null;
+  camada: "processo" | "caixa" | "prova" | null;
+  oQueDeuErrado: string;
+  oQueMudou: string;
+  diagnostico: string;
+  proposta: {
+    diagnostico: string;
+    oQueDeuErrado: string;
+    oQueMuda: string;
+    arquivo: string;
+    conteudoNovo: string;
+    novaConferencia: { descricao: string; fonte: string };
+  } | null;
+  aprovado: boolean;
+  aprovadoEm: string | null;
+  consertosAprovados: number;
+  /** Placar do teste da parceira (antes do conserto). */
+  rodadaAntes: RodadaApi | null;
+  /** Placar da nova rodada (depois do conserto). */
+  rodadaDepois: RodadaApi | null;
+}
+
+export interface EntregaApi {
+  titulo: string;
+  /** Nome da pasta da skill, no formato exigido pelo Claude. */
+  nomePasta: string;
+  /** Descrição do cabeçalho, gerada de Pra que serve e Quando usar. */
+  descricao: string;
+  nomeConfirmado: boolean;
+  quandoRevisado: boolean;
+  final: boolean;
+  finalEm: string | null;
 }
 
 export interface ResultadoConferenciaApi {
@@ -244,6 +303,10 @@ export interface EstadoCelularApi {
   ficha: { objetivo: string; resultadoEsperado: string } | null;
   /** Pergunta da IA que a mesa está respondendo, na Fase 2. */
   perguntaAtual: string | null;
+  /** Fase 5: a mesa testada e o placar até agora. */
+  teste: { parceira: string; passaram: number; total: number } | null;
+  /** Fase 7: a skill final pode ser baixada. */
+  download: { nomePasta: string; url: string } | null;
   avisos: AvisoApi[];
 }
 
@@ -265,6 +328,10 @@ export interface CartaoMesaApi {
   final: boolean;
   versao: number;
   relogio: RelogioApi;
+  /** A mesa cuja skill esta mesa testa no teste cruzado. */
+  testa: { id: string; nome: string } | null;
+  /** A mesa já tem SKILL.md (pode ser exportada). */
+  temSkill: boolean;
   /** O que falta para a fase atual, usado no diálogo de forçar avanço. */
   faltaNaFase: string | null;
 }
@@ -272,6 +339,8 @@ export interface CartaoMesaApi {
 export interface PainelApi {
   agora: string;
   evento: EventoApi;
+  /** Os pares do teste cruzado já foram formados. */
+  paresFormados: boolean;
   fases: { ordem: number; nome: string; nomeCurto: string; duracaoMin: number }[];
   mesas: CartaoMesaApi[];
 }

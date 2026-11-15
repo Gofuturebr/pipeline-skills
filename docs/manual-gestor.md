@@ -70,6 +70,7 @@ disser outro tempo).
 | **Retomar todas** | Encerra o intervalo. Retoma também as mesas pausadas uma a uma |
 | **Enviar aviso** | Manda um aviso curto (até 280 letras) para todas as mesas e todos os celulares |
 | **Cartões com QR** | Abre os cartões das mesas para imprimir |
+| **Exportar todas (.zip)** | Baixa a pasta com todas as skills, um LEIA-ME e o .zip de cada uma, pronto para enviar ao claude.ai |
 | **Som ligado** ou **Som desligado** | Liga ou desliga o som de pedido de ajuda |
 | **Sair** | Sai do painel |
 
@@ -79,6 +80,8 @@ disser outro tempo).
   para "Avançar todas".
 - **Tempo de todas as mesas:** **+5 min** e **-5 min** valem para todas de uma vez.
 - **Avançar as mesas prontas:** libera de uma vez todas as mesas que estão prontas.
+- **Iniciar teste cruzado:** forma os pares do teste cruzado. Clique quando as primeiras mesas
+  chegarem à Fase 5. Depois de formados, o botão fica apagado.
 - **Avançar todas:** passa para a fase seguinte todas as mesas que estão na fase de referência,
   prontas ou não. Antes, aparece quantas ainda não concluíram. Mesas em outras fases não mudam.
 - Logo abaixo, uma linha mostra quantas mesas estão em cada fase.
@@ -109,6 +112,8 @@ Clique no corpo do cartão para abrir o detalhe, do lado direito:
   vê uma faixa avisando que a fase foi reaberta.
 - **Tempo:** **Pausar** ou **Retomar** só essa mesa, e **+5 min** ou **-5 min** só para ela.
 - **Aviso para a mesa:** um aviso só para essa mesa e os celulares dela.
+- **Skill e teste cruzado:** qual mesa ela testa (dá para trocar), **Destravar a skill** quando
+  ela já foi marcada como final, e **Baixar a skill (.zip)**.
 - Se a mesa pediu ajuda: **Marcar chamado como atendido**.
 
 Feche com o X ou com a tecla Esc.
@@ -127,7 +132,7 @@ só pode:
 - atender pedidos de ajuda.
 
 Ele não vê os botões de iniciar evento, modo de liberação, pausar, ajustar tempo, enviar aviso,
-cartões com QR, fase de referência e ações em todas as mesas.
+cartões com QR, fase de referência, ações em todas as mesas, teste cruzado, destravar e exportar.
 
 ## 6. O que a mesa e os celulares fazem em cada fase
 
@@ -188,6 +193,35 @@ Saber isso ajuda a atender os pedidos de ajuda.
    exemplo "8 de 10 passaram", com a prova de cada item.
 4. Itens que a IA não conseguiu conferir aparecem marcados. A mesa ajusta a fonte ou tira o item.
 
+**Fase 5, Teste cruzado**
+
+1. Quando as primeiras mesas estiverem chegando à Fase 5, clique em **Iniciar teste cruzado**. O
+   sistema forma os pares pelo número da mesa: 1 testa 2 e 2 testa 1, 3 e 4, e assim por diante.
+   Com número ímpar de mesas, as três últimas formam um ciclo.
+2. Uma mesa só começa a testar quando as duas do par estão na Fase 5. Até lá, a tela avisa que a
+   parceira está terminando a Prova.
+3. O Testador roda a skill da outra mesa com o caso novo do kit. A pasta da parceira aparece do
+   lado direito, em outra cor, só para ler. A conversa da outra mesa não aparece.
+4. Para cada falha, o Testador escreve o que aconteceu e envia o relatório. A outra mesa recebe na
+   hora.
+5. Para trocar um par (por exemplo, se uma mesa atrasou muito), abra o detalhe da mesa e escolha
+   em **Esta mesa testa a skill da**. O teste daquela mesa recomeça.
+
+**Fase 6, Conserto**
+
+1. A mesa escolhe a falha mais importante do relatório que recebeu.
+2. Marca a camada que falhou: processo, caixa ou prova.
+3. Pede a proposta da IA, ajusta se quiser e aprova. Com mais de duas falhas, a IA mostra antes a
+   causa no passo a passo. O conserto fica registrado em notas.md.
+4. Roda a tarefa de novo e vê o placar de antes e de depois lado a lado.
+
+**Fase 7, Entrega**
+
+1. A mesa confirma o nome da skill e revisa a seção Quando usar.
+2. Marca a skill como final. Depois disso, ninguém edita mais. Se precisar mudar algo, abra o
+   detalhe da mesa e clique em **Destravar a skill**.
+3. A tela mostra o roteiro da apresentação de 1 minuto e o QR para os celulares baixarem a skill.
+
 A pasta amarela guarda todas as versões de cada arquivo. Clicando no arquivo e em **Ver versões
 anteriores**, aparece cada versão com a hora e quem mudou: a IA ou a mesa.
 
@@ -210,6 +244,9 @@ Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está faz
 | "O modelo não foi guardado: precisa de lacunas" | O modelo é para reusar em outros casos. Peça para trocarem nomes, valores e datas por lacunas entre colchetes |
 | "A conferência foi recusada" | Leia o motivo abaixo da linha: falta a fonte ou tem palavra vaga. Ajude a trocar por algo que dá para contar ou comparar |
 | "Não deu para conferir" no placar | A fonte não estava no caso nem nos materiais. A mesa troca a fonte ou tira o item |
+| "A parceira ainda está terminando a Prova" | O teste espera as duas mesas do par chegarem à Fase 5. Se a outra mesa estiver muito atrasada, troque o par no detalhe da mesa |
+| "Não consigo mais editar a skill" | Ela foi marcada como final. Se precisar, abra o detalhe da mesa e clique em **Destravar a skill** |
+| "O botão de baixar não aparece no celular" | Ele só aparece depois que a mesa marca a skill como final |
 | "A tela ficou pequena e só mostra um aviso" | Maximize a janela do Chrome. A tela da mesa precisa de um notebook |
 | "Não encontramos esta mesa" | Confira o código no cartão da mesa |
 | "Fechamos a janela sem querer" | Abram a página inicial e digitem o código. A mesa volta no mesmo passo, com tudo que já fez |
@@ -218,8 +255,6 @@ Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está faz
 
 | Parte | Etapa |
 | --- | --- |
-| Teste cruzado, conserto, entrega e download da skill pelo celular | Marco 5 |
 | Cadastro de processos e mesas pelo painel, linha do tempo da mesa, roteiro para imprimir | Marco 6 |
 
-Enquanto isso, os passos das Fases 5 a 7 mostram "Esta atividade ainda está em construção". A
-mesa pode concluir esses passos normalmente, para testar o andamento das fases.
+Todas as atividades das 8 fases já funcionam.

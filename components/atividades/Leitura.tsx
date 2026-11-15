@@ -15,6 +15,7 @@ import type { PropsAtividade } from "./tipos";
 export function AtividadeLeitura(props: PropsAtividade) {
   const conteudo = String(props.passo.config.conteudo ?? "");
   if (conteudo === "contribuicoes") return <Contribuicoes {...props} />;
+  if (conteudo === "entrega") return <Apresentacao {...props} />;
   const processo = props.estado.processoDetalhe;
   if (!processo) {
     return (
@@ -177,6 +178,41 @@ function Contribuicoes(props: PropsAtividade) {
           <QrDaMesa codigo={props.codigo} endereco={props.enderecoParticipante} tamanho={150} />
         </div>
       )}
+    </div>
+  );
+}
+
+/** Fase 7: roteiro da apresentação de 1 minuto e o QR para baixar a skill. */
+function Apresentacao({ estado, codigo, enderecoParticipante }: PropsAtividade) {
+  const prova = estado.rodadas.filter((r) => r.tipo === "prova").pop();
+  const conferencia = prova?.placar?.find((p) => p.passou) ?? null;
+  const conserto = estado.conserto;
+  const itens = [
+    { titulo: "O processo", texto: estado.mesa.tarefa || estado.mesa.processo || "" },
+    {
+      titulo: "Uma conferência da prova",
+      texto: conferencia ? `${conferencia.descricao}. Prova: ${conferencia.prova}` : "Escolham uma da seção Pronto quando.",
+    },
+    { titulo: "O conserto que fizemos", texto: conserto?.oQueMudou || "Contem o que mudou depois do teste cruzado." },
+  ];
+  return (
+    <div className="flex flex-wrap items-start gap-8">
+      <ol className="flex min-w-[320px] flex-1 flex-col gap-4">
+        {itens.map((i, n) => (
+          <li key={i.titulo} className="rounded-folha border-2 border-linha bg-papel p-5">
+            <p className="font-titulo text-[26px] font-semibold">
+              {n + 1}. {i.titulo}
+            </p>
+            <p className="mt-2 text-xl leading-normal">{i.texto}</p>
+          </li>
+        ))}
+      </ol>
+      <div className="flex w-[260px] flex-col gap-3">
+        <QrDaMesa codigo={codigo} endereco={enderecoParticipante} tamanho={200} />
+        <p className="text-lg leading-snug">
+          {estado.mesa.final ? "Cada pessoa lê o QR e toca em Baixar a pasta." : "O botão de baixar aparece no celular quando a skill for marcada como final."}
+        </p>
+      </div>
     </div>
   );
 }

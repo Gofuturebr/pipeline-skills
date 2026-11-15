@@ -69,6 +69,15 @@ export function criarIaSimulada(): IaSimulada {
           };
         }),
       });
+    } else if (pedido.tarefa === "conserto") {
+      texto = JSON.stringify({
+        diagnostico: "",
+        o_que_deu_errado: "A mensagem não dizia o prazo de entrega.",
+        o_que_muda: "O passo de escrever a mensagem passa a exigir o prazo do bairro.",
+        arquivo: "SKILL.md",
+        conteudo_novo: SKILL_SIMULADA.replace("## Passos\n- Item de passos.", "## Passos\n- Item de passos.\n- Escreva sempre o prazo do bairro."),
+        nova_conferencia: { descricao: "", fonte: "" },
+      });
     } else if (pedido.tarefa === "congelar") {
       texto = JSON.stringify({
         nome_arquivo: "modelo-mensagem-orcamento.md",

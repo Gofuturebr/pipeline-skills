@@ -22,12 +22,16 @@ interface Extras {
   chamados: Map<string, string>;
   pessoas: Map<string, number>;
   contextos: Map<string, ContextoCriterio>;
+  testa: Map<string, { id: string; nome: string }>;
+  comSkill: Set<string>;
 }
 
 async function extrasDasMesas(sql: Sql, mesas: LinhaMesa[]): Promise<Extras> {
   const ids = mesas.map((m) => m.id);
-  if (ids.length === 0) return { chamados: new Map(), pessoas: new Map(), contextos: new Map() };
-  const [chamados, pessoas, contextos] = await Promise.all([
+  if (ids.length === 0) {
+    return { chamados: new Map(), pessoas: new Map(), contextos: new Map(), testa: new Map(), comSkill: new Set() };
+  }
+  const [chamados, pessoas, contextos, testa, comSkill] = await Promise.all([
     sql<{ mesa_id: string; id: string }[]>`
       select mesa_id, id from chamado where estado = 'aberto' and mesa_id in ${sql(ids)}`,
     sql<{ mesa_id: string; n: number }[]>`
@@ -35,11 +39,18 @@ async function extrasDasMesas(sql: Sql, mesas: LinhaMesa[]): Promise<Extras> {
       where mesa_id in ${sql(ids)} and ultimo_sinal_em > now() - make_interval(secs => ${JANELA_CONECTADO_S})
       group by mesa_id`,
     contextosDasMesas(sql, mesas),
+    sql<{ testadora: string; id: string; nome: string }[]>`
+      select t.mesa_testadora_id as testadora, m.id, m.nome
+      from teste_cruzado t join mesa m on m.id = t.mesa_autora_id
+      where t.mesa_testadora_id in ${sql(ids)}`,
+    sql<{ mesa_id: string }[]>`select mesa_id from arquivo where caminho = 'SKILL.md' and mesa_id in ${sql(ids)}`,
   ]);
   return {
     chamados: new Map(chamados.map((c) => [c.mesa_id, c.id])),
     pessoas: new Map(pessoas.map((p) => [p.mesa_id, p.n])),
     contextos,
+    testa: new Map(testa.map((t) => [t.testadora, { id: t.id, nome: t.nome }])),
+    comSkill: new Set(comSkill.map((c) => c.mesa_id)),
   };
 }
 
@@ -67,6 +78,8 @@ function montarCartao(m: LinhaMesa, roteiro: Roteiro, extras: Extras, agora: num
     final: m.final,
     versao: m.versao,
     relogio,
+    testa: extras.testa.get(m.id) ?? null,
+    temSkill: extras.comSkill.has(m.id),
     faltaNaFase: avaliacao.ok ? null : (avaliacao.falta ?? null),
   };
 }
@@ -77,9 +90,12 @@ export async function montarPainel(sql: Sql, eventoId: string): Promise<PainelAp
   const [roteiro, mesas] = await Promise.all([roteiroDoEvento(sql, eventoId), mesasDoEvento(sql, eventoId)]);
   const extras = await extrasDasMesas(sql, mesas);
   const agora = Date.now();
+  const [{ n: pares }] = await sql<{ n: number }[]>`
+    select count(*)::int as n from teste_cruzado where evento_id = ${eventoId}`;
   return {
     agora: new Date(agora).toISOString(),
     evento: eventoParaApi(evento),
+    paresFormados: pares > 0,
     fases: roteiro.fases.map((f) => ({
       ordem: f.ordem,
       nome: f.nome,

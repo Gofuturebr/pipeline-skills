@@ -24,6 +24,8 @@ export function AtividadeEditor(props: PropsAtividade) {
     return arquivo ? <Markdown texto={arquivo.conteudo} /> : <p className="text-xl text-tinta-suave">Arquivo ainda não escrito.</p>;
   }
   if (acao === "gerar") return <GerarSkill {...props} arquivo={arquivo} />;
+  if (acao === "final") return <MarcarFinal {...props} />;
+  if (props.passo.config.secao) return <RevisarSecao {...props} arquivo={arquivo} caminho={caminho} />;
   return <RevisarSkill {...props} arquivo={arquivo} caminho={caminho} />;
 }
 
@@ -188,7 +190,8 @@ export function EditorPorSecoes({
   arquivo,
   caminho,
   secoesEditaveis,
-}: PropsAtividade & { arquivo: ArquivoApi; caminho: string; secoesEditaveis?: string[] }) {
+  somenteSecoes,
+}: PropsAtividade & { arquivo: ArquivoApi; caminho: string; secoesEditaveis?: string[]; somenteSecoes?: string[] }) {
   const partes = dividirSecoes(arquivo.conteudo);
   const [editando, setEditando] = useState<string | null>(null);
   const [texto, setTexto] = useState("");
@@ -268,10 +271,99 @@ export function EditorPorSecoes({
       <p className="text-lg text-tinta-suave">
         {caminho}, versão {arquivo.versao}
       </p>
-      {partes.titulo && podeEditar(TITULO)
+      {partes.titulo && podeEditar(TITULO) && !somenteSecoes
         ? bloco(TITULO, "Nome da skill", partes.titulo, <p className="font-titulo text-[28px] font-bold">{partes.titulo}</p>)
         : null}
-      {partes.secoes.map((s) => bloco(s.nome, s.nome, s.corpo, <Markdown texto={s.corpo || "(vazio)"} />))}
+      {partes.secoes
+        .filter((s) => !somenteSecoes || somenteSecoes.includes(s.nome))
+        .map((s) => bloco(s.nome, s.nome, s.corpo, <Markdown texto={s.corpo || "(vazio)"} />))}
+    </div>
+  );
+}
+
+/** Fase 7: a mesa revisa a seção Quando usar, com as palavras de quem pede a tarefa. */
+function RevisarSecao(props: PropsAtividade & { arquivo: ArquivoApi | null; caminho: string }) {
+  const { estado, codigo, aoAgir, arquivo, caminho } = props;
+  const secao = String(props.passo.config.secao);
+  const e = estado.entrega;
+  if (!arquivo || !e) return null;
+  return (
+    <div className="flex flex-col gap-6">
+      <EditorPorSecoes {...props} arquivo={arquivo} caminho={caminho} secoesEditaveis={[secao]} somenteSecoes={[secao]} />
+      <section className="rounded-folha border-2 border-petroleo bg-papel p-5">
+        <h3 className="text-lg font-bold text-tinta-suave">Assim o Claude vai saber quando usar a skill</h3>
+        <p className="mt-2 text-xl leading-normal">{e.descricao}</p>
+      </section>
+      {e.quandoRevisado ? (
+        <p className="inline-flex items-center gap-2 text-xl font-bold" role="status">
+          <Icone nome="visto" className="h-6 w-6 text-estado-pronta" />
+          Seção revisada
+        </p>
+      ) : (
+        <div>
+          <Botao
+            variante="secundario"
+            tamanho="mesa"
+            disabled={estado.mesa.estado === "pausada" || estado.mesa.final}
+            onClick={() => void aoAgir(`/api/mesa/${encodeURIComponent(codigo)}/entrega/quando`)}
+          >
+            Revisamos a seção {secao}
+          </Botao>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Fase 7: marcar como final trava a skill (RN15). Depois, o download fica liberado. */
+function MarcarFinal({ estado, codigo, aoAgir, somenteLeitura }: PropsAtividade) {
+  const e = estado.entrega;
+  const [confirmar, setConfirmar] = useState(false);
+  if (!e) return null;
+  const arquivos = estado.arquivos.map((a) => a.caminho);
+  return (
+    <div className="flex flex-col gap-6">
+      <section className="flex flex-col gap-3 rounded-folha border-2 border-linha bg-papel p-6">
+        <p className="font-titulo text-[28px] font-bold">{e.titulo}</p>
+        <p className="text-xl leading-normal">{e.descricao}</p>
+        <p className="text-lg text-tinta-suave">
+          Pasta <span className="font-mono">{e.nomePasta}</span>, com {arquivos.length} arquivos: {arquivos.join(", ")}.
+        </p>
+      </section>
+      {estado.mesa.final ? (
+        <div className="flex flex-col gap-4">
+          <p className="inline-flex items-center gap-3 font-titulo text-[32px] font-bold" role="status">
+            <Icone nome="visto" className="h-8 w-8 text-estado-pronta" />
+            Skill pronta. Baixem a pasta pelo celular.
+          </p>
+          <a
+            href={`/api/mesa/${encodeURIComponent(codigo)}/baixar`}
+            className="inline-flex min-h-14 items-center self-start rounded-botao border-2 border-petroleo px-6 text-xl font-bold text-petroleo"
+          >
+            Baixar a pasta neste notebook
+          </a>
+        </div>
+      ) : somenteLeitura ? null : (
+        <>
+          <div>
+            <Botao variante="secundario" tamanho="mesa" disabled={estado.mesa.estado === "pausada"} onClick={() => setConfirmar(true)}>
+              Marcar a skill como final
+            </Botao>
+          </div>
+          <Dialogo
+            aberto={confirmar}
+            titulo="Marcar a skill como final? Depois disso, ela não pode mais ser editada."
+            textoConfirmar="Marcar como final"
+            aoConfirmar={async () => {
+              setConfirmar(false);
+              await aoAgir(`/api/mesa/${encodeURIComponent(codigo)}/entrega/final`);
+            }}
+            aoCancelar={() => setConfirmar(false)}
+          >
+            <p>Só o gestor consegue destravar. O download pelo celular fica liberado.</p>
+          </Dialogo>
+        </>
+      )}
     </div>
   );
 }

@@ -15,6 +15,9 @@ import { arquivosDaMesa } from "./arquivos";
 import { montarEntrevista } from "./entrevista-dados";
 import { rodadasDaMesa } from "./rodadas";
 import { conferenciasDaMesa } from "./conferencias";
+import { montarTeste } from "./teste";
+import { montarConserto } from "./conserto";
+import { montarEntrega } from "./entrega";
 import {
   avaliarFase,
   avaliarPasso,
@@ -92,8 +95,10 @@ function contribuicaoParaApi(c: LinhaContribuicao): ContribuicaoApi {
  * passos e sem textos: a mesa não consegue abrir fase não liberada.
  */
 export async function montarEstadoMesa(sql: Sql, mesa: LinhaMesa): Promise<EstadoMesaApi> {
-  const [evento, roteiro, ctx, avisos, chamados, participantes, papeis, processos, contribuicoes, arquivos, entrevista, rodadas, conferencias] =
-    await Promise.all([
+  const [
+    evento, roteiro, ctx, avisos, chamados, participantes, papeis, processos, contribuicoes, arquivos, entrevista,
+    rodadas, conferencias, teste, conserto, entrega,
+  ] = await Promise.all([
       eventoPorId(sql, mesa.evento_id),
       roteiroDoEvento(sql, mesa.evento_id),
       contextoDaMesa(sql, mesa),
@@ -126,6 +131,9 @@ export async function montarEstadoMesa(sql: Sql, mesa: LinhaMesa): Promise<Estad
       mesa.fase_atual >= 2 ? montarEntrevista(sql, mesa.id) : Promise.resolve(null),
       rodadasDaMesa(sql, mesa.id),
       conferenciasDaMesa(sql, mesa.id),
+      mesa.fase_atual >= 5 ? montarTeste(sql, mesa) : Promise.resolve(null),
+      mesa.fase_atual >= 6 ? montarConserto(sql, mesa) : Promise.resolve(null),
+      mesa.fase_atual >= 7 ? montarEntrega(sql, mesa) : Promise.resolve(null),
     ]);
   if (!evento) throw new Error("Evento da mesa não encontrado");
 
@@ -220,5 +228,8 @@ export async function montarEstadoMesa(sql: Sql, mesa: LinhaMesa): Promise<Estad
     entrevista,
     rodadas,
     conferencias,
+    teste,
+    conserto,
+    entrega,
   };
 }

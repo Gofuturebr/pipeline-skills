@@ -5,6 +5,7 @@ import type { Resultado } from "./acoes";
 import { DEFINICAO_PAPEIS, nomeDoPapel, type Papel } from "@/lib/jornada";
 import { LIMITE_CONTRIBUICAO, limparContribuicao, limparNome } from "@/lib/participante";
 import { lerFicha } from "@/lib/processo";
+import { nomeValido } from "@/lib/exportacao/skill";
 import { canalAdmin, canalMesa } from "@/lib/sinais";
 import type { EstadoCelularApi } from "@/lib/tipos-api";
 
@@ -89,7 +90,7 @@ export async function montarEstadoCelular(
   mesa: LinhaMesa,
   participante: LinhaParticipante | null,
 ): Promise<EstadoCelularApi> {
-  const [evento, roteiro, papeis, contagem, avisos, processos, pergunta] = await Promise.all([
+  const [evento, roteiro, papeis, contagem, avisos, processos, pergunta, teste] = await Promise.all([
     eventoPorId(sql, mesa.evento_id),
     roteiroDoEvento(sql, mesa.evento_id),
     participante
@@ -116,6 +117,15 @@ export async function montarEstadoCelular(
           where mesa_id = ${mesa.id} and fase = 2 and tipo in ('pergunta', 'resposta')
           order by criado_em desc, id desc limit 1`
       : Promise.resolve([] as { tipo: string; texto: string }[]),
+    // Na Fase 5, a skill que a mesa testa e o placar até agora.
+    mesa.fase_atual === 5
+      ? sql<{ parceira: string; passaram: number; total: number }[]>`
+          select m.nome as parceira,
+            (select count(*)::int from resultado_conferencia r where r.rodada_id = t.rodada_id and r.passou) as passaram,
+            (select count(*)::int from resultado_conferencia r where r.rodada_id = t.rodada_id) as total
+          from teste_cruzado t join mesa m on m.id = t.mesa_autora_id
+          where t.mesa_testadora_id = ${mesa.id}`
+      : Promise.resolve([] as { parceira: string; passaram: number; total: number }[]),
   ]);
   if (!evento) throw new Error("Evento da mesa não encontrado");
 
@@ -163,6 +173,11 @@ export async function montarEstadoCelular(
       : null,
     ficha: ficha ? { objetivo: ficha.objetivo ?? "", resultadoEsperado: ficha.resultadoEsperado ?? "" } : null,
     perguntaAtual: pergunta[0]?.tipo === "pergunta" ? pergunta[0].texto : null,
+    teste: teste[0] ?? null,
+    // Download só depois que a skill é marcada como final (docs/decisoes.md).
+    download: mesa.final
+      ? { nomePasta: nomeValido(mesa.nome_skill || "skill-da-mesa"), url: `/api/p/${mesa.codigo}/baixar` }
+      : null,
     avisos: avisos.map((a) => ({
       id: a.id,
       texto: a.texto,

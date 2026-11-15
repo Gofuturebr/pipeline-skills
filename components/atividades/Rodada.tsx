@@ -10,6 +10,73 @@ import type { PropsAtividade } from "./tipos";
 // de exemplo. Na segunda rodada, mostra o que reusou da pasta e o que refez.
 
 export function AtividadeRodada(props: PropsAtividade) {
+  if (props.passo.config.tipoRodada === "conserto_depois") return <AntesEDepois {...props} />;
+  return <RodadaDaCaixa {...props} />;
+}
+
+/** Fase 6: roda de novo com o caso novo e compara com o teste da parceira. */
+function AntesEDepois(props: PropsAtividade) {
+  const { estado, codigo, somenteLeitura } = props;
+  const c = estado.conserto;
+  const { escrevendo, erro, pedir } = useEscritaDaIA(props.aoSubstituir);
+  if (!c?.aprovado) return <p className="text-xl">Aprovem o conserto no passo anterior.</p>;
+  const antes = c.rodadaAntes?.placar ?? [];
+  const depois = c.rodadaDepois?.placar ?? [];
+  const pausada = estado.mesa.estado === "pausada";
+  const conta = (l: typeof antes) => `${l.filter((x) => x.passou).length} de ${l.length}`;
+  const linhas = [...new Set([...antes, ...depois].map((x) => x.descricao))];
+  return (
+    <div className="flex flex-col gap-6">
+      {erro ? <Erro texto={erro} /> : null}
+      {escrevendo !== null ? <TextoSendoEscrito texto={escrevendo} rotulo="A IA está usando a skill consertada" /> : null}
+      {c.rodadaDepois && escrevendo === null ? (
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            <p className="rounded-folha border-2 border-linha bg-bancada p-5 font-titulo text-[32px] font-bold">Antes: {conta(antes)}</p>
+            <p className="rounded-folha border-2 border-estado-pronta bg-papel p-5 font-titulo text-[32px] font-bold">Depois: {conta(depois)}</p>
+          </div>
+          <table className="w-full border-collapse text-left text-xl">
+            <thead>
+              <tr className="border-b-2 border-linha">
+                <th className="py-2 pr-4">Conferência</th>
+                <th className="py-2 pr-4">Antes</th>
+                <th className="py-2">Depois</th>
+              </tr>
+            </thead>
+            <tbody>
+              {linhas.map((d) => {
+                const a = antes.find((x) => x.descricao === d);
+                const b = depois.find((x) => x.descricao === d);
+                const marca = (x: typeof a) => (!x ? "nova" : x.passou ? "Passou" : x.conseguiuConferir ? "Falhou" : "Não deu para conferir");
+                return (
+                  <tr key={d} className="border-b border-linha">
+                    <td className="py-2 pr-4">{d}</td>
+                    <td className="py-2 pr-4 font-bold">{marca(a)}</td>
+                    <td className="py-2 font-bold">{marca(b)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </>
+      ) : null}
+      {escrevendo === null && !somenteLeitura ? (
+        <div>
+          <Botao
+            variante="secundario"
+            tamanho="mesa"
+            disabled={pausada}
+            onClick={() => void pedir(`/api/mesa/${encodeURIComponent(codigo)}/conserto/rodar`)}
+          >
+            {c.rodadaDepois ? "Rodar de novo" : "Rodar a tarefa com a skill consertada"}
+          </Botao>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function RodadaDaCaixa(props: PropsAtividade) {
   const { estado, codigo, passo, somenteLeitura } = props;
   const tipo = String(passo.config.tipoRodada ?? "exemplo") as "exemplo" | "segunda";
   const rodada = ultimaRodada(estado, tipo);

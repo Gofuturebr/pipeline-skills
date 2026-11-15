@@ -146,6 +146,39 @@ export function TelaParticipante({ codigo }: { codigo: string }) {
           </Cartao>
         ) : null}
 
+        {estado.teste && !pausada ? (
+          <Cartao titulo="Teste cruzado">
+            <p className="text-[19px] leading-snug">Vocês estão testando a skill da {estado.teste.parceira}.</p>
+            {estado.teste.total > 0 ? (
+              <p className="font-titulo text-[24px] font-bold">
+                Placar: {estado.teste.passaram} de {estado.teste.total} passaram
+              </p>
+            ) : null}
+          </Cartao>
+        ) : null}
+
+        {estado.mesa.faseAtual === 7 ? (
+          <Cartao titulo="Levar a skill">
+            {estado.download ? (
+              <div className="flex flex-col gap-3">
+                <a
+                  href={estado.download.url}
+                  className="inline-flex min-h-12 items-center justify-center rounded-botao border-2 border-petroleo bg-petroleo px-5 text-[17px] font-bold text-papel"
+                >
+                  Baixar a pasta
+                </a>
+                <ol className="flex list-decimal flex-col gap-2 pl-5 leading-normal">
+                  <li>No claude.ai, em Configurações, Capacidades, ligue a execução de código e criação de arquivos.</li>
+                  <li>Abra Personalizar, Skills, toque em +, Criar skill e Enviar uma skill. Escolha o arquivo baixado, sem descompactar.</li>
+                  <li>Ligue a skill e peça a tarefa com as palavras da seção Quando usar.</li>
+                </ol>
+              </div>
+            ) : (
+              <p className="leading-normal">Quando a mesa marcar a skill como final, o botão de baixar aparece aqui.</p>
+            )}
+          </Cartao>
+        ) : null}
+
         {estado.perguntaAtual && !pausada ? (
           <Cartao titulo="A mesa está respondendo">
             <p className="font-titulo text-[22px] font-bold leading-snug">{estado.perguntaAtual}</p>
