@@ -49,6 +49,20 @@ celulares conectados ao mesmo Wi-Fi conseguem entrar. No Windows, permita o Node
 quando ele perguntar. Para fixar outro endereço (por exemplo, o da Vercel), preencha
 `URL_PUBLICA` no `.env.local`.
 
+O `next.config.ts` libera, só em desenvolvimento, os endereços de rede deste computador e as
+faixas de rede local. Sem isso, o Next bloqueia o celular que abre o servidor pelo IP do Wi-Fi e
+a tela fica parada em "Abrindo a mesa". Se o computador mudar de rede, reinicie o `npm run dev`.
+
+Para o dia do evento rodando num computador da sala, prefira o modo de produção, mais rápido:
+
+```bash
+npm run build
+```
+
+```bash
+npm start
+```
+
 ### Depois de baixar uma versão nova
 
 ```bash

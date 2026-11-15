@@ -245,3 +245,7 @@ Conferido na documentação atual da Anthropic (Agent Skills, visão geral e boa
 - **Teste de textos** (`tests/textos.test.ts`): falha se algum texto do código tiver travessão ou se algum componente usar caixa alta.
 - **Mapa de aceite** em `docs/aceite.md`, ligando cada critério das seções 8 da especificação e do frontend ao teste que o confere ou à conferência manual.
 
+### Ajuste depois do Marco 6 (15/11/2026)
+
+- **Celular pela rede Wi-Fi no `npm run dev`.** O Next 16 bloqueia, em desenvolvimento, a conexão interna de quem abre o servidor por um endereço que não é localhost, e a tela do celular ficava parada em "Abrindo a mesa". O `next.config.ts` passou a liberar (`allowedDevOrigins`) os endereços IPv4 do próprio computador e as faixas de rede local (192.168, 10 e 172.16 a 172.31). Não muda nada no modo de produção. Conferido com um navegador de celular simulado abrindo a tela pelo IP da rede, antes e depois da mudança.
+
