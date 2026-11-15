@@ -11,7 +11,7 @@ partes já funcionam. O que precisa ser conferido à mão antes do dia está no 
 | Gestor | `/admin` no notebook ou no celular | Seu nome e a senha do gestor |
 | Facilitador | `/admin` no celular ou no notebook | Seu nome e a senha do facilitador |
 | Mesa | Página inicial no notebook da mesa | O código da mesa, que está no cartão |
-| Participante | Lê o QR do cartão ou da tela da mesa | Só o primeiro nome |
+| Participante | Lê o QR do cartão ou da tela da mesa | Só o primeiro nome. Quem já entrou toca no próprio nome |
 
 O nome digitado na entrada do painel fica gravado em cada ação, para saber depois quem
 avançou ou voltou cada mesa. A sessão dura 12 horas.
@@ -267,7 +267,7 @@ Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está faz
 | "O botão de avançar não funciona" | Leia o texto ao lado do botão: ele diz o que falta, por exemplo "Faltam 2 papéis sem nome" ou "Marquem Lemos depois de ler" |
 | "Alguém não consegue entrar pelo celular" | Peça para a pessoa ler o QR que está na tela da mesa. Se não abrir, ela participa sem celular: o nome dela pode ser digitado na distribuição dos papéis |
 | "Entrei com o nome errado no celular" | No pé da tela do celular, toque em **Não é você? Trocar o nome** |
-| "Meu papel sumiu do celular" ou "o celular pediu o nome de novo" | Digite o mesmo nome de antes. A pessoa volta com o papel e com o que já mandou. Se o celular perguntar "É você em outro aparelho?", toque em **Sou eu, em outro aparelho** |
+| "Meu papel sumiu do celular" ou "o celular pediu o nome de novo" | Na tela de entrada, em "Já entrou nesta mesa?", a pessoa toca no próprio nome. Ela volta com o papel e com o que já mandou. Se digitar o nome em vez de tocar, o celular pergunta "É você?": toque em **Sou eu** |
 | "Tem duas pessoas com o mesmo nome na mesa" | A segunda toca em **Sou outra pessoa** e digita o nome com a inicial do sobrenome, por exemplo "Ana B" |
 | "Mandei uma coisa e a mesa não vê" | O envio só aparece nas Fases 1 e 2. Confira se a mesa está numa delas |
 | "A tela mostra Algo deu errado" ou "não conseguiu falar com o banco de dados" | Aperte F5. Se continuar, avise o responsável técnico |

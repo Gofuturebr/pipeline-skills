@@ -11,6 +11,7 @@ import { montarPainel } from "@/lib/servidor/painel";
 import {
   contribuir,
   cookieParticipante,
+  entrarComoParticipante,
   entrarParticipante,
   montarEstadoCelular,
   participantePorToken,
@@ -94,27 +95,52 @@ describe.skipIf(!URL_TESTE)("Marco 2: celular, papéis, leitura, tarefa e contri
     expect((await concluirPasso(sql, mesaId, distribuir.id)).ok).toBe(true);
   });
 
-  it("quem entra de novo com o mesmo nome volta como a mesma pessoa, com o papel", async () => {
+  it("quem já entrou escolhe o próprio nome na lista e volta com o papel", async () => {
     const primeira = await entrarParticipante(sql, await mesa(), "Wagner");
     const token = primeira.ok ? primeira.dados!.token : "";
     const wagner = await participantePorToken(sql, mesaId, token);
     expect((await definirPapel(sql, mesaId, "dono", "Wagner", wagner!.id)).ok).toBe(true);
+    await entrarParticipante(sql, await mesa(), "Ana");
 
-    // Celular conectado agora: pode ser outra pessoa com o mesmo nome, então pergunta.
-    expect(await entrarParticipante(sql, await mesa(), "wagner")).toMatchObject({ ok: false, status: 409 });
-    const confirmada = await entrarParticipante(sql, await mesa(), "wagner", true);
-    expect(confirmada.ok && confirmada.dados!.token).toBe(token);
+    // Celular sem cookie (outro navegador, aba anônima): vê quem já entrou, com os papéis.
+    const semNome = await montarEstadoCelular(sql, await mesa(), null);
+    expect(semNome.pessoasDaMesa.map((x) => [x.nome, x.papeis])).toEqual([
+      ["Wagner", ["Dono do processo"]],
+      ["Ana", []],
+    ]);
+    expect(semNome.pessoasDaMesa[0].conectado).toBe(true);
 
-    // Celular desconectado (outro navegador, cookie apagado): volta direto, sem perguntar.
-    await sql`update participante set ultimo_sinal_em = now() - interval '5 minutes' where id = ${wagner!.id}`;
-    const deNovo = await entrarParticipante(sql, await mesa(), " WAGNER ");
-    expect(deNovo.ok && deNovo.dados).toEqual({ token, nome: "Wagner" });
+    // Toca no próprio nome: volta como a mesma pessoa.
+    const escolhida = await entrarComoParticipante(sql, await mesa(), wagner!.id);
+    expect(escolhida.ok && escolhida.dados).toEqual({ token, nome: "Wagner" });
     const celular = await montarEstadoCelular(sql, await mesa(), await participantePorToken(sql, mesaId, token));
     expect(celular.participante!.papeis.map((p) => p.nome)).toEqual(["Dono do processo"]);
+    expect(celular.pessoasDaMesa).toEqual([]);
+
+    // Pessoa de outra mesa não serve.
+    const [outra] = await sql<{ id: string }[]>`select id from mesa where id <> ${mesaId} limit 1`;
+    const deFora = await sql<{ id: string }[]>`
+      insert into participante (mesa_id, primeiro_nome) values (${outra.id}, 'Zeca') returning id`;
+    expect(await entrarComoParticipante(sql, await mesa(), deFora[0].id)).toMatchObject({ ok: false, status: 404 });
+  });
+
+  it("nome digitado igual ao de alguém da mesa pergunta antes de juntar", async () => {
+    const primeira = await entrarParticipante(sql, await mesa(), "Wagner");
+    const token = primeira.ok ? primeira.dados!.token : "";
+
+    // Conectado ou não, pergunta se é a mesma pessoa.
+    expect(await entrarParticipante(sql, await mesa(), "wagner")).toMatchObject({ ok: false, status: 409 });
+    await sql`update participante set ultimo_sinal_em = now() - interval '5 minutes' where token = ${token}`;
+    const recusa = await entrarParticipante(sql, await mesa(), " WAGNER ");
+    expect(recusa).toMatchObject({ ok: false, status: 409, motivo: "Já tem alguém chamado Wagner nesta mesa. É você?" });
+
+    // "Sou eu": a mesma pessoa, sem repetir o nome na mesa.
+    const confirmada = await entrarParticipante(sql, await mesa(), "wagner", true);
+    expect(confirmada.ok && confirmada.dados).toEqual({ token, nome: "Wagner" });
     const estado = await montarEstadoMesa(sql, await mesa());
     expect(estado.participantes.filter((x) => x.nome === "Wagner")).toHaveLength(1);
 
-    // Outra pessoa com o mesmo primeiro nome entra com a inicial e é outra pessoa.
+    // "Sou outra pessoa": entra com a inicial do sobrenome.
     const outra = await entrarParticipante(sql, await mesa(), "Wagner B");
     expect(outra.ok && outra.dados!.token).not.toBe(token);
   });

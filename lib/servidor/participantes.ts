@@ -28,10 +28,11 @@ export interface LinhaParticipante {
 export const cookieParticipante = (codigo: string) => `mesa_p_${codigo}`;
 
 /**
- * Entrada pelo celular. Quem digita de novo o mesmo nome (outro navegador, cookie
- * apagado, "Trocar o nome") volta como a mesma pessoa, com os papéis e os envios
- * dela. Se alguém com esse nome está conectado agora, pode ser outra pessoa: a
- * entrada é recusada com 409 e o celular pergunta antes (`mesmaPessoa`).
+ * Entrada pelo celular digitando o nome. Se já existe alguém com esse nome na mesa
+ * (outro navegador, cookie apagado, "Trocar o nome"), a entrada é recusada com 409
+ * e o celular pergunta se é a mesma pessoa. Com `mesmaPessoa`, ela volta com os
+ * papéis e os envios dela. Quem já entrou também pode tocar no próprio nome na
+ * lista do celular (`entrarComoParticipante`).
  */
 export async function entrarParticipante(
   sql: Sql,
@@ -48,10 +49,12 @@ export async function entrarParticipante(
     where mesa_id = ${mesa.id} and lower(primeiro_nome) = lower(${limpo})
     order by criado_em limit 1`;
   if (existente) {
-    if (existente.conectado && !mesmaPessoa) {
+    if (!mesmaPessoa) {
       return {
         ok: false,
-        motivo: `Já tem alguém chamado ${existente.primeiro_nome} nesta mesa, com o celular conectado. É você em outro aparelho?`,
+        motivo: existente.conectado
+          ? `Já tem alguém chamado ${existente.primeiro_nome} nesta mesa, com o celular conectado. É você em outro aparelho?`
+          : `Já tem alguém chamado ${existente.primeiro_nome} nesta mesa. É você?`,
         status: 409,
       };
     }
@@ -63,6 +66,41 @@ export async function entrarParticipante(
     insert into participante (mesa_id, primeiro_nome) values (${mesa.id}, ${limpo}) returning token`;
   await emitir([canalMesa(mesa.id), canalAdmin(mesa.evento_id)], { tipo: "participante", mesaId: mesa.id });
   return { ok: true, dados: { token: p.token, nome: limpo } };
+}
+
+/** Quem já entrou nesta mesa toca no próprio nome na lista do celular. */
+export async function entrarComoParticipante(
+  sql: Sql,
+  mesa: LinhaMesa,
+  participanteId: string,
+): Promise<Resultado<{ token: string; nome: string }>> {
+  const [p] = await sql<{ token: string; primeiro_nome: string }[]>`
+    update participante set ultimo_sinal_em = now()
+    where id = ${participanteId} and mesa_id = ${mesa.id}
+    returning token, primeiro_nome`;
+  if (!p) return { ok: false, motivo: "Essa pessoa não está nesta mesa. Digite o seu nome.", status: 404 };
+  await emitir([canalMesa(mesa.id), canalAdmin(mesa.evento_id)], { tipo: "participante", mesaId: mesa.id });
+  return { ok: true, dados: { token: p.token, nome: p.primeiro_nome } };
+}
+
+/** Lista que o celular ainda sem nome mostra: quem já entrou, com os papéis. */
+async function pessoasParaEscolher(sql: Sql, mesaId: string): Promise<EstadoCelularApi["pessoasDaMesa"]> {
+  const linhas = await sql<{ id: string; primeiro_nome: string; conectado: boolean; papeis: string[] }[]>`
+    select p.id, p.primeiro_nome,
+      p.ultimo_sinal_em > now() - make_interval(secs => ${JANELA_CONECTADO_S}) as conectado,
+      coalesce(array_agg(pm.papel) filter (where pm.papel is not null), '{}') as papeis
+    from participante p
+    left join papel_mesa pm on pm.mesa_id = p.mesa_id
+      and (pm.participante_id = p.id or (pm.participante_id is null and lower(pm.nome) = lower(p.primeiro_nome)))
+    where p.mesa_id = ${mesaId}
+    group by p.id
+    order by p.criado_em`;
+  return linhas.map((l) => ({
+    id: l.id,
+    nome: l.primeiro_nome,
+    conectado: l.conectado,
+    papeis: DEFINICAO_PAPEIS.filter((d) => l.papeis.includes(d.papel)).map((d) => d.nome),
+  }));
 }
 
 /** Acha a pessoa pelo token e registra o sinal de vida. */
@@ -153,6 +191,7 @@ export async function montarEstadoCelular(
       : Promise.resolve([] as { parceira: string; passaram: number; total: number }[]),
   ]);
   if (!evento) throw new Error("Evento da mesa não encontrado");
+  const pessoasDaMesa = participante ? [] : await pessoasParaEscolher(sql, mesa.id);
 
   const fase = roteiro.fases.find((f) => f.ordem === mesa.fase_atual);
   const passos = roteiro.passosPorFase.get(mesa.fase_atual) ?? [];
@@ -193,6 +232,7 @@ export async function montarEstadoCelular(
           })),
         }
       : null,
+    pessoasDaMesa,
     contribuicao: fase?.rotulo_contribuicao
       ? { rotulo: fase.rotulo_contribuicao, enviadas: contagem[0].enviadas, aceitas: contagem[0].aceitas }
       : null,

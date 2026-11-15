@@ -185,8 +185,8 @@ Se o botão de avançar estiver apagado, leiam o texto ao lado dele: ele diz o q
   errado. Tudo cai numa fila no notebook, e o Piloto aceita ou descarta cada ideia. O celular
   mostra quantas ideias a mesa aceitou.
 - Entrou com o nome errado? No pé da tela, toque em **Não é você? Trocar o nome**.
-- O celular pediu o nome de novo ou o seu papel sumiu? Digite o mesmo nome de antes: você volta
-  com o seu papel. Se aparecer "É você em outro aparelho?", toque em **Sou eu, em outro aparelho**.
+- O celular pediu o nome de novo ou o seu papel sumiu? Em "Já entrou nesta mesa?", toque no seu
+  nome: você volta com o seu papel e com o que já mandou.
 - Duas pessoas com o mesmo nome na mesa? A segunda toca em **Sou outra pessoa** e digita o nome
   com a inicial do sobrenome.
 - No fim, serve para baixar a skill pronta: o botão **Baixar a pasta** aparece quando a mesa

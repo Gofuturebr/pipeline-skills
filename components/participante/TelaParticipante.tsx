@@ -66,7 +66,7 @@ export function TelaParticipante({ codigo }: { codigo: string }) {
   }
 
   if (!estado.participante) {
-    return <Entrada base={base} nomeMesa={estado.mesa.nome} aoEntrar={substituir} />;
+    return <Entrada base={base} nomeMesa={estado.mesa.nome} pessoas={estado.pessoasDaMesa} aoEntrar={substituir} />;
   }
 
   const { mesa, participante } = estado;
@@ -265,36 +265,43 @@ function Cartao({ titulo, children }: { titulo?: string; children: React.ReactNo
 function Entrada({
   base,
   nomeMesa,
+  pessoas,
   aoEntrar,
 }: {
   base: string;
   nomeMesa: string;
+  pessoas: EstadoCelularApi["pessoasDaMesa"];
   aoEntrar: (e: EstadoCelularApi) => void;
 }) {
   const [nome, setNome] = useState(() => lerRascunho(CHAVE_NOME) ?? "");
   const [erro, setErro] = useState<string | null>(null);
-  const [enviando, setEnviando] = useState(false);
-  // Alguém com o mesmo nome está conectado agora: pode ser a própria pessoa em
-  // outro aparelho ou outra pessoa com o mesmo nome. O celular pergunta.
+  // "nome" para o campo; o id da pessoa para a lista.
+  const [enviando, setEnviando] = useState<string | null>(null);
+  // O nome digitado já existe na mesa: pode ser a própria pessoa (outro aparelho,
+  // outro navegador) ou outra pessoa com o mesmo nome. O celular pergunta.
   const [pergunta, setPergunta] = useState<string | null>(null);
 
-  async function entrar(mesmaPessoa = false) {
-    if (!nome.trim()) {
-      setErro("Digite seu primeiro nome.");
-      return;
-    }
-    setEnviando(true);
+  async function entrar(corpo: { nome?: string; participanteId?: string; mesmaPessoa?: boolean }, chave: string) {
+    setEnviando(chave);
     setErro(null);
-    const r = await enviar<EstadoCelularApi>(`${base}/entrar`, { nome, mesmaPessoa });
-    setEnviando(false);
+    const r = await enviar<EstadoCelularApi>(`${base}/entrar`, corpo);
+    setEnviando(null);
     if (!r.ok) {
       if (r.status === 409) setPergunta(r.mensagem);
       else setErro(r.mensagem);
       return;
     }
     setPergunta(null);
-    guardarRascunho(CHAVE_NOME, nome.trim());
+    guardarRascunho(CHAVE_NOME, r.dados.participante?.nome ?? nome.trim());
     aoEntrar(r.dados);
+  }
+
+  function entrarComNome(mesmaPessoa = false) {
+    if (!nome.trim()) {
+      setErro("Digite seu primeiro nome.");
+      return;
+    }
+    entrar({ nome, mesmaPessoa }, "nome");
   }
 
   if (pergunta) {
@@ -304,8 +311,14 @@ function Entrada({
         <p role="alert" className="text-[19px] font-bold leading-snug">
           {pergunta}
         </p>
-        <Botao variante="principal" tamanho="celular" enviando={enviando} textoEnviando="Entrando" onClick={() => entrar(true)}>
-          Sou eu, em outro aparelho
+        <Botao
+          variante="principal"
+          tamanho="celular"
+          enviando={enviando === "nome"}
+          textoEnviando="Entrando"
+          onClick={() => entrarComNome(true)}
+        >
+          Sou eu
         </Botao>
         <Botao
           variante="secundario"
@@ -324,31 +337,69 @@ function Entrada({
   return (
     <Centro>
       <h1 className="font-titulo text-[28px] font-bold leading-tight">{nomeMesa}</h1>
-      <p className="text-[17px] leading-normal">
-        Digite só o seu primeiro nome. Ele aparece para a sua mesa na tela do notebook.
-      </p>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          entrar();
-        }}
-        className="flex flex-col gap-4"
-      >
-        <Campo
-          rotulo="Seu primeiro nome"
-          tamanho="celular"
-          value={nome}
-          maxLength={LIMITE_NOME}
-          autoComplete="given-name"
-          autoCapitalize="words"
-          enterKeyHint="go"
-          onChange={(e) => setNome(e.target.value)}
-          erro={erro}
-        />
-        <Botao type="submit" variante="principal" tamanho="celular" enviando={enviando} textoEnviando="Entrando">
-          Entrar na mesa
-        </Botao>
-      </form>
+      {pessoas.length ? (
+        <section aria-labelledby="ja-entrou" className="flex flex-col gap-3">
+          <h2 id="ja-entrou" className="text-[19px] font-bold leading-snug">
+            Já entrou nesta mesa? Toque no seu nome.
+          </h2>
+          <ul className="flex flex-col gap-2">
+            {pessoas.map((p) => {
+              const detalhe = [p.papeis.join(", "), p.conectado ? "Celular conectado agora" : ""].filter(Boolean).join(". ");
+              return (
+                <li key={p.id}>
+                  <button
+                    type="button"
+                    disabled={enviando !== null}
+                    onClick={() => entrar({ participanteId: p.id }, p.id)}
+                    className="flex min-h-12 w-full flex-col items-start justify-center gap-0.5 rounded-botao border-2 border-linha bg-papel px-4 py-2 text-left"
+                  >
+                    <span className="text-[19px] font-bold">{enviando === p.id ? "Entrando" : p.nome}</span>
+                    {detalhe ? <span className="text-[15px] text-tinta-suave">{detalhe}</span> : null}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
+      <section aria-labelledby={pessoas.length ? "primeira-vez" : undefined} className="flex flex-col gap-4">
+        {pessoas.length ? (
+          <h2 id="primeira-vez" className="mt-2 text-[19px] font-bold leading-snug">
+            Primeira vez nesta mesa?
+          </h2>
+        ) : null}
+        <p className="text-[17px] leading-normal">
+          Digite só o seu primeiro nome. Ele aparece para a sua mesa na tela do notebook.
+        </p>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            entrarComNome();
+          }}
+          className="flex flex-col gap-4"
+        >
+          <Campo
+            rotulo="Seu primeiro nome"
+            tamanho="celular"
+            value={nome}
+            maxLength={LIMITE_NOME}
+            autoComplete="given-name"
+            autoCapitalize="words"
+            enterKeyHint="go"
+            onChange={(e) => setNome(e.target.value)}
+            erro={erro}
+          />
+          <Botao
+            type="submit"
+            variante="principal"
+            tamanho="celular"
+            enviando={enviando === "nome"}
+            textoEnviando="Entrando"
+          >
+            Entrar na mesa
+          </Botao>
+        </form>
+      </section>
     </Centro>
   );
 }

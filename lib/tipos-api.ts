@@ -297,6 +297,8 @@ export interface EstadoCelularApi {
     nome: string;
     papeis: { papel: Papel; nome: string; descricao: string }[];
   } | null;
+  /** Celular ainda sem nome: quem já entrou nesta mesa, para tocar no próprio nome. */
+  pessoasDaMesa: { id: string; nome: string; papeis: string[]; conectado: boolean }[];
   /** Campo de contribuição. Nulo quando a fase não recebe contribuições. */
   contribuicao: { rotulo: string; enviadas: number; aceitas: number } | null;
   /** Resumo da ficha, na Fase 1. */
