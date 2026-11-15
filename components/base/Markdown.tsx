@@ -12,8 +12,8 @@ function emLinha(texto: string): ReactNode[] {
   });
 }
 
-export function Markdown({ texto, tamanho = "mesa" }: { texto: string; tamanho?: "mesa" | "normal" }) {
-  const base = tamanho === "mesa" ? "text-xl" : "text-[15px]";
+export function Markdown({ texto, tamanho = "mesa" }: { texto: string; tamanho?: "mesa" | "normal" | "celular" }) {
+  const base = tamanho === "mesa" ? "text-xl" : tamanho === "celular" ? "text-[17px]" : "text-[15px]";
   const blocos: ReactNode[] = [];
   const linhas = texto.replace(/\r\n/g, "\n").split("\n");
   let lista: { tipo: "ul" | "ol"; itens: ReactNode[] } | null = null;

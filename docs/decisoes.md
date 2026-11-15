@@ -264,3 +264,10 @@ Conferido na documentação atual da Anthropic (Agent Skills, visão geral e boa
 - **Mensagens da mesa mais específicas** quando a IA falha: sem conexão ("O servidor não conseguiu se conectar à IA"), modelo inexistente e IA sobrecarregada, além das que já existiam (chave recusada, muitos pedidos). O detalhe técnico continua só no terminal do servidor.
 - **"Faltam 8 perguntas e 8 temas"**: o aviso da entrevista concorda no plural e ficou mais curto.- **Nome do modelo tolerante**: `ANTHROPIC_MODEL` aceita o nome comercial ("Opus 5.5", "Claude Sonnet 5.5") e o sistema converte para o identificador da API ("claude-opus-5-5"). Vazio vale o padrão. Um `.env.local` com "Opus 5.5" fazia toda chamada falhar com "modelo não encontrado".
 
+### Celular nos passos 2 e 3 da entrevista (15/11/2026)
+
+- **O celular mostra o SKILL.md para ler** nos passos de escrever e revisar da Fase 2, com a versão, um botão para recolher o texto e, no passo de revisar, as duas perguntas da IA ("O que eu errei?" e "O que vocês esqueceram de me contar?"). Enquanto a IA escreve, aparece um aviso. O celular continua sem editar arquivos e sem ver a conversa (CLAUDE.md, seção das três superfícies).
+- **O campo de envio muda de pergunta** nesses passos: "Leu o SKILL.md? Mande o que está errado ou o que faltou contar." Os envios caem na fila da tela da mesa, que já aparece nos passos do editor.
+- **A pergunta da entrevista só aparece no passo 1.** Antes, a última pergunta sem resposta continuava no celular depois de encerrar a entrevista.
+- **Sinal para os celulares no fim de cada ação da IA** (pergunta nova, SKILL.md escrito ou corrigido, rodadas): os celulares buscam o estado na hora, em vez de esperar a busca de 15 segundos.
+

@@ -13,6 +13,7 @@ import { Campo } from "@/components/base/Campo";
 import { Faixa } from "@/components/base/Faixa";
 import { Icone } from "@/components/base/Icone";
 import { IndicadorConexao, SeloPapel } from "@/components/base/Selo";
+import { Markdown } from "@/components/base/Markdown";
 
 // Celular do participante (docs/frontend.md, seção 6): uma única tela que muda
 // com a fase. A pessoa vê onde a mesa está e o seu papel, e só escreve quando a
@@ -185,6 +186,8 @@ export function TelaParticipante({ codigo }: { codigo: string }) {
           </Cartao>
         ) : null}
 
+        {estado.skill && !pausada ? <SkillParaLer skill={estado.skill} /> : null}
+
         {estado.ficha && (estado.ficha.objetivo || estado.ficha.resultadoEsperado) ? (
           <Cartao titulo="O processo da mesa">
             <dl className="flex flex-col gap-2">
@@ -259,6 +262,47 @@ function Cartao({ titulo, children }: { titulo?: string; children: React.ReactNo
       {titulo ? <h2 className="text-[15px] font-bold text-tinta-suave">{titulo}</h2> : null}
       {children}
     </section>
+  );
+}
+
+/** Fase 2, passos 2 e 3: o SKILL.md que a IA escreveu, para ler no celular. */
+function SkillParaLer({ skill }: { skill: NonNullable<EstadoCelularApi["skill"]> }) {
+  if (!skill.conteudo) {
+    return (
+      <Cartao titulo="O SKILL.md da mesa">
+        <p className="leading-normal" role="status">
+          {skill.escrevendo
+            ? "A IA está escrevendo o SKILL.md. Ele aparece aqui quando ficar pronto."
+            : "Quando a IA escrever o SKILL.md, ele aparece aqui para você ler."}
+        </p>
+      </Cartao>
+    );
+  }
+  return (
+    <Cartao titulo={`O SKILL.md da mesa, versão ${skill.versao}`}>
+      {skill.perguntasDaRevisao ? (
+        <div className="flex flex-col gap-1 rounded-folha bg-petroleo-claro p-3">
+          <p className="font-bold">A IA pergunta à mesa:</p>
+          <ul className="flex list-disc flex-col gap-1 pl-5 text-[19px] font-bold leading-snug">
+            {skill.perguntasDaRevisao.map((q) => (
+              <li key={q}>{q}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {skill.escrevendo ? (
+        <p className="text-tinta-suave" role="status">
+          A IA está mexendo no arquivo agora.
+        </p>
+      ) : null}
+      <details open className="flex flex-col gap-2">
+        <summary className="min-h-12 cursor-pointer py-2 font-bold text-petroleo underline underline-offset-4">
+          Ler o SKILL.md
+        </summary>
+        <Markdown texto={skill.conteudo} tamanho="celular" />
+      </details>
+      <p className="text-[15px] text-tinta-suave">Só a tela da mesa muda o arquivo. Pelo celular, mande o que viu.</p>
+    </Cartao>
   );
 }
 

@@ -8,6 +8,7 @@ import { lerFicha } from "@/lib/processo";
 import { nomeValido } from "@/lib/exportacao/skill";
 import { canalAdmin, canalMesa } from "@/lib/sinais";
 import type { EstadoCelularApi } from "@/lib/tipos-api";
+import { PERGUNTAS_FINAIS } from "@/lib/ia/prompts/skill";
 
 // Celular do participante: entrada só com o primeiro nome, sinal de vida e
 // contribuições. O token fica num cookie do navegador e identifica a pessoa.
@@ -147,6 +148,24 @@ export async function contribuir(
   return { ok: true };
 }
 
+const ROTULO_LER_SKILL = "Leu o SKILL.md? Mande o que está errado ou o que faltou contar.";
+
+/** SKILL.md da mesa para ler no celular. Nunca leva a conversa nem permite editar. */
+async function skillParaLer(sql: Sql, mesaId: string, revisao: boolean): Promise<EstadoCelularApi["skill"]> {
+  const [[arquivo], [entrevista]] = await Promise.all([
+    sql<{ conteudo: string; versao: number }[]>`
+      select conteudo, versao from arquivo where mesa_id = ${mesaId} and caminho = 'SKILL.md'`,
+    sql<{ ocupada: boolean }[]>`
+      select coalesce(ocupada_ate > now(), false) as ocupada from entrevista where mesa_id = ${mesaId}`,
+  ]);
+  return {
+    conteudo: arquivo?.conteudo ?? null,
+    versao: arquivo?.versao ?? null,
+    escrevendo: entrevista?.ocupada ?? false,
+    perguntasDaRevisao: revisao ? [...PERGUNTAS_FINAIS] : null,
+  };
+}
+
 /** O que o celular mostra: fase, passo, papel e, quando a fase pede, o campo de envio. */
 export async function montarEstadoCelular(
   sql: Sql,
@@ -197,6 +216,11 @@ export async function montarEstadoCelular(
   const passos = roteiro.passosPorFase.get(mesa.fase_atual) ?? [];
   const passo = passos.find((p) => p.ordem === mesa.passo_atual) ?? null;
 
+  // Fase 2, passos 2 e 3: o celular mostra o SKILL.md que a IA escreveu, só para
+  // ler, e o campo de envio passa a pedir o que está errado ou faltando.
+  const lendoSkill = mesa.fase_atual === 2 && (passo?.chave === "gerar" || passo?.chave === "revisar");
+  const skill = lendoSkill ? await skillParaLer(sql, mesa.id, passo?.chave === "revisar") : null;
+
   // O papel é da pessoa quando ela foi escolhida da lista ou quando o nome digitado é igual ao dela.
   const meus = participante
     ? papeis.filter(
@@ -234,10 +258,16 @@ export async function montarEstadoCelular(
       : null,
     pessoasDaMesa,
     contribuicao: fase?.rotulo_contribuicao
-      ? { rotulo: fase.rotulo_contribuicao, enviadas: contagem[0].enviadas, aceitas: contagem[0].aceitas }
+      ? {
+          rotulo: lendoSkill ? ROTULO_LER_SKILL : fase.rotulo_contribuicao,
+          enviadas: contagem[0].enviadas,
+          aceitas: contagem[0].aceitas,
+        }
       : null,
     ficha: ficha ? { objetivo: ficha.objetivo ?? "", resultadoEsperado: ficha.resultadoEsperado ?? "" } : null,
-    perguntaAtual: pergunta[0]?.tipo === "pergunta" ? pergunta[0].texto : null,
+    // Só no passo da entrevista: depois dele, a última pergunta não espera mais resposta.
+    perguntaAtual: passo?.chave === "entrevista" && pergunta[0]?.tipo === "pergunta" ? pergunta[0].texto : null,
+    skill,
     teste: teste[0] ?? null,
     // Download só depois que a skill é marcada como final (docs/decisoes.md).
     download: mesa.final

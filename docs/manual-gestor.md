@@ -204,7 +204,9 @@ Saber isso ajuda a atender os pedidos de ajuda.
 4. Os celulares mostram a pergunta da vez e recebem exceções e casos que deram errado. Na tela da
    mesa, cada envio tem **Incluir na resposta**, que leva o texto para o campo de resposta.
 5. A mesa pede à IA para escrever o SKILL.md. Leva cerca de meio minuto, e o texto vai aparecendo
-   na tela. O arquivo entra na pasta amarela, do lado direito.
+   na tela. O arquivo entra na pasta amarela, do lado direito. Nos passos 2 e 3, os celulares mostram o
+   SKILL.md para ler, com as duas perguntas da IA no passo 3, e o campo de envio pede "o que está
+   errado ou o que faltou contar". Os envios caem na fila da tela da mesa.
 6. A IA faz duas perguntas finais: o que ela errou e o que a mesa esqueceu de contar. A mesa pode
    pedir para a IA corrigir ou corrigir cada parte do arquivo com **Editar**. No fim, clica em
    **Aprovar o SKILL.md**. Se mudar o arquivo depois, precisa aprovar de novo.

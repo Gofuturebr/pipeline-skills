@@ -305,6 +305,15 @@ export interface EstadoCelularApi {
   ficha: { objetivo: string; resultadoEsperado: string } | null;
   /** Pergunta da IA que a mesa está respondendo, na Fase 2. */
   perguntaAtual: string | null;
+  /** Fase 2, passos de escrever e revisar: o SKILL.md para ler, sem editar. */
+  skill: {
+    conteudo: string | null;
+    versao: number | null;
+    /** A IA está escrevendo agora. */
+    escrevendo: boolean;
+    /** No passo de revisar, as duas perguntas que a IA faz à mesa. */
+    perguntasDaRevisao: string[] | null;
+  } | null;
   /** Fase 5: a mesa testada e o placar até agora. */
   teste: { parceira: string; passaram: number; total: number } | null;
   /** Fase 7: a skill final pode ser baixada. */

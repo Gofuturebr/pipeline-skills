@@ -133,6 +133,36 @@ describe.skipIf(!URL_TESTE)("Marco 3: entrevista com a IA e SKILL.md", () => {
     expect(celular.contribuicao?.rotulo).toBeTruthy();
   });
 
+  it("nos passos de escrever e revisar, o celular mostra o SKILL.md para ler e não a pergunta antiga", async () => {
+    await turnoDaEntrevista(sql, mesaId, undefined, () => {});
+    await responder(8);
+    expect((await encerrarEntrevista(sql, mesaId)).ok).toBe(true);
+    const entrada = await entrarParticipante(sql, (await mesaPorId(sql, mesaId))!, "Rui");
+    const p = await participantePorToken(sql, mesaId, entrada.ok ? entrada.dados!.token : "");
+    const celular = async () => montarEstadoCelular(sql, (await mesaPorId(sql, mesaId))!, p);
+
+    const roteiro = await roteiroDoEvento(sql, (await mesaPorId(sql, mesaId))!.evento_id);
+    const [entrevista, gerar] = roteiro.passosPorFase.get(2)!;
+    expect((await concluirPasso(sql, mesaId, entrevista.id)).ok).toBe(true);
+
+    // Passo 2, antes da IA escrever: aviso, sem pergunta da entrevista.
+    let c = await celular();
+    expect(c.perguntaAtual).toBeNull();
+    expect(c.skill).toMatchObject({ conteudo: null, escrevendo: false, perguntasDaRevisao: null });
+    expect(c.contribuicao?.rotulo).toBe("Leu o SKILL.md? Mande o que está errado ou o que faltou contar.");
+
+    // Depois de escrever: o arquivo aparece no celular.
+    expect((await gerarSkill(sql, mesaId, () => {})).ok).toBe(true);
+    c = await celular();
+    expect(c.skill!.versao).toBe(1);
+    expect(c.skill!.conteudo).toContain("## Passos");
+
+    // Passo 3: as duas perguntas da revisão.
+    expect((await concluirPasso(sql, mesaId, gerar.id)).ok).toBe(true);
+    c = await celular();
+    expect(c.skill!.perguntasDaRevisao).toEqual(["O que eu errei?", "O que vocês esqueceram de me contar?"]);
+  });
+
   it("a IA não responde duas vezes ao mesmo tempo, e recusa vira mensagem para a mesa", async () => {
     await sql`insert into entrevista (mesa_id, ocupada_ate) values (${mesaId}, now() + interval '60 seconds')
               on conflict (mesa_id) do update set ocupada_ate = excluded.ocupada_ate`;

@@ -110,7 +110,8 @@ em **Voltar ao passo atual**.
 3. A barra no alto mostra os 8 temas. Quando as 8 perguntas estiverem respondidas e os 8 temas
    pintados, aparece **Encerrar entrevista**.
 4. Cliquem em **Pedir à IA para escrever o SKILL.md**. Em cerca de meio minuto o arquivo aparece
-   na pasta amarela.
+   na pasta amarela. Ele aparece também no celular de cada pessoa, só para ler: assim todo
+   mundo lê ao mesmo tempo e manda pelo celular o que está errado ou o que faltou contar.
 5. Respondam às duas perguntas da IA: o que ela errou e o que vocês esqueceram de contar. Podem
    pedir para a IA corrigir ou clicar em **Editar** em cada parte do arquivo.
 6. Quando estiver bom, cliquem em **Aprovar o SKILL.md** e depois em **Concluímos a fase**.
@@ -184,6 +185,8 @@ Se o botão de avançar estiver apagado, leiam o texto ao lado dele: ele diz o q
 - Nas Fases 1 e 2, serve para mandar ideias para a mesa: dúvidas, exceções e casos que deram
   errado. Tudo cai numa fila no notebook, e o Piloto aceita ou descarta cada ideia. O celular
   mostra quantas ideias a mesa aceitou.
+- Na Fase 2, depois da entrevista, mostra o SKILL.md que a IA escreveu, para você ler. Só a tela
+  da mesa muda o arquivo: pelo celular, mande o que está errado ou o que faltou contar.
 - Entrou com o nome errado? No pé da tela, toque em **Não é você? Trocar o nome**.
 - O celular pediu o nome de novo ou o seu papel sumiu? Em "Já entrou nesta mesa?", toque no seu
   nome: você volta com o seu papel e com o que já mandou.
