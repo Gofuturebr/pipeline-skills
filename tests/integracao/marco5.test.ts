@@ -85,6 +85,21 @@ describe.skipIf(!URL_TESTE)("Marco 5: teste cruzado, conserto, entrega e exporta
     for (const [descricao, fonte] of itens) expect((await salvarConferencia(sql, id, { descricao, fonte })).ok).toBe(true);
   }
 
+  it("parceira sem SKILL.md: o teste não roda e a mesa sabe por quê", async () => {
+    await prepararPasta(m1);
+    expect((await formarPares(sql, eventoId, GESTOR)).ok).toBe(true);
+    // Com 3 mesas, a Mesa 01 testa a Mesa 02, que não fez a skill.
+    await irParaFase(m1, 5);
+    await irParaFase(m2, 5);
+    const e1 = await estado(m1);
+    expect(e1.teste?.liberado).toBe(true);
+    expect(e1.teste?.pastaParceira.some((a) => a.caminho === "SKILL.md")).toBe(false);
+    expect(await testar(sql, m1, () => {})).toMatchObject({
+      ok: false,
+      motivo: "A Mesa 02 ainda não tem SKILL.md na pasta. Não há skill para testar: avisem o gestor.",
+    });
+  });
+
   it("duas mesas completam o teste cruzado entre si e o .zip sai com tudo", async () => {
     await prepararPasta(m1);
     await prepararPasta(m2);

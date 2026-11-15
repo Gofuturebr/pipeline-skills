@@ -138,8 +138,10 @@ em **Voltar ao passo atual**.
 
 **Fase 5, Teste cruzado**
 
-1. O Testador clica em **Rodar a skill** da outra mesa, com o caso novo do kit. A pasta dela fica
-   do lado direito, em outra cor, só para ler. Ninguém da outra mesa explica nada.
+1. O Testador clica em **Rodar a skill** da outra mesa, com o caso novo do kit. Ninguém envia
+   arquivo: o sistema usa a pasta da outra mesa, que fica do lado direito, em outra cor, só para
+   ler. Ninguém da outra mesa explica nada. Se a pasta dela estiver sem SKILL.md, cliquem em
+   **Pedir ajuda**: o gestor troca a mesa parceira.
 2. Para cada falha do placar, o Testador escreve o que aconteceu.
 3. Enviem o relatório para a outra mesa.
 4. Leiam o relatório que a outra mesa fez sobre a skill de vocês. Ele aparece sozinho quando chega.

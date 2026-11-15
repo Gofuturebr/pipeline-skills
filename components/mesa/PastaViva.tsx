@@ -72,7 +72,9 @@ export function PastaViva({
         </div>
         <div className={`min-h-64 rounded-b-[8px] rounded-tr-[8px] border-2 px-3 py-4 ${corPasta}`}>
           {arquivos.length === 0 ? (
-            <p className="px-1 text-xl leading-snug text-tinta">A skill de vocês vai aparecer aqui</p>
+            <p className="px-1 text-xl leading-snug text-tinta">
+              {somenteLeitura ? "Esta pasta ainda está vazia" : "A skill de vocês vai aparecer aqui"}
+            </p>
           ) : (
             <ul className="flex flex-col gap-0.5">
               {grupos.map((g, i) =>

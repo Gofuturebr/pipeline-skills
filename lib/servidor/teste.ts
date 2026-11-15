@@ -141,6 +141,15 @@ export async function testar(sql: Sql, mesaId: string, aoTexto: (d: string) => v
   if (!meu || !autora) return recusa("O gestor ainda vai formar os pares do teste cruzado.");
   if (!liberado(mesa, autora)) return recusa(`A ${autora.nome} ainda está terminando a Prova. Esperem um pouco.`);
   if (meu.estado === "enviado") return recusa("O relatório já foi enviado.");
+  const [{ temSkill, conferencias }] = await sql<{ temSkill: boolean; conferencias: number }[]>`
+    select exists (select 1 from arquivo where mesa_id = ${autora.id} and caminho = 'SKILL.md') as "temSkill",
+      (select count(*)::int from conferencia where mesa_id = ${autora.id} and valida) as conferencias`;
+  if (!temSkill) {
+    return recusa(`A ${autora.nome} ainda não tem SKILL.md na pasta. Não há skill para testar: avisem o gestor.`);
+  }
+  if (conferencias === 0) {
+    return recusa(`A ${autora.nome} ainda não tem conferências na Prova. Não há o que conferir: avisem o gestor.`);
+  }
   const r = await executarPlacar(
     sql,
     { mesaQueRoda: mesa, mesaDaPasta: autora, tipo: "teste", caso: "caso_novo", consertar: false },

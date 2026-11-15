@@ -124,9 +124,19 @@ function TesteDaParceira(props: PropsAtividade) {
     return <p className="rounded-folha border-2 border-linha bg-bancada p-5 text-2xl">{teste.motivoEspera}</p>;
   }
   const pausada = estado.mesa.estado === "pausada";
+  const semSkill = !teste.pastaParceira.some((a) => a.caminho === "SKILL.md");
   return (
     <div className="flex flex-col gap-6">
       <p className="text-2xl font-bold">Vocês estão testando a skill da {parceira}. A pasta dela está do lado direito, só para ler.</p>
+      <p className="text-xl text-tinta-suave">
+        Não precisa enviar nenhum arquivo: o sistema usa a pasta da {parceira} e o caso novo do kit dela.
+      </p>
+      {semSkill ? (
+        <p className="rounded-folha border-2 border-estado-atrasada bg-papel p-5 text-2xl font-bold" role="status">
+          A pasta da {parceira} ainda está sem SKILL.md, então não há skill para testar. Cliquem em Pedir ajuda: o
+          gestor pode trocar a mesa parceira.
+        </p>
+      ) : null}
       {erro ? <Erro texto={erro} /> : null}
       {escrevendo !== null ? (
         <TextoSendoEscrito texto={escrevendo} rotulo={`A IA está usando a skill da ${parceira}`} />
@@ -138,8 +148,8 @@ function TesteDaParceira(props: PropsAtividade) {
           <Botao
             variante="secundario"
             tamanho="mesa"
-            disabled={pausada}
-            motivo={pausada ? "A mesa está pausada" : null}
+            disabled={pausada || semSkill}
+            motivo={pausada ? "A mesa está pausada" : semSkill ? `A ${parceira} ainda não tem SKILL.md` : null}
             onClick={() => void pedir(`/api/mesa/${encodeURIComponent(codigo)}/teste/rodar`)}
           >
             {teste.rodada ? "Rodar o teste de novo" : `Rodar a skill da ${parceira} com o caso novo`}

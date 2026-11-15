@@ -288,6 +288,8 @@ Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está faz
 | "A conferência foi recusada" | Leia o motivo abaixo da linha: falta a fonte ou tem palavra vaga. Ajude a trocar por algo que dá para contar ou comparar |
 | "Não deu para conferir" no placar | A fonte não estava no caso nem nos materiais. A mesa troca a fonte ou tira o item |
 | "A parceira ainda está terminando a Prova" | O teste espera as duas mesas do par chegarem à Fase 5. Se a outra mesa estiver muito atrasada, troque o par no detalhe da mesa |
+| "A pasta da Mesa 03 ainda está sem SKILL.md" | A mesa parceira chegou à Fase 5 sem fazer a skill (por exemplo, foi avançada com Forçar). Abra o detalhe da mesa que pediu ajuda e troque a parceira por uma mesa que tenha SKILL.md e conferências |
+| "Precisa enviar algum arquivo para o teste?" | Não. O sistema usa a pasta da mesa parceira e o caso novo do kit dela |
 | "Não consigo mais editar a skill" | Ela foi marcada como final. Se precisar, abra o detalhe da mesa e clique em **Destravar a skill** |
 | "O botão de baixar não aparece no celular" | Ele só aparece depois que a mesa marca a skill como final |
 | "A tela ficou pequena e só mostra um aviso" | Maximize a janela do Chrome. A tela da mesa precisa de um notebook |
