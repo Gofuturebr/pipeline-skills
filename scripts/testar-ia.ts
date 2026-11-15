@@ -3,6 +3,7 @@
 // Nunca mostra a chave.
 import { existsSync } from "node:fs";
 import Anthropic from "@anthropic-ai/sdk";
+import { modeloDaIA } from "@/lib/ia/cliente";
 
 if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 
@@ -25,10 +26,11 @@ function dica(e: unknown): string {
 
 async function main() {
   const chave = process.env.ANTHROPIC_API_KEY?.trim() ?? "";
-  const modelo = process.env.ANTHROPIC_MODEL?.trim() || "claude-opus-5-5";
+  const escrito = process.env.ANTHROPIC_MODEL?.trim() ?? "";
+  const modelo = modeloDaIA();
   console.log(`Node ${process.version}`);
   console.log(`Chave: ${chave ? `preenchida (${chave.length} caracteres)` : "VAZIA"}`);
-  console.log(`Modelo: ${modelo}`);
+  console.log(`Modelo: ${modelo}${!escrito ? " (padrão)" : escrito !== modelo ? ` (no .env.local está "${escrito}")` : ""}`);
   if (process.env.IA_SIMULADA === "1") console.log("Atenção: IA_SIMULADA=1 está ligada. As mesas usam a IA de teste, não a real.");
   if (!chave) {
     console.log("\nResultado: falta a chave. Preencha ANTHROPIC_API_KEY no .env.local e reinicie o servidor.");

@@ -4,6 +4,7 @@ import { lerCampoParcial } from "@/lib/ia/json-parcial";
 import { completarSecoes, nomeDaPasta, SECOES_SKILL } from "@/lib/ia/prompts/skill";
 import { dividirSecoes, lerSecao, trocarSecao } from "@/lib/markdown";
 import { SISTEMA_ENTREVISTA } from "@/lib/ia/prompts/entrevista";
+import { MODELO_PADRAO, normalizarModelo } from "@/lib/ia/cliente";
 
 describe("dados sensíveis (RN14)", () => {
   it("acha CPF, CNPJ, senha e chave de acesso", () => {
@@ -65,3 +66,15 @@ describe("SKILL.md", () => {
     expect(SISTEMA_ENTREVISTA).not.toMatch(/[–—]/);
   });
 });
+
+describe("nome do modelo no .env.local", () => {
+  it("aceita o nome comercial e devolve o identificador da API", () => {
+    expect(normalizarModelo("Opus 5.5")).toBe("claude-opus-5-5");
+    expect(normalizarModelo(" Claude Sonnet 5.5 ")).toBe("claude-sonnet-5-5");
+    expect(normalizarModelo("Claude-Opus-5-5")).toBe("claude-opus-5-5");
+    expect(normalizarModelo("claude-opus-5-5")).toBe("claude-opus-5-5");
+    expect(normalizarModelo("")).toBe(MODELO_PADRAO);
+    expect(normalizarModelo(undefined)).toBe(MODELO_PADRAO);
+  });
+});
+

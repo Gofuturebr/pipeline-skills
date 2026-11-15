@@ -262,5 +262,5 @@ Conferido na documentação atual da Anthropic (Agent Skills, visão geral e boa
 
 - **`npm run ia:testar`** (`scripts/testar-ia.ts`): faz uma chamada pequena à IA com a chave e o modelo do `.env.local`, sem mostrar a chave, e explica a causa da falha em português: chave recusada, sem permissão ou sem créditos, modelo inexistente, limite de pedidos, sem internet, conexão recusada, certificado trocado no caminho (antivírus ou rede que inspeciona HTTPS).
 - **Mensagens da mesa mais específicas** quando a IA falha: sem conexão ("O servidor não conseguiu se conectar à IA"), modelo inexistente e IA sobrecarregada, além das que já existiam (chave recusada, muitos pedidos). O detalhe técnico continua só no terminal do servidor.
-- **"Faltam 8 perguntas e 8 temas"**: o aviso da entrevista concorda no plural e ficou mais curto.
+- **"Faltam 8 perguntas e 8 temas"**: o aviso da entrevista concorda no plural e ficou mais curto.- **Nome do modelo tolerante**: `ANTHROPIC_MODEL` aceita o nome comercial ("Opus 5.5", "Claude Sonnet 5.5") e o sistema converte para o identificador da API ("claude-opus-5-5"). Vazio vale o padrão. Um `.env.local` com "Opus 5.5" fazia toda chamada falhar com "modelo não encontrado".
 

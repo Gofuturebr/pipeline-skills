@@ -33,8 +33,25 @@ export const MODELO_PADRAO = "claude-opus-5-5";
 /** Modelos que aceitam a troca automática para outro modelo quando a IA recusa. */
 const COM_TROCA_AUTOMATICA = /^claude-(opus-5-5|opus-5|fable-5(-[12])?|sonnet-5-5)$/;
 
+/**
+ * Aceita o nome do modelo como aparece nos sites ("Opus 5.5", "Claude Sonnet 5.5")
+ * e converte para o identificador da API ("claude-opus-5-5"). Vazio vale o padrão.
+ */
+export function normalizarModelo(bruto: string | undefined): string {
+  const valor = (bruto ?? "").trim();
+  if (!valor) return MODELO_PADRAO;
+  if (/^claude-[a-z0-9-]+$/.test(valor)) return valor;
+  const id = valor
+    .toLowerCase()
+    .replace(/^claude[\s_-]*/, "")
+    .replace(/[\s._]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+  return id ? `claude-${id}` : MODELO_PADRAO;
+}
+
 export function modeloDaIA(): string {
-  return process.env.ANTHROPIC_MODEL?.trim() || MODELO_PADRAO;
+  return normalizarModelo(process.env.ANTHROPIC_MODEL);
 }
 
 export function iaConfigurada(): boolean {
