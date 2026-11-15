@@ -118,7 +118,7 @@ export async function enviar<T = unknown>(
   url: string,
   corpo?: unknown,
   metodo: "POST" | "PUT" = "POST",
-): Promise<{ ok: true; dados: T } | { ok: false; mensagem: string }> {
+): Promise<{ ok: true; dados: T } | { ok: false; mensagem: string; status?: number }> {
   try {
     const resposta = await fetch(url, {
       method: metodo,
@@ -126,7 +126,9 @@ export async function enviar<T = unknown>(
       body: corpo === undefined ? undefined : JSON.stringify(corpo),
     });
     const json = await resposta.json().catch(() => null);
-    if (!resposta.ok) return { ok: false, mensagem: json?.erro ?? "Algo deu errado. Tentem de novo." };
+    if (!resposta.ok) {
+      return { ok: false, mensagem: json?.erro ?? "Algo deu errado. Tentem de novo.", status: resposta.status };
+    }
     return { ok: true, dados: json as T };
   } catch {
     return { ok: false, mensagem: "Sem conexão. Tentem de novo em instantes." };

@@ -27,13 +27,38 @@ export interface LinhaParticipante {
 /** Nome do cookie do celular. Um por mesa, para não misturar mesas no mesmo aparelho. */
 export const cookieParticipante = (codigo: string) => `mesa_p_${codigo}`;
 
+/**
+ * Entrada pelo celular. Quem digita de novo o mesmo nome (outro navegador, cookie
+ * apagado, "Trocar o nome") volta como a mesma pessoa, com os papéis e os envios
+ * dela. Se alguém com esse nome está conectado agora, pode ser outra pessoa: a
+ * entrada é recusada com 409 e o celular pergunta antes (`mesmaPessoa`).
+ */
 export async function entrarParticipante(
   sql: Sql,
   mesa: LinhaMesa,
   nome: string,
+  mesmaPessoa = false,
 ): Promise<Resultado<{ token: string; nome: string }>> {
   const limpo = limparNome(nome);
   if (!limpo) return { ok: false, motivo: "Digite seu primeiro nome.", status: 400 };
+  const [existente] = await sql<{ token: string; primeiro_nome: string; conectado: boolean }[]>`
+    select token, primeiro_nome,
+      ultimo_sinal_em > now() - make_interval(secs => ${JANELA_CONECTADO_S}) as conectado
+    from participante
+    where mesa_id = ${mesa.id} and lower(primeiro_nome) = lower(${limpo})
+    order by criado_em limit 1`;
+  if (existente) {
+    if (existente.conectado && !mesmaPessoa) {
+      return {
+        ok: false,
+        motivo: `Já tem alguém chamado ${existente.primeiro_nome} nesta mesa, com o celular conectado. É você em outro aparelho?`,
+        status: 409,
+      };
+    }
+    await sql`update participante set ultimo_sinal_em = now() where token = ${existente.token}`;
+    await emitir([canalMesa(mesa.id), canalAdmin(mesa.evento_id)], { tipo: "participante", mesaId: mesa.id });
+    return { ok: true, dados: { token: existente.token, nome: existente.primeiro_nome } };
+  }
   const [p] = await sql<{ token: string }[]>`
     insert into participante (mesa_id, primeiro_nome) values (${mesa.id}, ${limpo}) returning token`;
   await emitir([canalMesa(mesa.id), canalAdmin(mesa.evento_id)], { tipo: "participante", mesaId: mesa.id });

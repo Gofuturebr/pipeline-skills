@@ -94,6 +94,31 @@ describe.skipIf(!URL_TESTE)("Marco 2: celular, papéis, leitura, tarefa e contri
     expect((await concluirPasso(sql, mesaId, distribuir.id)).ok).toBe(true);
   });
 
+  it("quem entra de novo com o mesmo nome volta como a mesma pessoa, com o papel", async () => {
+    const primeira = await entrarParticipante(sql, await mesa(), "Wagner");
+    const token = primeira.ok ? primeira.dados!.token : "";
+    const wagner = await participantePorToken(sql, mesaId, token);
+    expect((await definirPapel(sql, mesaId, "dono", "Wagner", wagner!.id)).ok).toBe(true);
+
+    // Celular conectado agora: pode ser outra pessoa com o mesmo nome, então pergunta.
+    expect(await entrarParticipante(sql, await mesa(), "wagner")).toMatchObject({ ok: false, status: 409 });
+    const confirmada = await entrarParticipante(sql, await mesa(), "wagner", true);
+    expect(confirmada.ok && confirmada.dados!.token).toBe(token);
+
+    // Celular desconectado (outro navegador, cookie apagado): volta direto, sem perguntar.
+    await sql`update participante set ultimo_sinal_em = now() - interval '5 minutes' where id = ${wagner!.id}`;
+    const deNovo = await entrarParticipante(sql, await mesa(), " WAGNER ");
+    expect(deNovo.ok && deNovo.dados).toEqual({ token, nome: "Wagner" });
+    const celular = await montarEstadoCelular(sql, await mesa(), await participantePorToken(sql, mesaId, token));
+    expect(celular.participante!.papeis.map((p) => p.nome)).toEqual(["Dono do processo"]);
+    const estado = await montarEstadoMesa(sql, await mesa());
+    expect(estado.participantes.filter((x) => x.nome === "Wagner")).toHaveLength(1);
+
+    // Outra pessoa com o mesmo primeiro nome entra com a inicial e é outra pessoa.
+    const outra = await entrarParticipante(sql, await mesa(), "Wagner B");
+    expect(outra.ok && outra.dados!.token).not.toBe(token);
+  });
+
   it("atividade de fase não liberada é recusada", async () => {
     expect(await confirmarTarefa(sql, mesaId, "Responder pedido com preço e prazo")).toMatchObject({ ok: false, status: 403 });
     const roteiro = await roteiroDoEvento(sql, eventoId);

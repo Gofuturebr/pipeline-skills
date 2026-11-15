@@ -274,23 +274,51 @@ function Entrada({
   const [nome, setNome] = useState(() => lerRascunho(CHAVE_NOME) ?? "");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  // Alguém com o mesmo nome está conectado agora: pode ser a própria pessoa em
+  // outro aparelho ou outra pessoa com o mesmo nome. O celular pergunta.
+  const [pergunta, setPergunta] = useState<string | null>(null);
 
-  async function entrar(e: React.FormEvent) {
-    e.preventDefault();
+  async function entrar(mesmaPessoa = false) {
     if (!nome.trim()) {
       setErro("Digite seu primeiro nome.");
       return;
     }
     setEnviando(true);
     setErro(null);
-    const r = await enviar<EstadoCelularApi>(`${base}/entrar`, { nome });
+    const r = await enviar<EstadoCelularApi>(`${base}/entrar`, { nome, mesmaPessoa });
     setEnviando(false);
     if (!r.ok) {
-      setErro(r.mensagem);
+      if (r.status === 409) setPergunta(r.mensagem);
+      else setErro(r.mensagem);
       return;
     }
+    setPergunta(null);
     guardarRascunho(CHAVE_NOME, nome.trim());
     aoEntrar(r.dados);
+  }
+
+  if (pergunta) {
+    return (
+      <Centro>
+        <h1 className="font-titulo text-[28px] font-bold leading-tight">{nomeMesa}</h1>
+        <p role="alert" className="text-[19px] font-bold leading-snug">
+          {pergunta}
+        </p>
+        <Botao variante="principal" tamanho="celular" enviando={enviando} textoEnviando="Entrando" onClick={() => entrar(true)}>
+          Sou eu, em outro aparelho
+        </Botao>
+        <Botao
+          variante="secundario"
+          tamanho="celular"
+          onClick={() => {
+            setPergunta(null);
+            setErro("Então digite o nome com a inicial do sobrenome, por exemplo Ana B.");
+          }}
+        >
+          Sou outra pessoa
+        </Botao>
+      </Centro>
+    );
   }
 
   return (
@@ -299,7 +327,13 @@ function Entrada({
       <p className="text-[17px] leading-normal">
         Digite só o seu primeiro nome. Ele aparece para a sua mesa na tela do notebook.
       </p>
-      <form onSubmit={entrar} className="flex flex-col gap-4">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          entrar();
+        }}
+        className="flex flex-col gap-4"
+      >
         <Campo
           rotulo="Seu primeiro nome"
           tamanho="celular"

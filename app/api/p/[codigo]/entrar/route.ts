@@ -10,7 +10,7 @@ import {
 } from "@/lib/servidor/participantes";
 import { comMesa } from "@/lib/servidor/rota-mesa";
 
-const Corpo = z.object({ nome: z.string().max(200) });
+const Corpo = z.object({ nome: z.string().max(200), mesmaPessoa: z.boolean().optional() });
 const DOZE_HORAS_S = 12 * 60 * 60;
 
 export async function POST(req: NextRequest, ctx: RouteContext<"/api/p/[codigo]/entrar">) {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/p/[codigo]/
     const corpo = await lerCorpo(req, Corpo);
     if (!corpo.ok) return corpo.resposta;
     const sql = obterSql();
-    const r = await entrarParticipante(sql, mesa, corpo.dados.nome);
+    const r = await entrarParticipante(sql, mesa, corpo.dados.nome, corpo.dados.mesmaPessoa ?? false);
     if (!r.ok) return erro(r.motivo, r.status);
     const token = r.dados!.token;
     const p = await participantePorToken(sql, mesa.id, token);

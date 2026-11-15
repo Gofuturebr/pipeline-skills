@@ -267,6 +267,8 @@ Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está faz
 | "O botão de avançar não funciona" | Leia o texto ao lado do botão: ele diz o que falta, por exemplo "Faltam 2 papéis sem nome" ou "Marquem Lemos depois de ler" |
 | "Alguém não consegue entrar pelo celular" | Peça para a pessoa ler o QR que está na tela da mesa. Se não abrir, ela participa sem celular: o nome dela pode ser digitado na distribuição dos papéis |
 | "Entrei com o nome errado no celular" | No pé da tela do celular, toque em **Não é você? Trocar o nome** |
+| "Meu papel sumiu do celular" ou "o celular pediu o nome de novo" | Digite o mesmo nome de antes. A pessoa volta com o papel e com o que já mandou. Se o celular perguntar "É você em outro aparelho?", toque em **Sou eu, em outro aparelho** |
+| "Tem duas pessoas com o mesmo nome na mesa" | A segunda toca em **Sou outra pessoa** e digita o nome com a inicial do sobrenome, por exemplo "Ana B" |
 | "Mandei uma coisa e a mesa não vê" | O envio só aparece nas Fases 1 e 2. Confira se a mesa está numa delas |
 | "A tela mostra Algo deu errado" ou "não conseguiu falar com o banco de dados" | Aperte F5. Se continuar, avise o responsável técnico |
 | "A resposta da IA não chegou" | Clique em **Tentar de novo**. O que a mesa escreveu continua guardado. Se repetir várias vezes em várias mesas, avise o responsável técnico |
