@@ -25,7 +25,7 @@ test("entrevista completa: o SKILL.md aparece na Pasta viva e a mesa aprova", as
   await mesa.goto("/mesa/B8NC3F");
   const pergunta = mesa.getByRole("region", { name: "Pergunta da IA" });
   await expect(pergunta).toContainText("Pergunta 1:", { timeout: 5000 });
-  await expect(mesa.getByText("Falta 8 perguntas e cobrir 8 temas para poder encerrar a entrevista.")).toBeVisible();
+  await expect(mesa.getByText("Faltam 8 perguntas e 8 temas para poder encerrar a entrevista.")).toBeVisible();
 
   for (let i = 1; i <= 8; i++) {
     await mesa.getByLabel("Resposta da mesa").fill(`Resposta número ${i}, com um caso real.`);

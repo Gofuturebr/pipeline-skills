@@ -68,7 +68,7 @@ describe.skipIf(!URL_TESTE)("Marco 3: entrevista com a IA e SKILL.md", () => {
     const e = (await estado()).entrevista!;
     expect(e.respondidas).toBe(5);
     expect(e.podeEncerrar).toBe(false);
-    expect(e.falta).toBe("Falta 3 perguntas e cobrir 3 temas");
+    expect(e.falta).toBe("Faltam 3 perguntas e 3 temas");
     const r = await gerarSkill(sql, mesaId, () => {});
     expect(r).toMatchObject({ ok: false, status: 409 });
     expect(r.ok ? "" : r.motivo).toContain("8 perguntas");

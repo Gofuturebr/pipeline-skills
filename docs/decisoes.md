@@ -258,3 +258,9 @@ Conferido na documentação atual da Anthropic (Agent Skills, visão geral e boa
 - **Adicionar mesa pelo painel antes de iniciar o evento**: cartão tracejado no fim da grade, só para o gestor, enquanto o evento não foi iniciado, no filtro Todas e com menos de 20 mesas (o limite do painel sem rolagem). O aviso mostra o nome e o código da mesa nova. Depois de iniciar, a mesa nova continua possível pela aba Mesas do Preparo.
 - **Mesa nova herda o processo** quando o evento tem um processo só, tanto pelo painel quanto pelo Preparo.
 
+### Diagnóstico da IA (15/11/2026)
+
+- **`npm run ia:testar`** (`scripts/testar-ia.ts`): faz uma chamada pequena à IA com a chave e o modelo do `.env.local`, sem mostrar a chave, e explica a causa da falha em português: chave recusada, sem permissão ou sem créditos, modelo inexistente, limite de pedidos, sem internet, conexão recusada, certificado trocado no caminho (antivírus ou rede que inspeciona HTTPS).
+- **Mensagens da mesa mais específicas** quando a IA falha: sem conexão ("O servidor não conseguiu se conectar à IA"), modelo inexistente e IA sobrecarregada, além das que já existiam (chave recusada, muitos pedidos). O detalhe técnico continua só no terminal do servidor.
+- **"Faltam 8 perguntas e 8 temas"**: o aviso da entrevista concorda no plural e ficou mais curto.
+

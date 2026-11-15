@@ -106,5 +106,15 @@ export function mensagemDeFalhaDaIA(e: unknown): string {
   if (e instanceof Anthropic.AuthenticationError || e instanceof Anthropic.PermissionDeniedError) {
     return "A chave da IA não foi aceita. Avisem o gestor.";
   }
+  // Sem conexão com a IA: internet, firewall ou antivírus do computador que roda o servidor.
+  if (e instanceof Anthropic.APIConnectionError) {
+    return "O servidor não conseguiu se conectar à IA. Avisem o gestor. O que vocês escreveram está salvo.";
+  }
+  if (e instanceof Anthropic.NotFoundError) {
+    return "O modelo de IA configurado não foi encontrado. Avisem o gestor.";
+  }
+  if (e instanceof Anthropic.InternalServerError) {
+    return "A IA está sobrecarregada agora. Esperem alguns segundos e tentem de novo.";
+  }
   return "A resposta não chegou. O que vocês escreveram está salvo.";
 }

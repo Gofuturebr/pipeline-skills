@@ -275,7 +275,9 @@ Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está faz
 | "Tem duas pessoas com o mesmo nome na mesa" | A segunda toca em **Sou outra pessoa** e digita o nome com a inicial do sobrenome, por exemplo "Ana B" |
 | "Mandei uma coisa e a mesa não vê" | O envio só aparece nas Fases 1 e 2. Confira se a mesa está numa delas |
 | "A tela mostra Algo deu errado" ou "não conseguiu falar com o banco de dados" | Aperte F5. Se continuar, avise o responsável técnico |
-| "A resposta da IA não chegou" | Clique em **Tentar de novo**. O que a mesa escreveu continua guardado. Se repetir várias vezes em várias mesas, avise o responsável técnico |
+| "A resposta da IA não chegou" | Clique em **Tentar de novo**. O que a mesa escreveu continua guardado. Se repetir várias vezes em várias mesas, avise o responsável técnico: ele confere a ligação com a IA pelo teste descrito no README ("Conferir a IA") |
+| "O servidor não conseguiu se conectar à IA" | O computador do servidor está sem acesso à IA: internet, firewall ou antivírus. Avise o responsável técnico |
+| "O modelo de IA configurado não foi encontrado" ou "A chave da IA não foi aceita" | Problema de configuração do servidor. Avise o responsável técnico |
 | "A IA está com muitos pedidos agora" | Espere alguns segundos e tente de novo. Acontece quando muitas mesas pedem ao mesmo tempo |
 | "Isto parece um CPF" (ou CNPJ, senha, chave) | A mesa escreveu um dado que não pode entrar na skill. Troque por um dado inventado |
 | "O botão Encerrar entrevista não aparece" | A tela diz o que falta: perguntas ou temas. A mesa continua respondendo |
@@ -302,4 +304,4 @@ Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está faz
 4. **Avance uma mesa no painel e veja a tela dela mudar** em até 2 segundos, já no endereço
    que vai ser usado no dia.
 5. **Peça ao responsável técnico para confirmar** que a conta da IA aguenta todas as mesas
-   pedindo ao mesmo tempo.
+   pedindo ao mesmo tempo, e para rodar o teste da IA no computador e na rede do dia.

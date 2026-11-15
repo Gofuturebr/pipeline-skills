@@ -76,6 +76,19 @@ npm run db:migrar
 O `db:migrar` aplica só o que mudou no banco, sem apagar o que já existe. Depois, reinicie o
 `npm run dev`.
 
+### Conferir a IA
+
+Se a tela da mesa mostrar "A resposta não chegou" ou "O servidor não conseguiu se conectar à IA",
+rode no computador do servidor:
+
+```bash
+npm run ia:testar
+```
+
+Ele faz uma chamada pequena à IA, sem mostrar a chave, e diz o que fazer: chave recusada, modelo
+inexistente, conta sem créditos, sem internet, firewall, antivírus ou rede que inspeciona o
+HTTPS. Rode também antes do evento, no computador e na rede do dia.
+
 ## Verificações
 
 ```bash

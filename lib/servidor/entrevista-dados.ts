@@ -50,8 +50,10 @@ export function faltaParaEscrever(e: Pick<LinhaEntrevista, "n_perguntas" | "tema
   const faltamTemas = TEMAS_ENTREVISTA.length - temasCobertos(e).length;
   const partes: string[] = [];
   if (faltamPerguntas > 0) partes.push(faltamPerguntas === 1 ? "1 pergunta" : `${faltamPerguntas} perguntas`);
-  if (faltamTemas > 0) partes.push(faltamTemas === 1 ? "cobrir 1 tema" : `cobrir ${faltamTemas} temas`);
-  return partes.length ? `Falta ${partes.join(" e ")}` : null;
+  if (faltamTemas > 0) partes.push(faltamTemas === 1 ? "1 tema" : `${faltamTemas} temas`);
+  if (!partes.length) return null;
+  const singular = partes.length === 1 && (faltamPerguntas === 1 || (faltamPerguntas === 0 && faltamTemas === 1));
+  return `${singular ? "Falta" : "Faltam"} ${partes.join(" e ")}`;
 }
 
 export async function montarEntrevista(sql: Sql, mesaId: string): Promise<EntrevistaApi> {
