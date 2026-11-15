@@ -4,6 +4,7 @@ import { mesaPorId, type LinhaMesa } from "./consultas";
 import { avisarMudanca, recusa, registrar, type Resultado } from "./acoes";
 import { lerArquivo, salvarArquivo } from "./arquivos";
 import { contextoDoProcesso } from "./processo";
+import { destravarIA, travarIA } from "./trava-ia";
 import { mensagemDeFalhaDaIA, transmitir } from "@/lib/ia/cliente";
 import { lerCampoParcial } from "@/lib/ia/json-parcial";
 import { blocoDoProcesso } from "@/lib/ia/prompts/comum";
@@ -30,20 +31,6 @@ import {
 const TRAVA_PERGUNTA_S = 90;
 const TRAVA_ARQUIVO_S = 240;
 const LIMITE_RESPOSTA = 4000;
-
-/** Pega a trava da IA para a mesa. Devolve falso se outra chamada está em curso. */
-async function travar(sql: Sql, mesaId: string, segundos: number): Promise<boolean> {
-  await sql`insert into entrevista (mesa_id) values (${mesaId}) on conflict do nothing`;
-  const r = await sql`
-    update entrevista set ocupada_ate = now() + make_interval(secs => ${segundos})
-    where mesa_id = ${mesaId} and (ocupada_ate is null or ocupada_ate < now())
-    returning mesa_id`;
-  return r.length > 0;
-}
-
-async function destravar(sql: Sql, mesaId: string) {
-  await sql`update entrevista set ocupada_ate = null where mesa_id = ${mesaId}`;
-}
 
 function conferirMesa(mesa: LinhaMesa): Resultado | null {
   if (mesa.fase_atual !== FASE_ENTREVISTA) return recusa("A entrevista é da Fase 2.", 403);
@@ -92,7 +79,7 @@ export async function turnoDaEntrevista(
     if (achado) return recusa(mensagemSensivel(achado, "enviar"), 400);
   }
 
-  if (!(await travar(sql, mesa.id, TRAVA_PERGUNTA_S))) {
+  if (!(await travarIA(sql, mesa.id, TRAVA_PERGUNTA_S))) {
     return recusa("A IA já está escrevendo. Esperem a pergunta aparecer.");
   }
   try {
@@ -182,7 +169,7 @@ export async function turnoDaEntrevista(
     console.error(e);
     return recusa(mensagemDeFalhaDaIA(e), 502);
   } finally {
-    await destravar(sql, mesa.id);
+    await destravarIA(sql, mesa.id);
     await avisarMudanca(mesa);
   }
 }
@@ -249,7 +236,7 @@ export async function gerarSkill(sql: Sql, mesaId: string, aoTexto: (delta: stri
       409,
     );
   }
-  if (!(await travar(sql, mesa.id, TRAVA_ARQUIVO_S))) return recusa("A IA já está escrevendo. Esperem terminar.");
+  if (!(await travarIA(sql, mesa.id, TRAVA_ARQUIVO_S))) return recusa("A IA já está escrevendo. Esperem terminar.");
   try {
     await sql`update entrevista set encerrada_em = coalesce(encerrada_em, now()) where mesa_id = ${mesa.id}`;
     const msgs = await mensagensDaEntrevista(sql, mesa.id);
@@ -269,7 +256,7 @@ Escrevam o SKILL.md.`;
     console.error(e);
     return recusa(mensagemDeFalhaDaIA(e), 502);
   } finally {
-    await destravar(sql, mesa.id);
+    await destravarIA(sql, mesa.id);
     await avisarMudanca(mesa);
   }
 }
@@ -294,7 +281,7 @@ export async function corrigirSkill(
   }
   const atual = await lerArquivo(sql, mesa.id, "SKILL.md");
   if (!atual) return recusa("A IA ainda não escreveu o SKILL.md.");
-  if (!(await travar(sql, mesa.id, TRAVA_ARQUIVO_S))) return recusa("A IA já está escrevendo. Esperem terminar.");
+  if (!(await travarIA(sql, mesa.id, TRAVA_ARQUIVO_S))) return recusa("A IA já está escrevendo. Esperem terminar.");
   try {
     await sql`
       update entrevista set respostas_finais = ${sql.json({ errou, esqueceu })} where mesa_id = ${mesa.id}`;
@@ -316,7 +303,7 @@ Corrijam o SKILL.md.`;
     console.error(e);
     return recusa(mensagemDeFalhaDaIA(e), 502);
   } finally {
-    await destravar(sql, mesa.id);
+    await destravarIA(sql, mesa.id);
     await avisarMudanca(mesa);
   }
 }

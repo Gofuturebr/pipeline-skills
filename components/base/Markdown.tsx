@@ -21,7 +21,18 @@ export function Markdown({ texto, tamanho = "mesa" }: { texto: string; tamanho?:
 
   const fecharParagrafo = () => {
     if (paragrafo.length) {
-      blocos.push(<p key={blocos.length} className="leading-normal">{emLinha(paragrafo.join(" "))}</p>);
+      // Quebra de linha dentro do parágrafo vale: numa mensagem de WhatsApp, cada linha importa.
+      const linhasDoParagrafo = paragrafo;
+      blocos.push(
+        <p key={blocos.length} className="leading-normal">
+          {linhasDoParagrafo.map((l, i) => (
+            <Fragment key={i}>
+              {i > 0 ? <br /> : null}
+              {emLinha(l)}
+            </Fragment>
+          ))}
+        </p>,
+      );
       paragrafo = [];
     }
   };

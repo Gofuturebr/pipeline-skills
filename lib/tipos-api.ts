@@ -20,6 +20,8 @@ export interface EventoApi {
   iniciadoEm: string | null;
   pausaGeralAte: string | null;
   duracaoIntervaloMin: number;
+  /** Palavras que não valem numa conferência (RN08). */
+  palavrasVagas: string[];
 }
 
 export interface PassoApi {
@@ -103,6 +105,49 @@ export interface EstadoMesaApi {
   arquivos: ArquivoApi[];
   /** Entrevista com a IA. Só a partir da Fase 2. */
   entrevista: EntrevistaApi | null;
+  /** Rodadas feitas pela mesa, da mais antiga para a mais nova. */
+  rodadas: RodadaApi[];
+  /** Conferências da prova (Fase 4 em diante). */
+  conferencias: ConferenciaApi[];
+}
+
+export interface ResultadoConferenciaApi {
+  id: string;
+  conferenciaId: string | null;
+  numero: number;
+  descricao: string;
+  fonte: string;
+  passou: boolean;
+  prova: string;
+  conseguiuConferir: boolean;
+  /** O que o Testador escreveu sobre a falha (teste cruzado). */
+  observacao: string;
+}
+
+export interface RodadaApi {
+  id: string;
+  fase: number;
+  tipo: "exemplo" | "segunda" | "prova" | "teste" | "conserto_antes" | "conserto_depois";
+  /** Mesa que rodou. */
+  mesaId: string;
+  /** Mesa dona da pasta usada. */
+  pastaMesaId: string;
+  entrada: string;
+  saida: string;
+  reusou: { arquivo: string; para_que: string }[];
+  refez: string[];
+  criadoEm: string;
+  /** Placar das conferências, nas rodadas que conferem. */
+  placar: ResultadoConferenciaApi[] | null;
+}
+
+export interface ConferenciaApi {
+  id: string;
+  numero: number;
+  descricao: string;
+  fonte: string;
+  valida: boolean;
+  motivo: string | null;
 }
 
 export interface ArquivoApi {
@@ -159,6 +204,8 @@ export interface ProcessoApi {
   kitMateriais: string;
   exemploBom: string;
   exemploRuim: string;
+  /** Caso de exemplo do kit. Só a partir da Fase 3. */
+  casoExemplo: string | null;
 }
 
 export interface ContribuicaoApi {

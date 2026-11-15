@@ -168,6 +168,26 @@ Saber isso ajuda a atender os pedidos de ajuda.
    pedir para a IA corrigir ou corrigir cada parte do arquivo com **Editar**. No fim, clica em
    **Aprovar o SKILL.md**. Se mudar o arquivo depois, precisa aprovar de novo.
 
+**Fase 3, Caixa de ferramentas**
+
+1. A mesa clica em **Rodar a tarefa**: a IA usa a skill para fazer a tarefa com o caso de exemplo
+   do kit. O caso aparece à esquerda e o resultado à direita. Leva cerca de 15 segundos.
+2. O Guardião clica em **Congelar** nas partes boas do resultado. A IA propõe um modelo com
+   lacunas, como [nome do cliente], e a mesa confirma com **Guardar na pasta**. O modelo entra em
+   arquivos/, com uma linha no índice.
+3. O Guardião salva o resultado aprovado como exemplo.
+4. A mesa roda a tarefa de novo, do zero, e vê o que a IA reusou da pasta e o que precisou refazer.
+
+**Fase 4, Prova**
+
+1. O Cético escreve de 5 a 10 conferências: o que confere e contra qual fonte. Se a lista estiver
+   vazia, dá para começar com **Trazer do SKILL.md**.
+2. A tela recusa conferência sem fonte ou com palavra vaga, como "claro", "profissional" ou "de
+   qualidade", e diz o motivo.
+3. A mesa clica em **Rodar a tarefa e conferir**. Em cerca de 20 segundos aparece o placar, por
+   exemplo "8 de 10 passaram", com a prova de cada item.
+4. Itens que a IA não conseguiu conferir aparecem marcados. A mesa ajusta a fonte ou tira o item.
+
 A pasta amarela guarda todas as versões de cada arquivo. Clicando no arquivo e em **Ver versões
 anteriores**, aparece cada versão com a hora e quem mudou: a IA ou a mesa.
 
@@ -187,6 +207,9 @@ Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está faz
 | "A IA está com muitos pedidos agora" | Espere alguns segundos e tente de novo. Acontece quando muitas mesas pedem ao mesmo tempo |
 | "Isto parece um CPF" (ou CNPJ, senha, chave) | A mesa escreveu um dado que não pode entrar na skill. Troque por um dado inventado |
 | "O botão Encerrar entrevista não aparece" | A tela diz o que falta: perguntas ou temas. A mesa continua respondendo |
+| "O modelo não foi guardado: precisa de lacunas" | O modelo é para reusar em outros casos. Peça para trocarem nomes, valores e datas por lacunas entre colchetes |
+| "A conferência foi recusada" | Leia o motivo abaixo da linha: falta a fonte ou tem palavra vaga. Ajude a trocar por algo que dá para contar ou comparar |
+| "Não deu para conferir" no placar | A fonte não estava no caso nem nos materiais. A mesa troca a fonte ou tira o item |
 | "A tela ficou pequena e só mostra um aviso" | Maximize a janela do Chrome. A tela da mesa precisa de um notebook |
 | "Não encontramos esta mesa" | Confira o código no cartão da mesa |
 | "Fechamos a janela sem querer" | Abram a página inicial e digitem o código. A mesa volta no mesmo passo, com tudo que já fez |
@@ -195,9 +218,8 @@ Os celulares mostram o tempo da fase, o papel da pessoa e o que a mesa está faz
 
 | Parte | Etapa |
 | --- | --- |
-| Caixa de ferramentas, conferências e placar | Marco 4 |
 | Teste cruzado, conserto, entrega e download da skill pelo celular | Marco 5 |
 | Cadastro de processos e mesas pelo painel, linha do tempo da mesa, roteiro para imprimir | Marco 6 |
 
-Enquanto isso, os passos das Fases 3 a 7 mostram "Esta atividade ainda está em construção". A
+Enquanto isso, os passos das Fases 5 a 7 mostram "Esta atividade ainda está em construção". A
 mesa pode concluir esses passos normalmente, para testar o andamento das fases.

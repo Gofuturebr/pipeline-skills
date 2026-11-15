@@ -14,6 +14,7 @@ export interface LinhaEvento {
   iniciado_em: Date | null;
   pausa_geral_ate: Date | null;
   duracao_intervalo_min: number;
+  palavras_vagas: string[] | null;
 }
 
 export interface LinhaMesa {
@@ -104,7 +105,7 @@ export async function mesasDoEvento(sql: Sql, eventoId: string): Promise<LinhaMe
 export async function eventoPorId(sql: Sql, id: string): Promise<LinhaEvento | null> {
   const [e] = await sql<LinhaEvento[]>`
     select id, nome, data, modo_liberacao, fase_referencia, iniciado_em, pausa_geral_ate,
-           duracao_intervalo_min
+           duracao_intervalo_min, palavras_vagas
     from evento where id = ${id}`;
   return e ?? null;
 }
@@ -156,6 +157,7 @@ export function eventoParaApi(e: LinhaEvento): EventoApi {
     iniciadoEm: iso(e.iniciado_em),
     pausaGeralAte: iso(e.pausa_geral_ate),
     duracaoIntervaloMin: e.duracao_intervalo_min,
+    palavrasVagas: e.palavras_vagas?.length ? e.palavras_vagas : ["claro", "profissional", "de qualidade"],
   };
 }
 

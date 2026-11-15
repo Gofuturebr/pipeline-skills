@@ -1,4 +1,5 @@
 import { PAPEIS, type Papel, type TipoAtividade } from "./tipos";
+import { MAXIMO_CONFERENCIAS, MINIMO_CONFERENCIAS } from "../conferencias";
 
 // Critérios de conclusão de passo e de fase (RN03).
 // Esta função roda no servidor antes de aceitar "Passo concluído" ou
@@ -27,6 +28,14 @@ export interface ContextoCriterio {
   skillVersao?: number | null;
   /** Versão do SKILL.md que a mesa aprovou. */
   skillAprovadaVersao?: number | null;
+  /** Modelos guardados em arquivos/ (sem contar o INDICE.md) e exemplos em exemplos/. */
+  modelos?: number;
+  exemplos?: number;
+  /** Tipos de rodada que a mesa já fez com a própria pasta. */
+  rodadas?: ReadonlySet<string>;
+  /** Conferências da prova: válidas e recusadas. */
+  conferenciasValidas?: number;
+  conferenciasRecusadas?: number;
 }
 
 export interface Avaliacao {
@@ -48,6 +57,10 @@ export const ATIVIDADES_PRONTAS: ReadonlySet<TipoAtividade> = new Set<TipoAtivid
   "frase",
   "entrevista",
   "editor",
+  "rodada",
+  "caixa",
+  "conferencias",
+  "placar",
 ]);
 
 /** Em qual marco cada tipo de atividade fica pronto. Só para a mensagem na tela. */
@@ -71,6 +84,9 @@ export const MARCO_DA_ATIVIDADE: Record<TipoAtividade, number> = {
  * no Marco 5. A chave é "tipo:valor" de config.campo ou config.conteudo.
  */
 const MARCO_DA_VARIANTE: Record<string, number> = {
+  "rodada:caso_novo": 5,
+  "placar:teste": 5,
+  "placar:observar": 5,
   "frase:nome_skill": 5,
   "leitura:entrega": 5,
   "editor:Quando usar": 5,
@@ -79,7 +95,7 @@ const MARCO_DA_VARIANTE: Record<string, number> = {
 
 function chaveDaVariante(passo: { tipo: TipoAtividade; config?: Record<string, unknown> }): string {
   const c = passo.config ?? {};
-  const valor = c.campo ?? c.conteudo ?? c.secao ?? c.acao ?? "";
+  const valor = c.campo ?? c.conteudo ?? c.secao ?? c.acao ?? c.modo ?? c.caso ?? "";
   return `${passo.tipo}:${String(valor)}`;
 }
 
@@ -107,6 +123,20 @@ function tarefaConfirmada(ctx: ContextoCriterio): Avaliacao {
 
 const FALTA_LER = 'Marquem "Lemos" depois de ler';
 
+function conferenciasValidas(ctx: ContextoCriterio): Avaliacao {
+  const validas = ctx.conferenciasValidas ?? 0;
+  if ((ctx.conferenciasRecusadas ?? 0) > 0) return { ok: false, falta: "Corrijam ou tirem as conferências recusadas" };
+  if (validas < MINIMO_CONFERENCIAS) {
+    const faltam = MINIMO_CONFERENCIAS - validas;
+    return { ok: false, falta: faltam === 1 ? "Falta 1 conferência válida" : `Faltam ${faltam} conferências válidas` };
+  }
+  if (validas > MAXIMO_CONFERENCIAS) return { ok: false, falta: `Deixem no máximo ${MAXIMO_CONFERENCIAS} conferências` };
+  return OK;
+}
+
+const temRodada = (tipo: string, falta: string) => (ctx: ContextoCriterio): Avaliacao =>
+  ctx.rodadas?.has(tipo) ? OK : { ok: false, falta };
+
 function skillAprovada(ctx: ContextoCriterio): Avaliacao {
   if (ctx.skillVersao == null) return { ok: false, falta: "Peçam à IA para escrever o SKILL.md" };
   if (ctx.skillAprovadaVersao !== ctx.skillVersao) return { ok: false, falta: "Aprovem o SKILL.md" };
@@ -125,6 +155,12 @@ const CRITERIOS_PASSO: Record<string, CriterioPasso> = {
     ctx.entrevistaEncerrada ? OK : { ok: false, falta: "Encerrem a entrevista quando o botão aparecer" },
   skill_gerada: (ctx) => (ctx.skillVersao != null ? OK : { ok: false, falta: "Peçam à IA para escrever o SKILL.md" }),
   skill_aprovada: (ctx) => skillAprovada(ctx),
+  rodada_feita: temRodada("exemplo", "Rodem a tarefa com o caso de exemplo"),
+  segunda_rodada_feita: temRodada("segunda", "Rodem a tarefa de novo"),
+  modelo_salvo: (ctx) => ((ctx.modelos ?? 0) > 0 ? OK : { ok: false, falta: "Guardem pelo menos um modelo na pasta" }),
+  exemplo_salvo: (ctx) => ((ctx.exemplos ?? 0) > 0 ? OK : { ok: false, falta: "Salvem pelo menos um exemplo" }),
+  conferencias_validas: (ctx) => conferenciasValidas(ctx),
+  placar_executado: temRodada("prova", "Rodem a tarefa para ver o placar"),
 };
 
 const CRITERIOS_FASE: Record<string, CriterioFase> = {
@@ -134,6 +170,13 @@ const CRITERIOS_FASE: Record<string, CriterioFase> = {
     if (naoLidos.length > 0) return { ok: false, falta: FALTA_LER };
     return tarefaConfirmada(ctx);
   },
+  modelo_e_exemplo: (ctx) =>
+    (ctx.modelos ?? 0) === 0
+      ? { ok: false, falta: "Falta guardar pelo menos um modelo" }
+      : (ctx.exemplos ?? 0) === 0
+        ? { ok: false, falta: "Falta salvar pelo menos um exemplo" }
+        : OK,
+  conferencias_validas: (ctx) => conferenciasValidas(ctx),
   entrevista_e_skill_aprovada: (ctx) =>
     ctx.entrevistaEncerrada ? skillAprovada(ctx) : { ok: false, falta: "Falta encerrar a entrevista" },
 };

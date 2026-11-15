@@ -5,12 +5,12 @@ import { Botao } from "@/components/base/Botao";
 import { Dialogo } from "@/components/base/Dialogo";
 import { Icone } from "@/components/base/Icone";
 import { Markdown } from "@/components/base/Markdown";
-import { lerFluxo } from "@/lib/cliente/fluxo";
 import { guardarRascunho, lerRascunho } from "@/lib/cliente/rascunho";
 import { dividirSecoes } from "@/lib/markdown";
 import { acharSensivel, mensagemSensivel } from "@/lib/sensivel";
-import type { ArquivoApi, EstadoMesaApi } from "@/lib/tipos-api";
+import type { ArquivoApi } from "@/lib/tipos-api";
 import type { PropsAtividade } from "./tipos";
+import { Erro, TextoSendoEscrito, useEscritaDaIA } from "./comum";
 
 // Editor do SKILL.md (Fase 2): a IA escreve, a mesa responde às duas perguntas
 // finais, corrige por seção e aprova. Cada seção mostra o texto formatado; ao
@@ -27,44 +27,10 @@ export function AtividadeEditor(props: PropsAtividade) {
   return <RevisarSkill {...props} arquivo={arquivo} caminho={caminho} />;
 }
 
-function useEscritaDaIA(props: PropsAtividade) {
-  const [escrevendo, setEscrevendo] = useState<string | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
-  async function pedir(url: string, corpo?: unknown): Promise<boolean> {
-    setErro(null);
-    setEscrevendo("");
-    const r = await lerFluxo<EstadoMesaApi>(url, corpo, (acc) => setEscrevendo(acc));
-    setEscrevendo(null);
-    if (r.dados) props.aoSubstituir(r.dados);
-    if (!r.ok) setErro(r.mensagem);
-    return r.ok;
-  }
-  return { escrevendo, erro, pedir };
-}
-
-function TextoSendoEscrito({ texto }: { texto: string }) {
-  return (
-    <div className="rounded-folha border-2 border-petroleo bg-papel p-6" aria-live="polite" aria-busy>
-      <p className="mb-4 inline-flex items-center gap-2 text-lg font-bold text-petroleo">
-        <Icone nome="andamento" className="h-5 w-5" />A IA está escrevendo
-      </p>
-      {texto ? <Markdown texto={texto} /> : <p className="text-xl text-tinta-suave">Lendo a entrevista.</p>}
-    </div>
-  );
-}
-
-function Erro({ texto }: { texto: string }) {
-  return (
-    <p role="alert" className="rounded-folha border-2 border-estado-atrasada bg-papel p-4 text-xl font-bold">
-      {texto}
-    </p>
-  );
-}
-
 function GerarSkill(props: PropsAtividade & { arquivo: ArquivoApi | null }) {
   const { estado, codigo, arquivo } = props;
   const e = estado.entrevista;
-  const { escrevendo, erro, pedir } = useEscritaDaIA(props);
+  const { escrevendo, erro, pedir } = useEscritaDaIA(props.aoSubstituir);
   const [confirmarDeNovo, setConfirmarDeNovo] = useState(false);
   const url = `/api/mesa/${encodeURIComponent(codigo)}/skill/gerar`;
   const pausada = estado.mesa.estado === "pausada";
@@ -127,7 +93,7 @@ function GerarSkill(props: PropsAtividade & { arquivo: ArquivoApi | null }) {
 function RevisarSkill(props: PropsAtividade & { arquivo: ArquivoApi | null; caminho: string }) {
   const { estado, codigo, arquivo, caminho } = props;
   const e = estado.entrevista;
-  const { escrevendo, erro, pedir } = useEscritaDaIA(props);
+  const { escrevendo, erro, pedir } = useEscritaDaIA(props.aoSubstituir);
   const chaveErrou = `mesa:${codigo}:rascunho:errou`;
   const chaveEsqueceu = `mesa:${codigo}:rascunho:esqueceu`;
   const [errou, setErrou] = useState(() => lerRascunho(chaveErrou) ?? e?.respostasFinais.errou ?? "");

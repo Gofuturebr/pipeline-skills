@@ -13,6 +13,8 @@ import { contextoDaMesa } from "./contexto";
 import { JANELA_CONECTADO_S } from "./participantes";
 import { arquivosDaMesa } from "./arquivos";
 import { montarEntrevista } from "./entrevista-dados";
+import { rodadasDaMesa } from "./rodadas";
+import { conferenciasDaMesa } from "./conferencias";
 import {
   avaliarFase,
   avaliarPasso,
@@ -69,6 +71,7 @@ interface LinhaProcesso {
   kit_materiais: string;
   exemplo_bom: string;
   exemplo_ruim: string;
+  caso_exemplo: string;
 }
 
 interface LinhaContribuicao {
@@ -89,7 +92,7 @@ function contribuicaoParaApi(c: LinhaContribuicao): ContribuicaoApi {
  * passos e sem textos: a mesa não consegue abrir fase não liberada.
  */
 export async function montarEstadoMesa(sql: Sql, mesa: LinhaMesa): Promise<EstadoMesaApi> {
-  const [evento, roteiro, ctx, avisos, chamados, participantes, papeis, processos, contribuicoes, arquivos, entrevista] =
+  const [evento, roteiro, ctx, avisos, chamados, participantes, papeis, processos, contribuicoes, arquivos, entrevista, rodadas, conferencias] =
     await Promise.all([
       eventoPorId(sql, mesa.evento_id),
       roteiroDoEvento(sql, mesa.evento_id),
@@ -111,7 +114,7 @@ export async function montarEstadoMesa(sql: Sql, mesa: LinhaMesa): Promise<Estad
       // caso novo ficam de fora: são usados nas Fases 3 e 5.
       mesa.processo_id && mesa.fase_atual >= 1
         ? sql<LinhaProcesso[]>`
-            select nome, ficha, kit_materiais, exemplo_bom, exemplo_ruim
+            select nome, ficha, kit_materiais, exemplo_bom, exemplo_ruim, caso_exemplo
             from processo where id = ${mesa.processo_id}`
         : Promise.resolve([] as LinhaProcesso[]),
       sql<LinhaContribuicao[]>`
@@ -121,6 +124,8 @@ export async function montarEstadoMesa(sql: Sql, mesa: LinhaMesa): Promise<Estad
         order by c.criado_em`,
       arquivosDaMesa(sql, mesa.id),
       mesa.fase_atual >= 2 ? montarEntrevista(sql, mesa.id) : Promise.resolve(null),
+      rodadasDaMesa(sql, mesa.id),
+      conferenciasDaMesa(sql, mesa.id),
     ]);
   if (!evento) throw new Error("Evento da mesa não encontrado");
 
@@ -174,6 +179,7 @@ export async function montarEstadoMesa(sql: Sql, mesa: LinhaMesa): Promise<Estad
         kitMateriais: p.kit_materiais,
         exemploBom: p.exemplo_bom,
         exemploRuim: p.exemplo_ruim,
+        casoExemplo: mesa.fase_atual >= 3 ? p.caso_exemplo : null,
       }
     : null;
 
@@ -212,5 +218,7 @@ export async function montarEstadoMesa(sql: Sql, mesa: LinhaMesa): Promise<Estad
     },
     arquivos,
     entrevista,
+    rodadas,
+    conferencias,
   };
 }

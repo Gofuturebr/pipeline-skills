@@ -10,7 +10,7 @@ import { montarEstadoMesa } from "./estado-mesa";
  */
 export function fluxoDaMesa(
   codigo: string,
-  executar: (aoTexto: (delta: string) => void) => Promise<Resultado>,
+  executar: (aoTexto: (delta: string) => void) => Promise<Resultado<unknown>>,
 ): Response {
   return respostaEmFluxo(async (enviar) => {
     const r = await executar((d) => enviar({ t: "texto", d }));

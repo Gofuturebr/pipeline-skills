@@ -133,3 +133,27 @@ O histórico de arquivos (RN06) é gravado por gatilho no banco: toda inserção
 
 - **Detector em `lib/sensivel.ts`**, usado na tela e no servidor. CPF e CNPJ com pontuação são sempre barrados; só números, apenas quando os dígitos verificadores batem, para não confundir com telefone. Também barra "senha: ...", chaves conhecidas e "token = ...".
 - **Onde vale.** Bloqueia salvar arquivo na pasta e também enviar resposta da entrevista ou das perguntas finais, para o dado não chegar à IA. O texto que vem da IA passa por uma máscara de proteção antes de entrar na pasta.
+
+## 15/11/2026: Marco 4
+
+### Rodadas
+
+- **O que a IA lê numa rodada:** a pasta da skill (SKILL.md, arquivos/, exemplos/), os materiais do kit e o caso. A conversa da entrevista nunca entra, como no teste cruzado (RN09): a skill tem que funcionar sozinha.
+- **Data de hoje** vai junto no pedido, para a IA calcular validades e prazos.
+- **Resposta estruturada:** o resultado, o que a IA reusou da pasta (arquivo e para quê) e o que refez do zero. A tela mostra o resultado enquanto ele é escrito; o relatório de reuso aparece na segunda rodada.
+- **Quebras de linha preservadas** na visualização: numa mensagem de WhatsApp, cada linha importa.
+
+### Caixa de ferramentas
+
+- **Congelar** acontece no passo do Guardião: o resultado da última rodada aparece dividido em partes (parágrafos), cada uma com "Congelar". A IA propõe nome do arquivo, para que serve e o modelo com lacunas; a mesa pode ajustar e confirma com "Guardar na pasta". Nada entra em arquivos/ sem essa confirmação (RN13).
+- **Modelo precisa de lacuna.** O servidor recusa guardar um modelo sem nenhuma lacuna entre colchetes: seria um resultado de uma vez só (RN13).
+- **INDICE.md e citação no SKILL.md são feitos pelo sistema, não pela IA.** Ao guardar, o sistema acrescenta a linha no INDICE.md (nome, para que serve e data) e cita o arquivo na seção "O que precisa" do SKILL.md. Assim a regra de "citar cada arquivo pelo nome" vale sempre, sem depender da IA.
+- **Exemplo** é o resultado da última rodada, que a mesa pode corrigir antes de salvar. Entra como exemplos/bom-N.md, com a entrada e o resultado.
+
+### Prova
+
+- **Validação ao sair da linha (RN08):** falta do que confere, palavra vaga ("A palavra 'profissional' não dá para conferir...") ou falta de fonte ("Falta dizer contra qual fonte"). A linha recusada fica guardada com o motivo, para a mesa corrigir. As palavras vagas valem por evento (`evento.palavras_vagas`).
+- **Trazer do SKILL.md:** com a lista vazia, a mesa pode começar pelos itens que a IA escreveu na seção Pronto quando. Cada um passa pela mesma validação.
+- **Pronto quando sincronizado:** toda mudança nas conferências reescreve a seção Pronto quando do SKILL.md com as válidas, no formato "- [ ] o que conferir (fonte: onde conferir)". A entrega da Fase 4 fica sempre em dia.
+- **Placar:** a IA faz a tarefa, confere item por item, conserta o que falhou e devolve, para cada conferência, passou ou falhou, a prova usada e se conseguiu conferir. Fonte que não veio no caso (por exemplo, uma planilha do balcão) aparece como "Não deu para conferir", e o passo seguinte pede para a mesa ajustar ou tirar esses itens.
+- **Critério da Fase 4:** de 5 a 10 conferências válidas e nenhuma recusada na lista.

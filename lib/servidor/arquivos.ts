@@ -8,7 +8,7 @@ import type { ArquivoApi, VersaoArquivoApi } from "@/lib/tipos-api";
 // entra no histórico por gatilho no banco. Nada sensível é salvo (RN14) e skill
 // final não muda (RN15).
 
-export const CAMINHOS_VALIDOS = /^(SKILL\.md|notas\.md|arquivos\/[a-z0-9][a-z0-9._-]{0,80}\.md|exemplos\/[a-z0-9][a-z0-9._-]{0,80}\.md)$/;
+export const CAMINHOS_VALIDOS = /^(SKILL\.md|notas\.md|arquivos\/INDICE\.md|arquivos\/[a-z0-9][a-z0-9._-]{0,80}\.md|exemplos\/[a-z0-9][a-z0-9._-]{0,80}\.md)$/;
 
 interface OpcoesSalvar {
   autor: "mesa" | "ia";

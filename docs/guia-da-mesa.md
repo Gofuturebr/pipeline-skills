@@ -115,6 +115,25 @@ em **Voltar ao passo atual**.
    pedir para a IA corrigir ou clicar em **Editar** em cada parte do arquivo.
 6. Quando estiver bom, cliquem em **Aprovar o SKILL.md** e depois em **Concluímos a fase**.
 
+**Fase 3, Caixa de ferramentas**
+
+1. O Piloto clica em **Rodar a tarefa**. A IA usa a skill de vocês com o caso de exemplo do kit.
+2. O Guardião olha o resultado por partes e clica em **Congelar** no que ficou bom. A IA troca o
+   que muda de um caso para outro por lacunas entre colchetes. Confiram e cliquem em
+   **Guardar na pasta**.
+3. O Guardião salva o resultado aprovado em **Salvar como exemplo**. Dá para corrigir antes.
+4. Rodem de novo, do zero, e vejam o que a IA reusou da pasta e o que refez. O que foi refeito
+   pode virar mais um modelo.
+
+**Fase 4, Prova**
+
+1. O Cético escreve de 5 a 10 conferências. Cada uma tem duas partes: o que conferir e contra
+   qual fonte. Exemplo: "O total bate com a soma dos itens", fonte "tabela de preços do kit".
+2. A tela recusa palavras vagas e conferência sem fonte. Leiam o motivo e corrijam.
+3. O Piloto clica em **Rodar a tarefa e conferir**. A IA faz a tarefa, confere cada item,
+   conserta o que falhou e mostra o placar.
+4. O que a IA não conseguiu conferir aparece marcado. Ajustem a fonte ou tirem o item.
+
 Se a resposta da IA não chegar, cliquem em **Tentar de novo**: o que vocês escreveram continua
 lá. Para ver o arquivo inteiro ou as versões anteriores, cliquem no nome dele na pasta amarela.
 

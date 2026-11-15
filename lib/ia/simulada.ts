@@ -44,6 +44,37 @@ export function criarIaSimulada(): IaSimulada {
       });
     } else if (pedido.tarefa === "skill") {
       texto = SKILL_SIMULADA;
+    } else if (pedido.tarefa === "rodada") {
+      const conteudo = JSON.stringify(pedido.mensagens);
+      const temModelo = conteudo.includes("arquivos/modelo-");
+      texto = JSON.stringify({
+        resultado: "Olá, Bruno! Segue o orçamento:\n30 cadeiras: R$ 1.350,00\n6 mesas: R$ 720,00\n\nTotal: R$ 2.070,00. Entrega em 1 dia útil.\n\nPosso confirmar o pedido?",
+        reusou: temModelo ? [{ arquivo: "arquivos/modelo-mensagem-orcamento.md", para_que: "estrutura da mensagem" }] : [],
+        refez: temModelo ? ["cálculo do total"] : ["mensagem inteira", "cálculo do total"],
+      });
+    } else if (pedido.tarefa === "placar") {
+      // Conferência com "falha" no texto falha; fonte com "planilha" não dá para conferir.
+      const ultimo = pedido.mensagens[pedido.mensagens.length - 1];
+      const corpo = typeof ultimo.content === "string" ? ultimo.content : "";
+      const itens = corpo.split("Conferências:\n")[1]?.split("\n").filter((l) => /^\d+\. /.test(l)) ?? [];
+      texto = JSON.stringify({
+        resultado: "Olá, Carla! Segue o orçamento conferido.\n\nTotal: R$ 3.630,00.",
+        conferencias: itens.map((l, i) => {
+          const naoDa = /planilha/i.test(l);
+          return {
+            numero: i + 1,
+            passou: !naoDa && !/falha/i.test(l),
+            prova: naoDa ? "A planilha não veio no caso." : `Conferido: ${l.slice(3, 40)}`,
+            conseguiu_conferir: !naoDa,
+          };
+        }),
+      });
+    } else if (pedido.tarefa === "congelar") {
+      texto = JSON.stringify({
+        nome_arquivo: "modelo-mensagem-orcamento.md",
+        pra_que_serve: "Responder um pedido de orçamento pelo WhatsApp.",
+        conteudo: "Olá, [nome do cliente]! Segue o orçamento:\n[quantidade] [item]: [valor]\nTotal: [total]",
+      });
     } else {
       texto = "{}";
     }
